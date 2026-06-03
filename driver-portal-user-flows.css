@@ -1,0 +1,402 @@
+:root {
+  --black: #121212;
+  --gold: #bfa384;
+  --gray: #d0d0d0;
+  --offwhite: #f5f5f5;
+  --page: var(--offwhite);
+  --ink: var(--black);
+  --muted: #626262;
+  --line: var(--black);
+  --panel: #ffffff;
+  --border: var(--gray);
+  --driver-bg: #f1ede8;
+  --admin-bg: #eeeeee;
+  --start: var(--black);
+  --process: #d8eaff;
+  --process-strong: #3f8edb;
+  --decision: #fff0b8;
+  --warning: #ffd7d7;
+  --success: #d8f2dc;
+  --blue-stroke: #2e73b8;
+  --yellow-stroke: #d2a52b;
+  --red-stroke: #c65353;
+  --green-stroke: #58a865;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family:
+    "Helvetica Now Text", Helvetica, Arial, ui-sans-serif, system-ui,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+header {
+  border-bottom: 1px solid var(--gray);
+  background: var(--black);
+  color: var(--offwhite);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 26px clamp(18px, 4vw, 48px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  border: 1px solid rgba(191, 163, 132, 0.45);
+  background: var(--black);
+}
+
+.brand-mark img {
+  width: 46px;
+  height: auto;
+}
+
+h1 {
+  margin: 0;
+  font-family:
+    "PP Monument Extended", "Helvetica Now Text", Helvetica, Arial,
+    sans-serif;
+  font-size: clamp(22px, 3vw, 34px);
+  letter-spacing: 0;
+  line-height: 1.08;
+}
+
+.subtitle {
+  margin: 5px 0 0;
+  color: var(--gray);
+  font-size: 14px;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 230px minmax(980px, 1fr);
+  gap: 22px;
+  padding: 18px clamp(18px, 4vw, 48px) 48px;
+  overflow-x: auto;
+}
+
+aside {
+  position: sticky;
+  left: 18px;
+  align-self: start;
+  display: grid;
+  gap: 14px;
+}
+
+.key-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 16px;
+}
+
+.key-card h2 {
+  margin: 0 0 14px;
+  font-family:
+    "PP Monument Extended", "Helvetica Now Text", Helvetica, Arial,
+    sans-serif;
+  font-size: 15px;
+}
+
+.key-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.key-list li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.shape {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--black);
+}
+
+.shape.start {
+  border-radius: 999px;
+  border-color: var(--start);
+  background: var(--start);
+}
+
+.shape.process {
+  border-radius: 4px;
+  border-color: var(--blue-stroke);
+  background: var(--process);
+}
+
+.shape.strong {
+  border-radius: 4px;
+  border-color: var(--blue-stroke);
+  background: var(--process-strong);
+}
+
+.shape.decision {
+  width: 18px;
+  height: 18px;
+  margin-left: 2px;
+  border-color: var(--yellow-stroke);
+  background: var(--decision);
+  transform: rotate(45deg);
+}
+
+.shape.warning {
+  border-radius: 4px;
+  border-color: var(--red-stroke);
+  background: var(--warning);
+}
+
+.shape.success {
+  border-radius: 4px;
+  border-color: var(--green-stroke);
+  background: var(--success);
+}
+
+.diagram-stack {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+}
+
+.tab-radio {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tabs {
+  display: inline-flex;
+  width: max-content;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #e6e6e6;
+  padding: 4px;
+}
+
+.tab {
+  min-width: 150px;
+  border-radius: 6px;
+  padding: 10px 16px;
+  color: var(--muted);
+  font-family:
+    "PP Monument Extended", "Helvetica Now Text", Helvetica, Arial,
+    sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+  cursor: pointer;
+}
+
+#tab-driver:checked ~ .tabs label[for="tab-driver"],
+#tab-admin:checked ~ .tabs label[for="tab-admin"] {
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 1px 4px rgba(18, 18, 18, 0.12);
+}
+
+.tab-panel {
+  display: none;
+}
+
+#tab-driver:checked ~ .driver-panel,
+#tab-admin:checked ~ .admin-panel {
+  display: block;
+}
+
+.diagram {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  padding: 18px;
+}
+
+.diagram h2 {
+  margin: 0 0 12px;
+  font-family:
+    "PP Monument Extended", "Helvetica Now Text", Helvetica, Arial,
+    sans-serif;
+  font-size: 16px;
+}
+
+svg {
+  display: block;
+  width: 100%;
+  min-width: 980px;
+  height: auto;
+}
+
+[data-detail] {
+  cursor: help;
+}
+
+.group-driver {
+  fill: none;
+}
+
+.group-admin {
+  fill: none;
+}
+
+.group-title {
+  fill: var(--black);
+  font-family:
+    "PP Monument Extended", "Helvetica Now Text", Helvetica, Arial,
+    sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.node-text {
+  fill: var(--black);
+  font-size: 13px;
+  font-weight: 700;
+  pointer-events: none;
+  text-anchor: middle;
+}
+
+.small-text {
+  fill: #626262;
+  font-size: 11px;
+  font-weight: 650;
+  pointer-events: none;
+  text-anchor: middle;
+}
+
+.white-text {
+  fill: var(--offwhite);
+}
+
+.node-start {
+  fill: var(--start);
+  stroke: var(--black);
+  stroke-width: 1;
+}
+
+.node-process {
+  fill: var(--process);
+  stroke: var(--blue-stroke);
+  stroke-width: 1;
+}
+
+.node-strong {
+  fill: var(--process-strong);
+  stroke: var(--blue-stroke);
+  stroke-width: 1;
+}
+
+.node-decision {
+  fill: var(--decision);
+  stroke: var(--yellow-stroke);
+  stroke-width: 2;
+}
+
+.node-warning {
+  fill: var(--warning);
+  stroke: var(--red-stroke);
+  stroke-width: 1;
+}
+
+.node-success {
+  fill: var(--success);
+  stroke: var(--green-stroke);
+  stroke-width: 1;
+}
+
+.connector {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1.6;
+  marker-end: url(#arrow);
+}
+
+.connector-light {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1.6;
+  marker-end: url(#arrow);
+}
+
+#admin-svg .connector,
+#admin-svg .connector-light {
+  marker-end: url(#arrow-admin);
+}
+
+.edge-label {
+  fill: var(--black);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.flow-tooltip {
+  position: fixed;
+  z-index: 20;
+  max-width: 280px;
+  border: 1px solid var(--gray);
+  border-radius: 8px;
+  background: var(--black);
+  color: var(--offwhite);
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  box-shadow: 0 14px 32px rgba(18, 18, 18, 0.22);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(12px, 12px);
+  transition: opacity 120ms ease;
+}
+
+.flow-tooltip.is-visible {
+  opacity: 1;
+}
+
+@media (max-width: 860px) {
+  header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  main {
+    grid-template-columns: 1fr;
+  }
+
+  .tabs {
+    width: 100%;
+  }
+
+  .tab {
+    flex: 1;
+    min-width: 0;
+  }
+
+  aside {
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
