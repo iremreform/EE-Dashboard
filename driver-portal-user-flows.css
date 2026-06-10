@@ -316,7 +316,7 @@ svg {
 
 .small-text {
   fill: #626262;
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   font-weight: 650;
   pointer-events: none;
   text-anchor: middle;
@@ -383,7 +383,7 @@ svg {
 
 .edge-label {
   fill: var(--black);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   font-weight: 750;
 }
 

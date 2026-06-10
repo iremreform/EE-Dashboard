@@ -158,7 +158,7 @@ body {
 
 .wf-screen-label {
   color: var(--muted);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.1em;
   margin: 0 0 10px;
@@ -266,7 +266,7 @@ body {
 
 .wf-caption {
   color: var(--muted);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   margin: 12px 0 0;
 }
 
@@ -295,7 +295,7 @@ body {
   border: 1px solid var(--border);
   color: var(--black);
   display: inline-block;
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   font-weight: 700;
   letter-spacing: 0.08em;
   margin-left: 8px;
@@ -329,7 +329,7 @@ body {
 .wf-field label {
   color: var(--muted);
   display: block;
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.06em;
   margin-bottom: 8px;
@@ -374,7 +374,7 @@ body {
   background: var(--placeholder);
   border: 1px dashed var(--placeholder-stroke);
   color: var(--muted);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.04em;
   min-height: 88px;
@@ -390,7 +390,7 @@ body {
 .wf-upload span {
   color: var(--gray);
   display: block;
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   font-weight: 400;
   letter-spacing: 0;
   margin-top: 6px;
@@ -536,7 +536,7 @@ body {
   background: var(--black);
   color: var(--white);
   flex-shrink: 0;
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   font-weight: 800;
   height: 32px;
   line-height: 32px;
@@ -667,7 +667,7 @@ body {
 
 .wf-list-meta {
   color: var(--muted);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   margin-top: 4px;
 }
 
@@ -681,7 +681,7 @@ body {
   border: 1px solid var(--border);
   color: var(--muted);
   display: inline-block;
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.05em;
   padding: 4px 8px;
@@ -740,7 +740,7 @@ body {
   background: var(--placeholder);
   border: 1px dashed var(--placeholder-stroke);
   color: var(--muted);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   font-weight: 600;
   min-height: 72px;
   padding: 12px;
@@ -941,7 +941,7 @@ body {
 
 .wf-admin-sidebar-label {
   color: var(--muted);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.08em;
   margin: 0;
@@ -959,7 +959,7 @@ body {
   border: 1px solid transparent;
   color: var(--black);
   display: block;
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.04em;
   min-height: 44px;
