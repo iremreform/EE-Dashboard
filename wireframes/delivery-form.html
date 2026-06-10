@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Delivery Form — Wireframe</title>
+    <link rel="stylesheet" href="wireframes.css" />
+    <script src="../marker.js"></script>
+  </head>
+  <body class="wf-page-shell">
+    <header class="wf-nav-bar">
+      <a class="wf-logo" href="../index.html">
+        <img src="../Company Logo.svg" alt="Energetic Exotics" />
+      </a>
+      <div class="wf-nav-actions">
+        <a class="wf-btn wf-btn-ghost" href="driver-dashboard.html">← Dashboard</a>
+      </div>
+    </header>
+
+    <div class="wf-layout wf-layout-wide">
+      <div class="wf-page-intro">
+        <p class="wf-accent">Delivery Check-In</p>
+        <h1 class="wf-page-title">Delivery Form</h1>
+      </div>
+
+      <section class="wf-card">
+        <h2>A. Guest / Renter Information</h2>
+        <div class="wf-grid-2">
+          <div class="wf-field">
+            <label>Guest first name</label>
+            <div class="wf-input">First name</div>
+          </div>
+          <div class="wf-field">
+            <label>Guest last name</label>
+            <div class="wf-input">Last name</div>
+          </div>
+          <div class="wf-field">
+            <label>Member number</label>
+            <div class="wf-input">Member #</div>
+          </div>
+          <div class="wf-field">
+            <label>Reservation number</label>
+            <div class="wf-input">Reservation #</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="wf-card">
+        <h2>B. Vehicle Details</h2>
+        <div class="wf-grid-2">
+          <div class="wf-field">
+            <label>Make / model</label>
+            <div class="wf-input">Vehicle make & model</div>
+          </div>
+          <div class="wf-field">
+            <label>Color / plate</label>
+            <div class="wf-input">Color, license plate</div>
+          </div>
+          <div class="wf-field">
+            <label>VIN or fleet ID</label>
+            <div class="wf-input">VIN / fleet ID</div>
+          </div>
+          <div class="wf-field">
+            <label>Mileage / fuel level</label>
+            <div class="wf-input">Odometer, fuel %</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="wf-card">
+        <h2>C. Vehicle Media Upload</h2>
+        <div class="wf-grid-3">
+          <div class="wf-upload">Front<span>Photo</span></div>
+          <div class="wf-upload">Rear<span>Photo</span></div>
+          <div class="wf-upload">Driver side<span>Photo</span></div>
+          <div class="wf-upload">Passenger side<span>Photo</span></div>
+          <div class="wf-upload">Interior<span>Photo</span></div>
+          <div class="wf-upload">Wheels<span>Photo</span></div>
+          <div class="wf-upload">Odometer<span>Photo</span></div>
+          <div class="wf-upload">Fuel level<span>Photo</span></div>
+          <div class="wf-upload">Existing damage<span>If any</span></div>
+        </div>
+        <div class="wf-upload wf-upload-tall" style="margin-top: 12px">
+          Upload vehicle walkaround video
+          <span>Tap to record or upload</span>
+        </div>
+      </section>
+
+      <section class="wf-card">
+        <h2>D. Guest Verification Uploads</h2>
+        <div class="wf-grid-2">
+          <div class="wf-upload wf-upload-tall">Driver's license — front</div>
+          <div class="wf-upload wf-upload-tall">Driver's license — back</div>
+        </div>
+      </section>
+
+      <section class="wf-card">
+        <h2>E. Payment Verified Status</h2>
+        <div class="wf-field">
+          <label>Payment verified status</label>
+          <div class="wf-input">Verified / reference ID</div>
+        </div>
+      </section>
+
+      <section class="wf-card">
+        <h2>F. Guest Signature</h2>
+        <div class="wf-signature">Digital signature box</div>
+        <div class="wf-checkbox">
+          <div class="wf-checkbox-box"></div>
+          <span>Guest confirms vehicle condition and delivery acceptance.</span>
+        </div>
+        <p style="color: var(--muted); font-size: 12px; margin: 12px 0 0">Date / time stamp — captured automatically on submit</p>
+      </section>
+
+      <section class="wf-card">
+        <h2>G. Driver Confirmation</h2>
+        <div class="wf-checkbox">
+          <div class="wf-checkbox-box"></div>
+          <span>I confirm the submitted details, media, and notes are accurate.</span>
+        </div>
+        <div class="wf-actions" style="margin-top: 20px">
+          <a class="wf-btn wf-btn-primary" href="submission-complete.html">Submit delivery report</a>
+          <a class="wf-btn" href="driver-dashboard.html">Cancel</a>
+        </div>
+      </section>
+
+      <div class="wf-nav">
+        <a class="wf-btn wf-btn-ghost" href="driver-dashboard.html">← Dashboard</a>
+        <a class="wf-btn wf-btn-primary" href="submission-complete.html">Submit →</a>
+      </div>
+    </div>
+
+    <footer class="wf-footer">
+      <a href="../userflow.html">View user flow diagram →</a>
+    </footer>
+  </body>
+</html>

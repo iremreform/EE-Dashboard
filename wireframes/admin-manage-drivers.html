@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Manage Drivers — Wireframe</title>
+    <link rel="stylesheet" href="wireframes.css" />
+    <script src="../marker.js"></script>
+  </head>
+  <body class="wf-page-shell">
+    <header class="wf-nav-bar">
+      <a class="wf-logo" href="../index.html">
+        <img src="../Company Logo.svg" alt="Energetic Exotics" />
+      </a>
+      <div class="wf-nav-actions">
+        <a class="wf-btn wf-btn-ghost" href="admin-dashboard.html">← Dashboard</a>
+        <a class="wf-btn wf-btn-ghost" href="../index.html">Portal</a>
+      </div>
+    </header>
+
+    <div class="wf-layout wf-layout-wide">
+      <div class="wf-page-intro">
+        <p class="wf-accent">Admin Portal</p>
+        <h1 class="wf-page-title">Manage Drivers</h1>
+      </div>
+
+      <div class="wf-toolbar">
+        <div class="wf-field" style="flex: 1; margin: 0; min-width: 200px">
+          <label>Search drivers</label>
+          <div class="wf-input">Search by name or email…</div>
+        </div>
+        <div class="wf-actions" style="margin-top: 22px">
+          <a class="wf-btn wf-btn-primary" href="admin-create-driver.html">Create driver</a>
+        </div>
+      </div>
+
+      <section class="wf-card">
+        <h2>Driver accounts</h2>
+        <div class="wf-list">
+          <div class="wf-list-row">
+            <div>
+              <strong>John Davis</strong>
+              <div class="wf-list-meta">john.davis@email.com · Last active today 2:30 PM</div>
+            </div>
+            <div class="wf-list-actions">
+              <span class="wf-tag wf-tag-active">Active</span>
+              <a class="wf-btn wf-btn-ghost" href="#">Reset password</a>
+              <a class="wf-btn wf-btn-ghost" href="#">Disable</a>
+            </div>
+          </div>
+
+          <div class="wf-list-row">
+            <div>
+              <strong>Sarah Martinez</strong>
+              <div class="wf-list-meta">sarah.m@email.com · Last active today 11:15 AM</div>
+            </div>
+            <div class="wf-list-actions">
+              <span class="wf-tag wf-tag-active">Active</span>
+              <a class="wf-btn wf-btn-ghost" href="#">Reset password</a>
+              <a class="wf-btn wf-btn-ghost" href="#">Disable</a>
+            </div>
+          </div>
+
+          <div class="wf-list-row">
+            <div>
+              <strong>Mike Roberts</strong>
+              <div class="wf-list-meta">mike.r@email.com · Last active yesterday 4:45 PM</div>
+            </div>
+            <div class="wf-list-actions">
+              <span class="wf-tag wf-tag-active">Active</span>
+              <a class="wf-btn wf-btn-ghost" href="#">Reset password</a>
+              <a class="wf-btn wf-btn-ghost" href="#">Disable</a>
+            </div>
+          </div>
+
+          <div class="wf-list-row">
+            <div>
+              <strong>Chris Lee</strong>
+              <div class="wf-list-meta">chris.lee@email.com · Disabled Mar 12, 2026</div>
+            </div>
+            <div class="wf-list-actions">
+              <span class="wf-tag">Disabled</span>
+              <a class="wf-btn wf-btn-ghost" href="#">Re-enable</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="wf-nav">
+        <a class="wf-btn wf-btn-ghost" href="admin-dashboard.html">← Dashboard</a>
+        <a class="wf-btn wf-btn-ghost" href="admin-submissions.html">View submissions →</a>
+      </div>
+    </div>
+
+    <footer class="wf-footer">
+      <a href="../userflow.html">View user flow diagram →</a>
+    </footer>
+  </body>
+</html>
