@@ -1,0 +1,33 @@
+/* Energetic Exotics typographic scale
+   Mobile:  base 1.1875rem · ratio 1.1
+   Desktop: base 1.3125rem · ratio 1.333 (≥768px) */
+
+:root {
+  --type-base: 1.1875rem;
+  --type-scale: 1.1;
+
+  --text-2xs: calc(var(--type-base) / 1.331);
+  --text-xs: calc(var(--type-base) / 1.21);
+  --text-sm: calc(var(--type-base) / 1.1);
+  --text-base: var(--type-base);
+  --text-lg: calc(var(--type-base) * 1.1);
+  --text-xl: calc(var(--type-base) * 1.21);
+  --text-2xl: calc(var(--type-base) * 1.331);
+  --text-3xl: calc(var(--type-base) * 1.4641);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --type-base: 1.3125rem;
+    --type-scale: 1.333;
+
+    --text-2xs: calc(var(--type-base) / 2.368089);
+    --text-xs: calc(var(--type-base) / 1.776889);
+    --text-sm: calc(var(--type-base) / 1.333);
+    --text-base: var(--type-base);
+    --text-lg: calc(var(--type-base) * 1.333);
+    --text-xl: calc(var(--type-base) * 1.776889);
+    --text-2xl: calc(var(--type-base) * 2.368089);
+    --text-3xl: calc(var(--type-base) * 3.155663);
+  }
+}

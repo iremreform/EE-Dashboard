@@ -7,92 +7,105 @@
     <link rel="stylesheet" href="wireframes.css" />
     <script src="../marker.js"></script>
   </head>
-  <body class="wf-page-shell">
-    <header class="wf-nav-bar">
-      <a class="wf-logo" href="../index.html">
-        <img src="../Company Logo.svg" alt="Energetic Exotics" />
-      </a>
-      <div class="wf-nav-actions">
-        <a class="wf-btn wf-btn-ghost" href="admin-dashboard.html">← Dashboard</a>
-        <a class="wf-btn wf-btn-ghost" href="../index.html">Portal</a>
-      </div>
-    </header>
-
-    <div class="wf-layout wf-layout-wide">
-      <div class="wf-page-intro">
-        <p class="wf-accent">Admin Portal</p>
-        <h1 class="wf-page-title">View Submissions</h1>
-      </div>
-
-      <section class="wf-card">
-        <h2>Filter records</h2>
-        <div class="wf-filters">
-          <div class="wf-field">
-            <label>Date range</label>
-            <div class="wf-input">Last 7 days</div>
-          </div>
-          <div class="wf-field">
-            <label>Driver</label>
-            <div class="wf-input">All drivers</div>
-          </div>
-          <div class="wf-field">
-            <label>Report type</label>
-            <div class="wf-input">All types</div>
-          </div>
-          <div class="wf-field">
-            <label>Search</label>
-            <div class="wf-input">Guest, reservation, vehicle…</div>
-          </div>
-        </div>
-        <div class="wf-actions">
-          <a class="wf-btn wf-btn-primary" href="#">Apply filters</a>
-          <a class="wf-btn wf-btn-ghost" href="#">Clear</a>
-        </div>
-      </section>
-
-      <section class="wf-card">
-        <h2>Submissions</h2>
-        <div class="wf-list">
-          <a class="wf-list-row-link" href="admin-submission-detail.html">
-            <div class="wf-list-row">
-              <div>
-                <strong>Delivery · Res #1042</strong>
-                <div class="wf-list-meta">John Davis · Guest: Alex Turner · Today 2:30 PM · Lamborghini Huracán</div>
-              </div>
-              <span class="wf-tag">Open</span>
-            </div>
+  <body class="wf-page-shell wf-admin-shell">
+    <div class="wf-admin-overlay" data-admin-overlay></div>
+    <div class="wf-admin-layout">
+      <aside class="wf-admin-sidebar" id="admin-sidebar" aria-label="Admin navigation">
+        <div class="wf-admin-sidebar-head">
+          <a class="wf-logo" href="../index.html">
+            <img src="../Company Logo.svg" alt="Energetic Exotics" />
           </a>
-
-          <a class="wf-list-row-link" href="admin-submission-detail.html">
-            <div class="wf-list-row">
-              <div>
-                <strong>Pickup / Return · Res #1038</strong>
-                <div class="wf-list-meta">Sarah Martinez · Guest: Emma Cole · Today 11:15 AM · Rolls-Royce Cullinan</div>
-              </div>
-              <span class="wf-tag">Open</span>
-            </div>
-          </a>
-
-          <a class="wf-list-row-link" href="admin-submission-detail.html">
-            <div class="wf-list-row">
-              <div>
-                <strong>Delivery · Res #1035</strong>
-                <div class="wf-list-meta">Mike Roberts · Guest: James Park · Yesterday 4:45 PM · Ferrari 296 GTB</div>
-              </div>
-              <span class="wf-tag">Open</span>
-            </div>
-          </a>
+          <button type="button" class="wf-sidebar-close" data-admin-menu-close aria-label="Close menu">×</button>
         </div>
-      </section>
+        <p class="wf-admin-sidebar-label">Admin portal</p>
+        <nav class="wf-admin-nav">
+          <a class="wf-admin-nav-link" href="admin-dashboard.html">Dashboard</a>
+          <a class="wf-admin-nav-link" href="admin-manage-drivers.html">Manage drivers</a>
+          <a class="wf-admin-nav-link is-active" href="admin-submissions.html">Submissions</a>
+          <a class="wf-admin-nav-link wf-admin-nav-link-muted" href="admin-login.html">Logout</a>
+        </nav>
+      </aside>
 
-      <div class="wf-nav">
-        <a class="wf-btn wf-btn-ghost" href="admin-dashboard.html">← Dashboard</a>
-        <a class="wf-btn wf-btn-ghost" href="admin-manage-drivers.html">Manage drivers</a>
+      <div class="wf-admin-main">
+        <header class="wf-admin-topbar">
+          <button type="button" class="wf-menu-btn" data-admin-menu-open aria-label="Open menu" aria-expanded="false" aria-controls="admin-sidebar">Menu</button>
+          <p class="wf-admin-topbar-title">Submissions</p>
+          <a class="wf-btn wf-btn-ghost wf-admin-alert-btn" href="admin-dashboard.html#notifications">Alerts · 1</a>
+        </header>
+
+        <main class="wf-admin-content wf-layout wf-layout-wide">
+          <div class="wf-page-intro">
+            <p class="wf-accent">Admin Portal</p>
+            <h1 class="wf-page-title">View Submissions</h1>
+          </div>
+
+          <section class="wf-card">
+            <h2>Filter records</h2>
+            <div class="wf-filters">
+              <div class="wf-field">
+                <label>Date range</label>
+                <div class="wf-input">Last 7 days</div>
+              </div>
+              <div class="wf-field">
+                <label>Driver</label>
+                <div class="wf-input">All drivers</div>
+              </div>
+              <div class="wf-field">
+                <label>Report type</label>
+                <div class="wf-input">All types</div>
+              </div>
+              <div class="wf-field">
+                <label>Search</label>
+                <div class="wf-input">Guest, reservation, vehicle…</div>
+              </div>
+            </div>
+            <div class="wf-actions">
+              <a class="wf-btn wf-btn-primary" href="#">Apply filters</a>
+              <a class="wf-btn wf-btn-ghost" href="#">Clear</a>
+            </div>
+          </section>
+
+          <section class="wf-card">
+            <h2>Submissions</h2>
+            <div class="wf-list">
+              <a class="wf-list-row-link" href="admin-submission-detail.html">
+                <div class="wf-list-row">
+                  <div>
+                    <strong>Delivery · Res #1042</strong>
+                    <div class="wf-list-meta">John Davis · Guest: Alex Turner · Today 2:30 PM · Lamborghini Huracán</div>
+                  </div>
+                  <span class="wf-tag">Open</span>
+                </div>
+              </a>
+
+              <a class="wf-list-row-link" href="admin-submission-detail.html">
+                <div class="wf-list-row">
+                  <div>
+                    <strong>Pickup / Return · Res #1038</strong>
+                    <div class="wf-list-meta">Sarah Martinez · Guest: Emma Cole · Today 11:15 AM · Rolls-Royce Cullinan</div>
+                  </div>
+                  <span class="wf-tag">Open</span>
+                </div>
+              </a>
+
+              <a class="wf-list-row-link" href="admin-submission-detail.html">
+                <div class="wf-list-row">
+                  <div>
+                    <strong>Delivery · Res #1035</strong>
+                    <div class="wf-list-meta">Mike Roberts · Guest: James Park · Yesterday 4:45 PM · Ferrari 296 GTB</div>
+                  </div>
+                  <span class="wf-tag">Open</span>
+                </div>
+              </a>
+            </div>
+          </section>
+        </main>
+
+        <footer class="wf-footer">
+          <a href="../userflow.html">View user flow diagram →</a>
+        </footer>
       </div>
     </div>
-
-    <footer class="wf-footer">
-      <a href="../userflow.html">View user flow diagram →</a>
-    </footer>
+    <script src="admin-sidebar.js"></script>
   </body>
 </html>
