@@ -1,0 +1,50 @@
+.bodyCopy {
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+  line-height: var(--line-height-body);
+  margin: 0;
+}
+
+.bodyCopy a {
+  color: var(--text-subheading);
+  text-decoration: underline;
+  text-underline-offset: var(--underline-offset);
+}
+
+.pageActions {
+  margin-top: var(--space-6);
+}
+
+.secureNotice {
+  align-self: stretch;
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+  margin: var(--space-4) 0 0;
+  text-align: center;
+}
+
+.loginActions {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-6);
+}
+
+.loginFooterLink {
+  margin-top: var(--space-4);
+  text-align: center;
+}
+
+.formStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  text-align: left;
+  width: 100%;
+}
+
+.formCard {
+  align-self: stretch;
+  box-sizing: border-box;
+  min-width: min(100%, var(--form-card-min-width));
+  width: 100%;
+}

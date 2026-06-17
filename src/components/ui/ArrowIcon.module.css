@@ -1,0 +1,23 @@
+.arrow {
+  background-color: currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+  height: var(--arrow-height);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  width: var(--arrow-width);
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+}
+
+.left {
+  -webkit-mask-image: url("/icons/arrow-left.png");
+  mask-image: url("/icons/arrow-left.png");
+}
+
+.right {
+  -webkit-mask-image: url("/icons/arrow-right.png");
+  mask-image: url("/icons/arrow-right.png");
+}

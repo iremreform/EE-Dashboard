@@ -1,0 +1,86 @@
+.choiceCard {
+  align-items: center;
+  aspect-ratio: 1 / 1;
+  background-color: var(--background-secondary);
+  border: var(--stroke-width) solid var(--border-secondary);
+  border-radius: var(--radius-md);
+  box-sizing: border-box;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  justify-content: center;
+  padding: var(--space-8);
+  text-align: center;
+  text-decoration: none;
+  transform: scale3d(1, 1, 1);
+  transform-origin: center;
+  transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease,
+    transform 600ms ease;
+  width: min(100%, var(--choice-card-size));
+}
+
+.choiceCard:hover {
+  border-color: var(--text-subheading);
+  position: relative;
+  transform: scale3d(1.1, 1.1, 1);
+  z-index: 1;
+}
+
+.choiceCard:hover .actionLabel {
+  background-color: var(--button-primary-bg-hover);
+  border-color: var(--button-primary-border);
+  color: var(--button-primary-text-hover);
+}
+
+.choiceCard:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.content {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 230px;
+  width: 100%;
+}
+
+.title {
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  font-size: var(--fluid-h3);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-heading);
+  line-height: var(--line-height-heading);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.description {
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+  line-height: var(--line-height-body);
+  margin: 0;
+  max-width: 100%;
+}
+
+.actionLabel {
+  align-items: center;
+  align-self: center;
+  background-color: var(--button-primary-bg);
+  border: var(--stroke-width) solid var(--button-primary-border);
+  border-radius: var(--button-radius);
+  box-sizing: border-box;
+  color: var(--button-primary-text);
+  display: inline-flex;
+  flex-shrink: 0;
+  font-family: var(--font-body);
+  font-size: var(--button-font-size);
+  font-weight: var(--button-font-weight);
+  justify-content: center;
+  line-height: 1;
+  padding: var(--button-padding-y) var(--button-padding-x);
+  transition: var(--transition-button);
+}

@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>User Flow — Energetic Exotics Portal</title>
+    <link rel="stylesheet" href="driver-portal-user-flows.css" />
+    <script src="marker.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <div class="brand-mark">
+          <img src="../public/company-logo.svg" alt="Energetic Exotics" />
+        </div>
+        <div>
+          <h1>ENERGETIC EXOTICS PORTAL USER FLOW</h1>
+          <p class="subtitle">Driver delivery, pickup / return, and internal admin review flow</p>
+        </div>
+      </div>
+      <a class="flow-nav-btn" href="index.html">← Wireframes</a>
+    </header>
+
+    <main>
+      <aside>
+        <div class="key-card">
+          <h2>User flow key</h2>
+          <ul class="key-list">
+            <li><span class="shape start"></span><span>Start / end point</span></li>
+            <li><span class="shape strong"></span><span>Primary screen</span></li>
+            <li><span class="shape process"></span><span>Process / form step</span></li>
+            <li><span class="shape decision"></span><span>Decision</span></li>
+            <li><span class="shape warning"></span><span>Open question</span></li>
+            <li><span class="shape success"></span><span>System output</span></li>
+          </ul>
+        </div>
+
+      </aside>
+
+      <div class="diagram-stack">
+        <input class="tab-radio" type="radio" name="flow-tab" id="tab-driver" checked />
+        <input class="tab-radio" type="radio" name="flow-tab" id="tab-admin" />
+
+        <div class="tabs" role="tablist" aria-label="Portal flow tabs">
+          <label class="tab" for="tab-driver" role="tab">Driver Flow</label>
+          <label class="tab" for="tab-admin" role="tab">Admin Flow</label>
+        </div>
+
+        <section class="diagram tab-panel driver-panel">
+          <h2>Driver journey</h2>
+          <svg viewBox="0 0 1260 760" role="img" aria-label="Driver user flow">
+            <defs>
+              <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L8,3 z" fill="#121212"></path>
+              </marker>
+            </defs>
+
+            <rect x="95" y="38" width="235" height="650" rx="4" class="group-driver"></rect>
+            <text x="115" y="78" class="group-title">Login</text>
+
+            <rect x="455" y="38" width="755" height="650" rx="4" class="group-admin"></rect>
+            <text x="475" y="78" class="group-title">Complete delivery or pickup / return report</text>
+
+            <!-- Login group -->
+            <rect x="158" y="110" width="112" height="54" rx="24" class="node-start" data-detail="Driver enters email and password to access the secure portal."></rect>
+            <text x="214" y="132" class="node-text white-text">Driver</text>
+            <text x="214" y="149" class="node-text white-text">login</text>
+
+            <polygon points="214,198 270,246 214,294 158,246" class="node-decision" data-detail="System checks whether the driver account exists, credentials are valid, and the account is allowed to access driver tools."></polygon>
+            <text x="214" y="241" class="node-text">Valid</text>
+            <text x="214" y="258" class="node-text">account?</text>
+
+            <rect x="155" y="342" width="118" height="64" rx="5" class="node-process" data-detail="Driver can request a password reset if login fails or credentials are forgotten."></rect>
+            <text x="214" y="367" class="node-text">Reset</text>
+            <text x="214" y="384" class="node-text">password</text>
+
+            <rect x="155" y="470" width="118" height="64" rx="5" class="node-strong" data-detail="Driver chooses between starting a delivery report or a pickup / return report."></rect>
+            <text x="214" y="495" class="node-text white-text">Driver</text>
+            <text x="214" y="512" class="node-text white-text">dashboard</text>
+
+            <path d="M214 164 L214 198" class="connector"></path>
+            <path d="M214 294 L214 342" class="connector"></path>
+            <text x="230" y="322" class="edge-label">No</text>
+            <path d="M214 406 L214 470" class="connector"></path>
+            <path d="M270 246 L300 246 L300 502 L273 502" class="connector"></path>
+            <text x="281" y="232" class="edge-label">Yes</text>
+
+            <!-- Main decision -->
+            <polygon points="455,438 525,502 455,566 385,502" class="node-decision" data-detail="Driver selects the operational workflow: Delivery or Pickup / Return."></polygon>
+            <text x="455" y="495" class="node-text">Pickup or </text>
+            <text x="455" y="512" class="node-text">Delivery/Return?</text>
+            <path d="M273 502 L385 502" class="connector"></path>
+
+            <!-- Delivery branch -->
+            <rect x="560" y="170" width="120" height="62" rx="5" class="node-strong" data-detail="Starts the delivery check-in form for handing the vehicle to the guest."></rect>
+            <text x="620" y="195" class="node-text white-text">Delivery</text>
+            <text x="620" y="212" class="node-text white-text">form</text>
+
+            <rect x="730" y="170" width="120" height="62" rx="5" class="node-process" data-detail="Captures guest first name, last name, member number, and reservation number."></rect>
+            <text x="790" y="195" class="node-text">Guest</text>
+            <text x="790" y="212" class="node-text">info</text>
+
+            <rect x="900" y="170" width="120" height="62" rx="5" class="node-process" data-detail="Captures vehicle make, model, color, plate, VIN or fleet ID, mileage, and fuel level."></rect>
+            <text x="960" y="195" class="node-text">Vehicle</text>
+            <text x="960" y="212" class="node-text">details</text>
+
+            <rect x="730" y="295" width="120" height="62" rx="5" class="node-process" data-detail="Driver uploads delivery photos and walkaround video, including exterior, interior, wheels, odometer, fuel, and damage if any."></rect>
+            <text x="790" y="318" class="node-text">Upload</text>
+            <text x="790" y="335" class="node-text">media</text>
+
+            <rect x="900" y="295" width="120" height="62" rx="5" class="node-process" data-detail="Driver uploads the guest driver's license front and back for verification."></rect>
+            <text x="960" y="318" class="node-text">License</text>
+            <text x="960" y="335" class="node-text">uploads</text>
+
+            <rect x="1040" y="287" width="112" height="78" rx="5" class="node-warning" data-detail="Credit card image storage is a PCI/security question and should not be assumed in V1. Safer alternatives can be payment verified status or processor reference."></rect>
+            <text x="1096" y="313" class="node-text">Payment</text>
+            <text x="1096" y="330" class="node-text">verification</text>
+            <text x="1096" y="349" class="small-text">PCI question</text>
+
+            <path d="M455 438 L455 202 L560 202" class="connector"></path>
+            <text x="468" y="256" class="edge-label">Delivery</text>
+            <path d="M680 202 L730 202" class="connector"></path>
+            <path d="M850 202 L900 202" class="connector"></path>
+            <path d="M960 232 L960 265 L790 265 L790 295" class="connector"></path>
+            <path d="M850 326 L900 326" class="connector"></path>
+            <path d="M1020 326 L1040 326" class="connector-light"></path>
+
+            <!-- Pickup / return branch -->
+            <rect x="560" y="500" width="120" height="62" rx="5" class="node-strong" data-detail="Starts the pickup / return check-out form for closing out the rental and documenting vehicle condition."></rect>
+            <text x="620" y="525" class="node-text white-text">Pickup /</text>
+            <text x="620" y="542" class="node-text white-text">return form</text>
+
+            <rect x="730" y="500" width="120" height="62" rx="5" class="node-process" data-detail="Driver searches by reservation, member, guest, or vehicle to pull in the related rental record."></rect>
+            <text x="790" y="525" class="node-text">Find related</text>
+            <text x="790" y="542" class="node-text">reservation</text>
+
+            <rect x="900" y="500" width="120" height="62" rx="5" class="node-process" data-detail="If related data exists, the app pre-fills shared guest, reservation, and vehicle fields to reduce retyping."></rect>
+            <text x="960" y="525" class="node-text">Auto-fill</text>
+            <text x="960" y="542" class="node-text">shared fields</text>
+
+            <rect x="730" y="615" width="120" height="62" rx="5" class="node-process" data-detail="Driver uploads return photos and walkaround video, including new damage if present."></rect>
+            <text x="790" y="638" class="node-text">Return</text>
+            <text x="790" y="655" class="node-text">media</text>
+
+            <rect x="900" y="615" width="120" height="62" rx="5" class="node-process" data-detail="Captures return fuel level, mileage, keys returned, personal items removed, new damage, smoking/vaping evidence, and late return status."></rect>
+            <text x="960" y="638" class="node-text">Return</text>
+            <text x="960" y="655" class="node-text">checklist</text>
+
+            <path d="M525 502 L545 502 L545 531 L560 531" class="connector"></path>
+            <text x="530" y="485" class="edge-label">Pickup / return</text>
+            <path d="M680 532 L730 532" class="connector"></path>
+            <path d="M850 532 L900 532" class="connector"></path>
+            <path d="M960 562 L960 588 L790 588 L790 615" class="connector"></path>
+            <path d="M850 646 L900 646" class="connector"></path>
+
+            <!-- Shared completion -->
+            <rect x="1040" y="440" width="120" height="62" rx="5" class="node-process" data-detail="Guest digitally signs to confirm delivery acceptance or pickup / return condition. Timestamp is captured automatically."></rect>
+            <text x="1100" y="464" class="node-text">Guest</text>
+            <text x="1100" y="481" class="node-text">signature</text>
+
+            <rect x="1040" y="540" width="120" height="62" rx="5" class="node-process" data-detail="Logged-in driver confirms the submitted details, media, checklist, and notes are accurate."></rect>
+            <text x="1100" y="564" class="node-text">Driver</text>
+            <text x="1100" y="581" class="node-text">confirm</text>
+
+            <rect x="1040" y="640" width="120" height="62" rx="5" class="node-success" data-detail="Report, timestamps, signatures, checklist values, and uploaded media are saved for admin review."></rect>
+            <text x="1100" y="664" class="node-text">Submit</text>
+            <text x="1100" y="681" class="node-text">report</text>
+
+            <path d="M960 357 L960 471 L1040 471" class="connector"></path>
+            <path d="M1020 646 L1032 646 L1032 493 L1040 493" class="connector"></path>
+            <path d="M1100 502 L1100 540" class="connector"></path>
+            <path d="M1100 602 L1100 640" class="connector"></path>
+          </svg>
+        </section>
+
+        <section class="diagram tab-panel admin-panel">
+          <h2>Admin journey</h2>
+          <svg viewBox="0 0 1200 620" role="img" aria-label="Admin user flow">
+            <defs>
+              <marker id="arrow-admin" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L8,3 z" fill="#121212"></path>
+              </marker>
+            </defs>
+
+            <g id="admin-svg">
+              <rect x="95" y="38" width="235" height="520" rx="4" class="group-driver"></rect>
+              <text x="115" y="78" class="group-title">Admin access</text>
+
+              <rect x="390" y="38" width="750" height="520" rx="4" class="group-admin"></rect>
+              <text x="410" y="78" class="group-title">Manage drivers and reports</text>
+
+              <rect x="158" y="110" width="112" height="54" rx="24" class="node-start" data-detail="EE staff member signs in to access internal admin tools."></rect>
+              <text x="214" y="132" class="node-text white-text">Admin</text>
+              <text x="214" y="149" class="node-text white-text">login</text>
+
+              <polygon points="214,198 270,246 214,294 158,246" class="node-decision" data-detail="System checks whether the signed-in staff member has an admin role."></polygon>
+              <text x="214" y="241" class="node-text">Admin</text>
+              <text x="214" y="258" class="node-text">role?</text>
+
+              <rect x="155" y="360" width="118" height="64" rx="5" class="node-warning" data-detail="Non-admin users are blocked from viewing driver management and submissions."></rect>
+              <text x="214" y="386" class="node-text">Access</text>
+              <text x="214" y="403" class="node-text">denied</text>
+
+              <rect x="430" y="215" width="126" height="64" rx="5" class="node-strong" data-detail="Admin landing page with access to driver accounts, recent submissions, and report review."></rect>
+              <text x="493" y="240" class="node-text white-text">Admin</text>
+              <text x="493" y="257" class="node-text white-text">dashboard</text>
+
+              <polygon points="660,182 732,247 660,312 588,247" class="node-decision" data-detail="Admin chooses whether to manage driver accounts or review submitted reports."></polygon>
+              <text x="660" y="240" class="node-text">Admin</text>
+              <text x="660" y="257" class="node-text">task?</text>
+
+              <path d="M214 164 L214 198" class="connector"></path>
+              <path d="M214 294 L214 360" class="connector"></path>
+              <text x="230" y="332" class="edge-label">No</text>
+              <path d="M270 246 L430 246" class="connector"></path>
+              <text x="325" y="228" class="edge-label">Yes</text>
+              <path d="M556 247 L588 247" class="connector"></path>
+
+              <!-- Driver management -->
+              <rect x="790" y="105" width="125" height="64" rx="5" class="node-process" data-detail="Admin views active and inactive drivers, account status, and recent activity."></rect>
+              <text x="852" y="130" class="node-text">View</text>
+              <text x="852" y="147" class="node-text">drivers</text>
+
+              <rect x="985" y="70" width="125" height="64" rx="5" class="node-process" data-detail="Admin manually creates driver accounts and assigns the driver role."></rect>
+              <text x="1047" y="95" class="node-text">Create</text>
+              <text x="1047" y="112" class="node-text">driver</text>
+
+              <rect x="985" y="170" width="125" height="64" rx="5" class="node-process" data-detail="Admin can trigger password reset or disable a driver account when needed."></rect>
+              <text x="1047" y="195" class="node-text">Reset /</text>
+              <text x="1047" y="212" class="node-text">disable</text>
+
+              <path d="M732 247 L752 247 L752 137 L790 137" class="connector"></path>
+              <text x="685" y="128" class="edge-label">Manage drivers</text>
+              <path d="M915 137 L948 137 L948 102 L985 102" class="connector"></path>
+              <path d="M915 137 L948 137 L948 202 L985 202" class="connector"></path>
+
+              <!-- Submission review -->
+              <rect x="790" y="330" width="125" height="64" rx="5" class="node-process" data-detail="Admin sees delivery and pickup / return submissions with driver, guest, reservation, type, and timestamp."></rect>
+              <text x="852" y="355" class="node-text">View</text>
+              <text x="852" y="372" class="node-text">submissions</text>
+
+              <rect x="985" y="295" width="125" height="64" rx="5" class="node-process" data-detail="Admin filters reports by date range, driver, guest, reservation number, vehicle, or report type."></rect>
+              <text x="1047" y="320" class="node-text">Filter</text>
+              <text x="1047" y="337" class="node-text">records</text>
+
+              <rect x="985" y="395" width="125" height="64" rx="5" class="node-process" data-detail="Admin opens a submission detail view with media, checklist values, signatures, notes, timestamps, and report metadata."></rect>
+              <text x="1047" y="420" class="node-text">Open</text>
+              <text x="1047" y="437" class="node-text">detail</text>
+
+              <polygon points="852,445 922,502 852,559 782,502" class="node-decision" data-detail="Admin decides whether to generate a PDF report for the selected submission."></polygon>
+              <text x="852" y="496" class="node-text">Download</text>
+              <text x="852" y="513" class="node-text">PDF?</text>
+
+              <rect x="620" y="470" width="125" height="64" rx="5" class="node-success" data-detail="PDF is generated on demand from the selected report data and uploaded media references."></rect>
+              <text x="682" y="495" class="node-text">Generate</text>
+              <text x="682" y="512" class="node-text">PDF</text>
+
+              <rect x="430" y="470" width="125" height="64" rx="5" class="node-success" data-detail="Admin downloads the generated PDF report for internal records or client follow-up."></rect>
+              <text x="492" y="495" class="node-text">Download</text>
+              <text x="492" y="512" class="node-text">report</text>
+
+              <rect x="430" y="350" width="125" height="64" rx="5" class="node-success" data-detail="When a driver submits a report, EE receives a notification by the agreed channel, such as email, Zapier, or Slack."></rect>
+              <text x="492" y="375" class="node-text">New report</text>
+              <text x="492" y="392" class="node-text">notification</text>
+
+              <path d="M660 312 L660 362 L790 362" class="connector"></path>
+              <text x="668" y="348" class="edge-label">Review reports</text>
+              <path d="M915 362 L948 362 L948 327 L985 327" class="connector"></path>
+              <path d="M915 362 L948 362 L948 427 L985 427" class="connector"></path>
+              <path d="M1047 459 L1047 502 L922 502" class="connector"></path>
+              <path d="M782 502 L745 502" class="connector"></path>
+              <text x="760" y="486" class="edge-label">Yes</text>
+              <path d="M620 502 L555 502" class="connector"></path>
+              <path d="M852 559 L852 585 L1130 585 L1130 427 L1110 427" class="connector-light"></path>
+              <text x="892" y="578" class="edge-label">No</text>
+              <path d="M555 382 L790 382" class="connector-light"></path>
+            </g>
+          </svg>
+        </section>
+
+      </div>
+    </main>
+    <footer class="wf-site-footer">
+      <a href="index.html">← Back to wireframes</a>
+    </footer>
+    <div class="flow-tooltip" id="flow-tooltip" role="tooltip"></div>
+    <script src="driver-portal-user-flows.js"></script>
+  </body>
+</html>

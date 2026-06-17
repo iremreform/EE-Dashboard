@@ -1,0 +1,33 @@
+.siteFooter {
+  align-items: center;
+  border-top: var(--stroke-divider);
+  color: var(--text-secondary);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--text-small);
+  gap: var(--space-3);
+  justify-content: space-between;
+  margin-top: auto;
+  padding: var(--space-5) var(--page-padding-x);
+  padding-bottom: max(var(--space-5), env(safe-area-inset-bottom));
+}
+
+.copyright,
+.credit {
+  margin: 0;
+}
+
+.credit {
+  margin-left: auto;
+  text-align: right;
+}
+
+.creditBrand {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: var(--underline-offset);
+}
+
+.creditBrand:hover {
+  color: var(--text-alternate);
+}

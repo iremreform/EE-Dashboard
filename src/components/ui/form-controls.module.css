@@ -1,0 +1,88 @@
+.control {
+  appearance: none;
+  background-color: var(--input-bg);
+  border: var(--stroke-width) solid var(--input-border);
+  border-radius: var(--input-radius);
+  box-sizing: border-box;
+  color: var(--input-text);
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--input-font-size);
+  line-height: var(--line-height-input);
+  margin: 0;
+  min-height: var(--input-min-height);
+  padding: var(--input-padding);
+  transition: border-color var(--transition-fast);
+  width: 100%;
+}
+
+.control::placeholder {
+  color: var(--input-placeholder);
+}
+
+.control:focus {
+  border-color: var(--input-border-focus);
+  outline: none;
+}
+
+.control:focus-visible {
+  border-color: var(--input-border-focus);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.control:disabled {
+  cursor: not-allowed;
+  opacity: var(--button-disabled-opacity);
+}
+
+.error {
+  border-color: var(--input-border-error);
+}
+
+.textarea {
+  min-height: 7.5rem;
+  resize: vertical;
+}
+
+.select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23bfa384' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-position: right var(--space-3) center;
+  background-repeat: no-repeat;
+  padding-right: var(--space-10);
+}
+
+.label {
+  color: var(--form-label-color);
+  display: block;
+  font-family: var(--form-label-font);
+  font-size: var(--form-label-size);
+  font-style: normal;
+  font-weight: var(--form-label-weight);
+  letter-spacing: var(--form-label-letter-spacing);
+  line-height: var(--form-label-line-height);
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--form-label-gap);
+  text-align: left;
+  width: 100%;
+}
+
+.hint {
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+  line-height: var(--line-height-body);
+  margin: 0;
+}
+
+.fieldError {
+  color: var(--text-error);
+  font-size: var(--text-small);
+  margin: 0;
+}

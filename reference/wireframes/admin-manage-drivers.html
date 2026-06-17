@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Manage Drivers — Wireframe</title>
+    <link rel="stylesheet" href="wireframes.css" />
+    <script src="../marker.js"></script>
+  </head>
+  <body class="wf-page-shell wf-admin-shell">
+    <div class="wf-admin-overlay" data-admin-overlay></div>
+    <div class="wf-admin-layout">
+      <aside class="wf-admin-sidebar" id="admin-sidebar" aria-label="Admin navigation">
+        <div class="wf-admin-sidebar-head">
+          <a class="wf-logo" href="../index.html">
+            <img src="../../public/company-logo.svg" alt="Energetic Exotics" />
+          </a>
+          <button type="button" class="wf-sidebar-close" data-admin-menu-close aria-label="Close menu">×</button>
+        </div>
+        <p class="wf-admin-sidebar-label">Admin portal</p>
+        <nav class="wf-admin-nav">
+          <a class="wf-admin-nav-link" href="admin-dashboard.html">Dashboard</a>
+          <a class="wf-admin-nav-link is-active" href="admin-manage-drivers.html">Manage drivers</a>
+          <a class="wf-admin-nav-link" href="admin-submissions.html">Submissions</a>
+          <a class="wf-admin-nav-link wf-admin-nav-link-muted" href="admin-login.html">Logout</a>
+        </nav>
+      </aside>
+
+      <div class="wf-admin-main">
+        <header class="wf-admin-topbar">
+          <button type="button" class="wf-menu-btn" data-admin-menu-open aria-label="Open menu" aria-expanded="false" aria-controls="admin-sidebar">Menu</button>
+          <p class="wf-admin-topbar-title">Manage drivers</p>
+          <a class="wf-btn wf-btn-ghost wf-admin-alert-btn" href="admin-dashboard.html#notifications">Alerts · 1</a>
+        </header>
+
+        <main class="wf-admin-content wf-layout wf-layout-wide">
+          <div class="wf-page-intro">
+            <p class="wf-accent">Admin Portal</p>
+            <h1 class="wf-page-title">Manage Drivers</h1>
+          </div>
+
+          <div class="wf-toolbar">
+            <div class="wf-field wf-toolbar-field">
+              <label>Search drivers</label>
+              <div class="wf-input">Search by name or email…</div>
+            </div>
+            <div class="wf-actions wf-actions-toolbar">
+              <a class="wf-btn wf-btn-primary" href="admin-create-driver.html">Create driver</a>
+            </div>
+          </div>
+
+          <section class="wf-card">
+            <h2>Driver accounts</h2>
+            <div class="wf-list">
+              <div class="wf-list-row">
+                <div>
+                  <div class="wf-list-heading">
+                    <strong>John Davis</strong>
+                    <span class="wf-tag wf-tag-active">Active</span>
+                  </div>
+                  <div class="wf-list-meta">john.davis@email.com · Last active today 2:30 PM</div>
+                </div>
+                <div class="wf-list-actions">
+                  <a class="wf-btn wf-btn-ghost" href="#">Reset password</a>
+                  <a class="wf-btn wf-btn-ghost" href="#">Disable</a>
+                </div>
+              </div>
+
+              <div class="wf-list-row">
+                <div>
+                  <div class="wf-list-heading">
+                    <strong>Sarah Martinez</strong>
+                    <span class="wf-tag wf-tag-active">Active</span>
+                  </div>
+                  <div class="wf-list-meta">sarah.m@email.com · Last active today 11:15 AM</div>
+                </div>
+                <div class="wf-list-actions">
+                  <a class="wf-btn wf-btn-ghost" href="#">Reset password</a>
+                  <a class="wf-btn wf-btn-ghost" href="#">Disable</a>
+                </div>
+              </div>
+
+              <div class="wf-list-row">
+                <div>
+                  <div class="wf-list-heading">
+                    <strong>Mike Roberts</strong>
+                    <span class="wf-tag wf-tag-active">Active</span>
+                  </div>
+                  <div class="wf-list-meta">mike.r@email.com · Last active yesterday 4:45 PM</div>
+                </div>
+                <div class="wf-list-actions">
+                  <a class="wf-btn wf-btn-ghost" href="#">Reset password</a>
+                  <a class="wf-btn wf-btn-ghost" href="#">Disable</a>
+                </div>
+              </div>
+
+              <div class="wf-list-row">
+                <div>
+                  <div class="wf-list-heading">
+                    <strong>Chris Lee</strong>
+                    <span class="wf-tag">Disabled</span>
+                  </div>
+                  <div class="wf-list-meta">chris.lee@email.com · Disabled Mar 12, 2026</div>
+                </div>
+                <div class="wf-list-actions">
+                  <a class="wf-btn wf-btn-ghost" href="#">Re-enable</a>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <footer class="wf-footer">
+          <a href="../userflow.html">View user flow diagram →</a>
+        </footer>
+      </div>
+    </div>
+    <script src="admin-sidebar.js"></script>
+  </body>
+</html>

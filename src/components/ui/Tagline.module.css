@@ -1,0 +1,32 @@
+.tagline {
+  color: var(--text-subheading);
+  font-family: var(--font-subheading);
+  font-style: italic;
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+  margin: 0 0 var(--space-2);
+}
+
+.h1 {
+  font-size: var(--fluid-subheading-1);
+}
+
+.h2 {
+  font-size: var(--fluid-subheading-2);
+}
+
+.h3 {
+  font-size: var(--fluid-subheading-3);
+}
+
+.h4 {
+  font-size: var(--fluid-subheading-4);
+}
+
+.h5 {
+  font-size: var(--fluid-subheading-5);
+}
+
+.h6 {
+  font-size: var(--fluid-subheading-6);
+}

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Create Driver — Wireframe</title>
+    <link rel="stylesheet" href="wireframes.css" />
+    <script src="../marker.js"></script>
+  </head>
+  <body class="wf-page-shell wf-admin-shell">
+    <div class="wf-admin-overlay" data-admin-overlay></div>
+    <div class="wf-admin-layout">
+      <aside class="wf-admin-sidebar" id="admin-sidebar" aria-label="Admin navigation">
+        <div class="wf-admin-sidebar-head">
+          <a class="wf-logo" href="../index.html">
+            <img src="../../public/company-logo.svg" alt="Energetic Exotics" />
+          </a>
+          <button type="button" class="wf-sidebar-close" data-admin-menu-close aria-label="Close menu">×</button>
+        </div>
+        <p class="wf-admin-sidebar-label">Admin portal</p>
+        <nav class="wf-admin-nav">
+          <a class="wf-admin-nav-link" href="admin-dashboard.html">Dashboard</a>
+          <a class="wf-admin-nav-link is-active" href="admin-manage-drivers.html">Manage drivers</a>
+          <a class="wf-admin-nav-link" href="admin-submissions.html">Submissions</a>
+          <a class="wf-admin-nav-link wf-admin-nav-link-muted" href="admin-login.html">Logout</a>
+        </nav>
+      </aside>
+
+      <div class="wf-admin-main">
+        <header class="wf-admin-topbar">
+          <button type="button" class="wf-menu-btn" data-admin-menu-open aria-label="Open menu" aria-expanded="false" aria-controls="admin-sidebar">Menu</button>
+          <p class="wf-admin-topbar-title">Create driver</p>
+          <a class="wf-btn wf-btn-ghost wf-admin-alert-btn" href="admin-dashboard.html#notifications">Alerts · 1</a>
+        </header>
+
+        <main class="wf-admin-content wf-layout">
+          <div class="wf-page-intro">
+            <a class="wf-btn wf-btn-ghost wf-page-back" href="admin-manage-drivers.html">← Manage drivers</a>
+            <p class="wf-accent">Admin Portal</p>
+            <h1 class="wf-page-title">Create Driver</h1>
+          </div>
+
+          <section class="wf-card">
+            <h2>Driver account</h2>
+            <div class="wf-grid-2">
+              <div class="wf-field">
+                <label>First name</label>
+                <div class="wf-input">First name</div>
+              </div>
+              <div class="wf-field">
+                <label>Last name</label>
+                <div class="wf-input">Last name</div>
+              </div>
+            </div>
+            <div class="wf-field">
+              <label>Email</label>
+              <div class="wf-input">driver@email.com</div>
+            </div>
+            <div class="wf-field">
+              <label>Phone (optional)</label>
+              <div class="wf-input">Phone number</div>
+            </div>
+          </section>
+
+          <section class="wf-card">
+            <h2>Access</h2>
+            <div class="wf-field">
+              <label>Role</label>
+              <div class="wf-input">Driver</div>
+            </div>
+            <div class="wf-field">
+              <label>Temporary password</label>
+              <div class="wf-input">••••••••</div>
+            </div>
+            <div class="wf-checkbox">
+              <div class="wf-checkbox-box"></div>
+              <span>Require password change on first login</span>
+            </div>
+            <div class="wf-checkbox">
+              <div class="wf-checkbox-box"></div>
+              <span>Send login details to driver by email</span>
+            </div>
+          </section>
+
+          <div class="wf-actions">
+            <a class="wf-btn wf-btn-primary" href="admin-manage-drivers.html">Save driver</a>
+            <a class="wf-btn wf-btn-ghost" href="admin-manage-drivers.html">Cancel</a>
+          </div>
+        </main>
+
+        <footer class="wf-footer">
+          <a href="../userflow.html">View user flow diagram →</a>
+        </footer>
+      </div>
+    </div>
+    <script src="admin-sidebar.js"></script>
+  </body>
+</html>

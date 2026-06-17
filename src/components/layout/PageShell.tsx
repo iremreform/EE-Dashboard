@@ -1,0 +1,56 @@
+import type { ReactNode } from "react";
+import { cn } from "@/lib/cn";
+import { nav } from "@/content/portal";
+import { Button, Logo } from "@/components/ui";
+import { SiteFooter } from "./SiteFooter";
+import styles from "./PageShell.module.css";
+
+type PageShellProps = {
+  children: ReactNode;
+  backHref?: string;
+  backLabel?: string;
+  width?: "narrow" | "default" | "wide";
+  centerContent?: boolean;
+};
+
+export function PageShell({
+  children,
+  backHref,
+  backLabel = nav.home,
+  width = "default",
+  centerContent = false,
+}: PageShellProps) {
+  return (
+    <div className={styles.shell}>
+      <header className={styles.topBar}>
+        <div className={styles.topBarStart}>
+          {backHref ? (
+            <Button href={backHref} variant="link" arrow="left">
+              {backLabel}
+            </Button>
+          ) : null}
+        </div>
+
+        <div className={styles.topBarCenter}>
+          <Logo priority />
+        </div>
+
+        <div aria-hidden="true" className={styles.topBarEnd} />
+      </header>
+
+      <main
+        className={cn(
+          styles.main,
+          width === "narrow" && styles.mainNarrow,
+          width === "default" && styles.mainDefault,
+          width === "wide" && styles.mainWide,
+          centerContent && styles.mainCentered,
+        )}
+      >
+        {children}
+      </main>
+
+      <SiteFooter />
+    </div>
+  );
+}

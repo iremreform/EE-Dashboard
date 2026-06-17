@@ -1,0 +1,33 @@
+.heading {
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-heading);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.h1 {
+  font-size: var(--fluid-h1);
+  line-height: var(--line-height-heading-tight);
+}
+
+.h2 {
+  font-size: var(--fluid-h2);
+}
+
+.h3 {
+  font-size: var(--fluid-h3);
+}
+
+.h4 {
+  font-size: var(--fluid-h4);
+}
+
+.h5 {
+  font-size: var(--fluid-h5);
+}
+
+.h6 {
+  font-size: var(--fluid-h6);
+}

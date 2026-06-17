@@ -1,0 +1,517 @@
+/* Energetic Exotics — brand design tokens
+   Source: energeticexotics.com (Webflow / Relume)
+   Dashboard theme: dark */
+
+:root {
+  /* ── Color primitives ─────────────────────────────────────────────── */
+
+  --color-black: #121212;
+  --color-black-light: #1a1a1a;
+  --color-leather: #bfa384;
+  --color-leather-darker: #b28b5f;
+  --color-leather-lighter: #eaeaea;
+  --color-pearl: whitesmoke;
+  --color-titanium: #d0d0d0;
+  --color-white: #ffffff;
+
+  --color-neutral-darkest: #000000;
+  --color-neutral-darker: #363636;
+  --color-neutral-dark: #444444;
+  --color-neutral: #666666;
+  --color-neutral-light: #aaaaaa;
+  --color-neutral-lighter: #cccccc;
+  --color-neutral-lightest: #eeeeee;
+
+  --color-error: #b42318;
+  --color-error-light: #fef3f2;
+  --color-success: #027a48;
+  --color-success-light: #ecfdf3;
+
+  --color-input-text: #f5f5f5;
+  --color-input-placeholder: #b2b2b2;
+
+  /* ── Semantic colors (dark dashboard theme) ───────────────────────── */
+
+  --background-primary: var(--color-black);
+  --background-secondary: var(--color-black-light);
+  --background-tertiary: var(--color-neutral-lightest);
+  --background-error: var(--color-error-light);
+  --background-success: var(--color-success-light);
+
+  --text-primary: var(--color-pearl);
+  --text-secondary: var(--color-input-placeholder);
+  --text-subheading: var(--color-leather);
+  --text-alternate: var(--color-white);
+  --text-error: var(--color-error);
+  --text-success: var(--color-success);
+
+  --border-primary: var(--color-white);
+  --border-secondary: var(--color-neutral-darker);
+  --border-tertiary: var(--color-neutral-dark);
+  --border-error: var(--color-error);
+  --border-success: var(--color-success);
+
+  /* ── Opacity overlays ─────────────────────────────────────────────── */
+
+  --opacity-transparent: transparent;
+  --opacity-white-5: #ffffff0d;
+  --opacity-white-10: #ffffff1a;
+  --opacity-white-20: #ffffff33;
+  --opacity-black-10: #0000001a;
+  --opacity-black-20: #00000033;
+
+  /* ── Typography — font families ───────────────────────────────────── */
+
+  --font-heading: "PP Monument Extended", Arial, sans-serif;
+  --font-subheading: "Editor's Note", Georgia, "Times New Roman", serif;
+  --font-body: "Helvetica Now Var", "Helvetica Now Text", Helvetica, Arial,
+    sans-serif;
+
+  /* ── Typography — fluid scaling (energeticexotics.com) ────────────── */
+  /*
+   * Website typescale powers: 6 = 0 … 1 = 5
+   * Dashboard scale shifted down 2 steps (website h3 → dashboard h1).
+   * Headings h1–h4: heading typescale · h5–h6: subheading typescale
+   * Subheadings mirror the same levels (paired h1↔h1, etc.) on subheading typescale.
+   * Body text is fixed at 18 / 16 / 14 / 12 px (--text-body-18 … 12).
+   */
+
+  --fluid-viewport-min-rem: 30;
+  --fluid-viewport-max-rem: 80;
+  --fluid-viewport-range: calc(
+    (100vw - var(--fluid-viewport-min-rem) * 1rem) /
+      (var(--fluid-viewport-max-rem) - var(--fluid-viewport-min-rem))
+  );
+
+  --typescale-headings-mobile-base-rem: 1.1875;
+  --typescale-headings-mobile-scale: 1.1;
+  --typescale-headings-desktop-base-rem: 1.3125;
+  --typescale-headings-desktop-scale: 1.333;
+
+  --typescale-subheadings-mobile-base-rem: 1.125;
+  --typescale-subheadings-mobile-scale: 1.1;
+  --typescale-subheadings-desktop-base-rem: 1.25;
+  --typescale-subheadings-desktop-scale: 1.2;
+
+  --fluid-h1: clamp(
+    calc(
+      var(--typescale-headings-mobile-base-rem) *
+        pow(var(--typescale-headings-mobile-scale), 3) * 1rem
+    ),
+    calc(
+      var(--typescale-headings-mobile-base-rem) *
+        pow(var(--typescale-headings-mobile-scale), 3) * 1rem +
+        (
+          var(--typescale-headings-desktop-base-rem) *
+            pow(var(--typescale-headings-desktop-scale), 3) -
+            var(--typescale-headings-mobile-base-rem) *
+            pow(var(--typescale-headings-mobile-scale), 3)
+        ) * var(--fluid-viewport-range)
+    ),
+    calc(
+      var(--typescale-headings-desktop-base-rem) *
+        pow(var(--typescale-headings-desktop-scale), 3) * 1rem
+    )
+  );
+  --fluid-h2: clamp(
+    calc(
+      var(--typescale-headings-mobile-base-rem) *
+        pow(var(--typescale-headings-mobile-scale), 2) * 1rem
+    ),
+    calc(
+      var(--typescale-headings-mobile-base-rem) *
+        pow(var(--typescale-headings-mobile-scale), 2) * 1rem +
+        (
+          var(--typescale-headings-desktop-base-rem) *
+            pow(var(--typescale-headings-desktop-scale), 2) -
+            var(--typescale-headings-mobile-base-rem) *
+            pow(var(--typescale-headings-mobile-scale), 2)
+        ) * var(--fluid-viewport-range)
+    ),
+    calc(
+      var(--typescale-headings-desktop-base-rem) *
+        pow(var(--typescale-headings-desktop-scale), 2) * 1rem
+    )
+  );
+  --fluid-h3: clamp(
+    calc(
+      var(--typescale-headings-mobile-base-rem) *
+        var(--typescale-headings-mobile-scale) * 1rem
+    ),
+    calc(
+      var(--typescale-headings-mobile-base-rem) *
+        var(--typescale-headings-mobile-scale) * 1rem +
+        (
+          var(--typescale-subheadings-desktop-base-rem) *
+            var(--typescale-subheadings-desktop-scale) -
+            var(--typescale-headings-mobile-base-rem) *
+            var(--typescale-subheadings-mobile-scale)
+        ) * var(--fluid-viewport-range)
+    ),
+    calc(
+      var(--typescale-headings-desktop-base-rem) *
+        var(--typescale-headings-desktop-scale) * 1rem
+    )
+  );
+  --fluid-h4: clamp(
+    calc(var(--typescale-headings-mobile-base-rem) * 1rem),
+    calc(
+      var(--typescale-headings-mobile-base-rem) * 1rem +
+        (
+          var(--typescale-headings-desktop-base-rem) -
+            var(--typescale-headings-mobile-base-rem)
+        ) * var(--fluid-viewport-range)
+    ),
+    calc(var(--typescale-subheadings-desktop-base-rem) * 1rem)
+  );
+  --fluid-h5: clamp(
+    calc(
+      var(--typescale-subheadings-mobile-base-rem) *
+        var(--typescale-subheadings-mobile-scale) * 1rem
+    ),
+    calc(
+      var(--typescale-subheadings-mobile-base-rem) *
+        var(--typescale-subheadings-mobile-scale) * 1rem +
+        (
+          var(--typescale-subheadings-desktop-base-rem) *
+            var(--typescale-subheadings-desktop-scale) -
+            var(--typescale-subheadings-mobile-base-rem) *
+            var(--typescale-subheadings-mobile-scale)
+        ) * var(--fluid-viewport-range)
+    ),
+    calc(
+      var(--typescale-subheadings-desktop-base-rem) *
+        var(--typescale-subheadings-desktop-scale) * 1rem
+    )
+  );
+  --fluid-h6: clamp(
+    calc(var(--typescale-subheadings-mobile-base-rem) * 1rem),
+    calc(
+      var(--typescale-subheadings-mobile-base-rem) * 1rem +
+        (
+          var(--typescale-subheadings-desktop-base-rem) -
+            var(--typescale-subheadings-mobile-base-rem)
+        ) * var(--fluid-viewport-range)
+    ),
+    calc(var(--typescale-subheadings-desktop-base-rem) * 1rem)
+  );
+
+  /* Subheadings — dashboard scale (mirrors --fluid-h1 … 6, paired by level) */
+  --fluid-subheading-1: clamp(
+    calc(
+      var(--typescale-subheadings-mobile-base-rem) *
+        pow(var(--typescale-subheadings-mobile-scale), 3) * 1rem
+    ),
+    calc(
+      var(--typescale-subheadings-mobile-base-rem) *
+        pow(var(--typescale-subheadings-mobile-scale), 3) * 1rem +
+        (
+          var(--typescale-subheadings-desktop-base-rem) *
+            pow(var(--typescale-subheadings-desktop-scale), 3) -
+            var(--typescale-subheadings-mobile-base-rem) *
+            pow(var(--typescale-subheadings-mobile-scale), 3)
+        ) * var(--fluid-viewport-range)
+    ),
+    calc(
+      var(--typescale-subheadings-desktop-base-rem) *
+        pow(var(--typescale-subheadings-desktop-scale), 3) * 1rem
+    )
+  );
+  --fluid-subheading-2: clamp(
+    calc(
+      var(--typescale-subheadings-mobile-base-rem) *
+        pow(var(--typescale-subheadings-mobile-scale), 2) * 1rem
+    ),
+    calc(
+      var(--typescale-subheadings-mobile-base-rem) *
+        pow(var(--typescale-subheadings-mobile-scale), 2) * 1rem +
+        (
+          var(--typescale-subheadings-desktop-base-rem) *
+            pow(var(--typescale-subheadings-desktop-scale), 2) -
+            var(--typescale-subheadings-mobile-base-rem) *
+            pow(var(--typescale-subheadings-mobile-scale), 2)
+        ) * var(--fluid-viewport-range)
+    ),
+    calc(
+      var(--typescale-subheadings-desktop-base-rem) *
+        pow(var(--typescale-subheadings-desktop-scale), 2) * 1rem
+    )
+  );
+  --fluid-subheading-3: clamp(
+    calc(
+      var(--typescale-subheadings-mobile-base-rem) *
+        var(--typescale-subheadings-mobile-scale) * 1rem
+    ),
+    calc(
+      var(--typescale-subheadings-mobile-base-rem) *
+        var(--typescale-subheadings-mobile-scale) * 1rem +
+        (
+          var(--typescale-headings-desktop-base-rem) *
+            var(--typescale-headings-desktop-scale) -
+            var(--typescale-subheadings-mobile-base-rem) *
+            var(--typescale-headings-mobile-scale)
+        ) * var(--fluid-viewport-range)
+    ),
+    calc(
+      var(--typescale-subheadings-desktop-base-rem) *
+        var(--typescale-subheadings-desktop-scale) * 1rem
+    )
+  );
+  --fluid-subheading-4: clamp(
+    calc(var(--typescale-subheadings-mobile-base-rem) * 1rem),
+    calc(
+      var(--typescale-subheadings-mobile-base-rem) * 1rem +
+        (
+          var(--typescale-subheadings-desktop-base-rem) -
+            var(--typescale-subheadings-mobile-base-rem)
+        ) * var(--fluid-viewport-range)
+    ),
+    calc(var(--typescale-headings-desktop-base-rem) * 1rem)
+  );
+  --fluid-subheading-5: clamp(
+    calc(
+      var(--typescale-headings-mobile-base-rem) *
+        var(--typescale-headings-mobile-scale) * 1rem
+    ),
+    calc(
+      var(--typescale-headings-mobile-base-rem) *
+        var(--typescale-headings-mobile-scale) * 1rem +
+        (
+          var(--typescale-subheadings-desktop-base-rem) *
+            var(--typescale-subheadings-desktop-scale) -
+            var(--typescale-headings-mobile-base-rem) *
+            var(--typescale-subheadings-mobile-scale)
+        ) * var(--fluid-viewport-range)
+    ),
+    calc(
+      var(--typescale-headings-desktop-base-rem) *
+        var(--typescale-headings-desktop-scale) * 1rem
+    )
+  );
+  --fluid-subheading-6: clamp(
+    calc(var(--typescale-headings-mobile-base-rem) * 1rem),
+    calc(
+      var(--typescale-headings-mobile-base-rem) * 1rem +
+        (
+          var(--typescale-headings-desktop-base-rem) -
+            var(--typescale-headings-mobile-base-rem)
+        ) * var(--fluid-viewport-range)
+    ),
+    calc(var(--typescale-subheadings-mobile-base-rem) * 1rem)
+  );
+
+  /* Legacy aliases */
+  --fluid-viewport-min: calc(var(--fluid-viewport-min-rem) * 1rem);
+  --fluid-viewport-max: calc(var(--fluid-viewport-max-rem) * 1rem);
+
+  --line-height-heading: 1.1;
+  --line-height-heading-tight: 0.9;
+  --line-height-body: 1.5;
+  --line-height-input: 1.6;
+
+  /* ── Typography — body scale (fixed: 18 / 16 / 14 / 12 px) ────────── */
+
+  --text-body-18: 1.125rem;
+  --text-body-20: 1.25rem;
+  --text-body-16: 1rem;
+  --text-body-14: 0.875rem;
+  --text-body-12: 0.75rem;
+
+  --text-tiny: var(--text-body-12);
+  --text-small: var(--text-body-14);
+  --text-regular: var(--text-body-16);
+  --text-medium: var(--text-body-18);
+  --text-large: var(--text-body-20);
+
+  --letter-spacing-tag: 0.0375rem;
+  --letter-spacing-heading: 0.05rem;
+  --letter-spacing-heading-tight: 0.03125rem;
+  --underline-offset: 0.125rem;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ── Spacing ──────────────────────────────────────────────────────── */
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --padding-global: 5%;
+  --card-gap: 2rem;
+  --choice-card-size: 17.5rem;
+  --form-card-min-width: 22rem;
+  --button-group-gap: 1rem;
+  --form-field-gap: 0.75rem;
+  --form-label-gap: 0.5rem;
+  --list-row-gap: 0.75rem;
+  --grid-gap: 1rem;
+  --toolbar-gap: 0.75rem;
+
+  /* ── Layout ───────────────────────────────────────────────────────── */
+
+  --container-max: 80rem;
+  --container-wide: 90rem;
+  --navbar-height: 4.5rem;
+  --sidebar-width: 18rem;
+  --input-min-height: 3rem;
+
+  --arrow-width: 1.75rem;
+  --arrow-height: 1.0625rem;
+
+  --section-padding-sm: 2rem;
+  --section-padding-md: 3rem;
+  --section-padding-lg: 5rem;
+  --section-padding-xl: 8rem;
+
+  --page-padding-x: 1rem;
+  --page-padding-y: 1.5rem;
+  --card-padding: 1.5rem;
+
+  /* ── Border radius ────────────────────────────────────────────────── */
+
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 6.25rem;
+  --radius-pill: 6.25rem;
+
+  /* ── Borders & strokes ────────────────────────────────────────────── */
+
+  --stroke-width: 0.0625rem;
+  --stroke-width-tag: 0.09375rem;
+  --stroke-divider: 0.0625rem solid var(--border-tertiary);
+
+  /* ── Shadows (minimal — flat luxury aesthetic) ────────────────────── */
+
+  --shadow-none: none;
+  --shadow-overlay: 0 0 0 0.0625rem var(--opacity-black-10),
+    0 0.0625rem 0.1875rem var(--opacity-black-10);
+
+  /* ── Buttons ──────────────────────────────────────────────────────── */
+
+  --button-padding-y: 1rem;
+  --button-padding-x: 1.5rem;
+  --button-font-size: var(--text-regular);
+  --button-font-weight: var(--font-weight-medium);
+  --button-radius: var(--radius-pill);
+  --button-icon-gap: 0.75rem;
+
+  --button-primary-bg: var(--color-white);
+  --button-primary-text: var(--color-black);
+  --button-primary-border: var(--color-neutral-darkest);
+  --button-primary-bg-hover: var(--color-leather);
+  --button-primary-text-hover: var(--button-primary-text);
+
+  --button-secondary-bg: var(--opacity-transparent);
+  --button-secondary-text: var(--color-white);
+  --button-secondary-border: var(--color-white);
+  --button-secondary-bg-hover: var(--opacity-transparent);
+  --button-secondary-text-hover: var(--color-leather);
+  --button-secondary-border-hover: var(--color-leather);
+
+  --button-link-color: var(--color-leather);
+  --button-link-color-hover: var(--color-leather-darker);
+  --button-link-padding-y: 0.75rem;
+  --button-link-padding-x: 1.5rem;
+  --button-link-gap: 0.75rem;
+  --button-link-font-size: 1.5rem;
+  --button-link-line-height: 1.4;
+  --button-link-icon-hover-shift: 0.25rem;
+
+  --button-disabled-opacity: 0.5;
+
+  --transition-button: background-color 200ms ease, border-color 200ms ease,
+    color 200ms ease, transform 200ms ease;
+
+  /* ── Form controls ────────────────────────────────────────────────── */
+
+  --input-bg: var(--color-black-light);
+  --input-border: var(--border-secondary);
+  --input-border-focus: var(--color-white);
+  --input-border-error: var(--color-error);
+  --input-text: var(--color-input-text);
+  --input-placeholder: var(--color-input-placeholder);
+  --input-radius: var(--radius-sm);
+  --input-padding: var(--space-3);
+  --input-font-size: var(--text-regular);
+
+  --form-label-color: #f5f5f5;
+  --form-label-font: var(--font-heading);
+  --form-label-size: 0.66667rem;
+  --form-label-weight: var(--font-weight-regular);
+  --form-label-line-height: 1.5;
+  --form-label-letter-spacing: 0.06667rem;
+
+  /* ── Focus ring ───────────────────────────────────────────────────── */
+
+  --focus-ring-color: var(--color-leather);
+  --focus-ring-width: 0.125rem;
+  --focus-ring-offset: 0.125rem;
+
+  /* ── Transitions ──────────────────────────────────────────────────── */
+
+  --transition-fast: 0.2s ease;
+  --transition-property: border-color, color, opacity, background-color;
+
+  /* ── Z-index ──────────────────────────────────────────────────────── */
+
+  --z-sidebar: 100;
+  --z-overlay: 90;
+  --z-topbar: 110;
+  --z-modal: 200;
+  --z-toast: 300;
+
+  /* ── Breakpoints (reference — use in media queries) ───────────────── */
+
+  --breakpoint-sm: 30rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 90rem;
+
+  /* ── Legacy aliases (migrate pages to semantic tokens) ────────────── */
+
+  --black: var(--color-black);
+  --white: var(--color-white);
+  --gray: var(--color-neutral-light);
+  --muted: var(--text-secondary);
+  --border: var(--border-secondary);
+  --border-light: var(--border-tertiary);
+  --placeholder: var(--color-neutral-lightest);
+  --placeholder-stroke: var(--color-neutral-light);
+
+  --text-xs: var(--text-tiny);
+  --text-sm: var(--text-small);
+  --text-base: var(--text-regular);
+  --text-lg: var(--text-medium);
+  --text-xl: var(--text-large);
+  --text-2xl: var(--fluid-h2);
+  --text-3xl: var(--fluid-h1);
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --page-padding-x: 2rem;
+    --page-padding-y: 2rem;
+    --card-padding: 1.5rem;
+    --section-padding-sm: 3rem;
+    --choice-card-size: 20rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --page-padding-x: 3rem;
+    --card-padding: 1.5rem;
+  }
+}
