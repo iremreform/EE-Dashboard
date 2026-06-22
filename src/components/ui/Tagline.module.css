@@ -2,7 +2,7 @@
   color: var(--text-subheading);
   font-family: var(--font-subheading);
   font-style: italic;
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-light);
   line-height: var(--line-height-body);
   margin: 0 0 var(--space-2);
 }

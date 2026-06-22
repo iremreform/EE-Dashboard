@@ -1,7 +1,10 @@
+export { ArrowIcon } from "./ArrowIcon";
 export { Button } from "./Button";
 export type { ButtonProps } from "./Button";
 export { Card } from "./Card";
+export { Checkbox } from "./Checkbox";
 export { ChoiceCard } from "./ChoiceCard";
+export { DotLottieAnimation } from "./DotLottieAnimation";
 export { Field } from "./Field";
 export { Heading } from "./Heading";
 export { Input } from "./Input";

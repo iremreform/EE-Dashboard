@@ -1,4 +1,4 @@
-import { areas, nav, pages } from "@/content/portal";
+import { areas, nav, pages, passwordHelp } from "@/content/portal";
 import { Button, Card } from "@/components/ui";
 import { PageIntro, PageShell } from "@/components/layout";
 import styles from "@/components/layout/PageContent.module.css";
@@ -14,15 +14,15 @@ export default function DriverForgotPasswordPage() {
       <PageIntro
         tagline={areas.driver}
         title={pages.passwordHelp}
-        lead="Contact Energetic Exotics and an administrator will reset your password."
+        lead={passwordHelp.lead}
         centered
       />
 
       <Card centered className={styles.formCard}>
         <p className={styles.bodyCopy}>
-          For security, password resets are handled by your administrator. Email{" "}
-          <a href="mailto:support@energeticexotics.com">support@energeticexotics.com</a>{" "}
-          or contact your fleet manager directly.
+          {passwordHelp.bodyBeforeEmail}{" "}
+          <a href={`mailto:${passwordHelp.email}`}>{passwordHelp.email}</a>{" "}
+          {passwordHelp.bodyAfterEmail}
         </p>
         <div className={styles.pageActions}>
           <Button href="/driver/login" variant="link" arrow="left">

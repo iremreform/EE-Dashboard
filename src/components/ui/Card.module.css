@@ -5,6 +5,13 @@
   padding: var(--card-padding);
 }
 
+.transparent {
+  background-color: transparent;
+  border-color: transparent;
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .centered {
   text-align: center;
 }
@@ -16,10 +23,21 @@
 .title {
   color: var(--text-primary);
   font-family: var(--font-heading);
-  font-size: var(--fluid-h2);
+  font-size: var(--fluid-h3);
   font-weight: var(--font-weight-bold);
   letter-spacing: var(--letter-spacing-heading-tight);
   line-height: var(--line-height-heading);
   margin: 0 0 var(--space-4);
   text-transform: uppercase;
+}
+
+.titleSubheading {
+  color: var(--text-subheading);
+  font-family: var(--font-subheading);
+  font-size: var(--fluid-subheading-2);
+  font-style: italic;
+  font-weight: var(--font-weight-light);
+  letter-spacing: 0;
+  line-height: var(--line-height-body);
+  text-transform: none;
 }

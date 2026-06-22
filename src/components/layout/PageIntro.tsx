@@ -10,6 +10,8 @@ type PageIntroProps = {
   lead?: string;
   centered?: boolean;
   headingLevel?: TypographyLevel;
+  leadSize?: "default" | "large";
+  taglineRule?: boolean;
 };
 
 export function PageIntro({
@@ -18,12 +20,19 @@ export function PageIntro({
   lead,
   centered = false,
   headingLevel = 1,
+  leadSize = "default",
+  taglineRule = false,
 }: PageIntroProps) {
   return (
     <div className={cn(styles.intro, centered && styles.introCentered)}>
-      {tagline ? <Tagline level={headingLevel}>{tagline}</Tagline> : null}
+      {tagline ? (
+        <div className={cn(taglineRule && styles.taglineRow)}>
+          <Tagline level={headingLevel}>{tagline}</Tagline>
+          {taglineRule ? <span className={styles.taglineRule} aria-hidden="true" /> : null}
+        </div>
+      ) : null}
       <Heading level={headingLevel}>{title}</Heading>
-      {lead ? <p className={styles.lead}>{lead}</p> : null}
+      {lead ? <p className={cn(styles.lead, leadSize === "large" && styles.leadLarge)}>{lead}</p> : null}
     </div>
   );
 }

@@ -18,6 +18,7 @@
 
 .control::placeholder {
   color: var(--input-placeholder);
+  opacity: 0.72;
 }
 
 .control:focus {

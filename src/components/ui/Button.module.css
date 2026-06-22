@@ -53,6 +53,12 @@
   color: var(--button-secondary-text-hover);
 }
 
+.small {
+  font-size: var(--text-small);
+  min-height: 2.25rem;
+  padding: var(--space-2) var(--space-4);
+}
+
 /* Tertiary — Figma 4179:8987 (Editor's Note italic, leather, trailing arrow) */
 .link {
   align-items: center;
@@ -66,7 +72,7 @@
   font-family: var(--font-subheading);
   font-size: var(--button-link-font-size);
   font-style: italic;
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-light);
   gap: var(--button-link-gap);
   justify-content: center;
   line-height: var(--button-link-line-height);

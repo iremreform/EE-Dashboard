@@ -1,3 +1,8 @@
+"use client";
+
+import type { FormEvent } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button, Card, Field, Input } from "@/components/ui";
 import { PageIntro, PageShell } from "@/components/layout";
 import styles from "@/components/layout/PageContent.module.css";
@@ -23,43 +28,58 @@ export function LoginForm({
   helpHref,
   helpLabel,
 }: LoginFormProps) {
+  const router = useRouter();
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    router.push(submitHref);
+  }
+
   return (
     <PageShell backHref="/" centerContent width="narrow">
       <PageIntro tagline={areaLabel} title={title} centered />
 
       <Card centered className={styles.formCard}>
-        <form className={styles.formStack}>
+        <form className={styles.formStack} noValidate onSubmit={handleSubmit}>
           <Field label={emailLabel} htmlFor="email">
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="username"
-              placeholder={emailPlaceholder}
-              required
-            />
+            {({ describedBy, hasError }) => (
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="username"
+                placeholder={emailPlaceholder}
+                aria-describedby={describedBy}
+                hasError={hasError}
+                required
+              />
+            )}
           </Field>
 
           <Field label="Password" htmlFor="password">
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="Enter your password"
-              required
-            />
+            {({ describedBy, hasError }) => (
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                aria-describedby={describedBy}
+                hasError={hasError}
+                required
+              />
+            )}
           </Field>
 
           <div className={styles.loginActions}>
-            <Button href={submitHref}>{title}</Button>
+            <Button type="submit">{title}</Button>
           </div>
 
           {helpHref && helpLabel ? (
             <p className={styles.loginFooterLink}>
-              <Button href={helpHref} variant="link" arrow="right">
+              <Link href={helpHref} className={styles.loginFooterAnchor}>
                 {helpLabel}
-              </Button>
+              </Link>
             </p>
           ) : null}
         </form>

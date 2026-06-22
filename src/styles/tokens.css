@@ -328,6 +328,7 @@
   --letter-spacing-heading-tight: 0.03125rem;
   --underline-offset: 0.125rem;
 
+  --font-weight-light: 300;
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
@@ -352,7 +353,7 @@
   --form-card-min-width: 22rem;
   --button-group-gap: 1rem;
   --form-field-gap: 0.75rem;
-  --form-label-gap: 0.5rem;
+  --form-label-gap: 0.75rem;
   --list-row-gap: 0.75rem;
   --grid-gap: 1rem;
   --toolbar-gap: 0.75rem;
@@ -447,7 +448,7 @@
 
   --form-label-color: #f5f5f5;
   --form-label-font: var(--font-heading);
-  --form-label-size: 0.66667rem;
+  --form-label-size: var(--text-tiny);
   --form-label-weight: var(--font-weight-regular);
   --form-label-line-height: 1.5;
   --form-label-letter-spacing: 0.06667rem;

@@ -5,10 +5,12 @@ import { cn } from "@/lib/cn";
 import styles from "./Button.module.css";
 
 type ButtonVariant = "primary" | "secondary" | "link";
+type ButtonSize = "default" | "small";
 type ArrowDirection = "left" | "right";
 
 type CommonProps = {
   variant?: ButtonVariant;
+  size?: ButtonSize;
   iconOnly?: boolean;
   iconLeft?: ReactNode;
   iconRight?: ReactNode;
@@ -31,6 +33,7 @@ export type ButtonProps = ButtonAsButton | ButtonAsLink;
 
 export function Button({
   variant = "primary",
+  size = "default",
   iconOnly = false,
   iconLeft,
   iconRight,
@@ -45,6 +48,7 @@ export function Button({
   const classes = cn(
     isTertiary ? styles.link : styles.button,
     !isTertiary && styles[variant],
+    !isTertiary && size === "small" && styles.small,
     iconOnly && styles.iconOnly,
     className,
   );

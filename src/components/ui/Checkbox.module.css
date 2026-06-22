@@ -1,0 +1,64 @@
+.root {
+  align-items: flex-start;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  gap: var(--space-3);
+  line-height: var(--line-height-body);
+}
+
+.input {
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.box {
+  align-items: center;
+  background-color: var(--background-secondary);
+  border: var(--stroke-width) solid var(--border-primary);
+  border-radius: 2px;
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 18px;
+  justify-content: center;
+  margin-top: 0.125rem;
+  position: relative;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  width: 18px;
+}
+
+.icon {
+  display: block;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.input:checked + .box {
+  background-color: var(--text-subheading);
+  border-color: var(--text-subheading);
+}
+
+.input:checked + .box .icon {
+  opacity: 1;
+}
+
+.input:focus-visible + .box {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.root:hover .box {
+  border-color: var(--text-subheading);
+}
+
+.root:has(.input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.label {
+  flex: 1;
+}

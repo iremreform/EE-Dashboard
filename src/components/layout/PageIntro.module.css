@@ -8,11 +8,36 @@
   width: 100%;
 }
 
+.taglineRow {
+  align-items: center;
+  display: flex;
+  gap: 5rem;
+  width: 100%;
+}
+
+.taglineRow > :first-child {
+  flex: 0 0 auto;
+}
+
+.taglineRule {
+  background-color: var(--text-subheading);
+  flex: 1 1 auto;
+  height: var(--stroke-width);
+  min-width: 0;
+  transform: translateY(calc(var(--space-1) * -1));
+}
+
 .lead {
   color: var(--text-secondary);
   font-size: var(--text-small);
   line-height: var(--line-height-body);
   margin: var(--space-3) 0 0;
+}
+
+.leadLarge {
+  color: var(--text-primary);
+  font-size: var(--text-medium);
+  margin-top: var(--space-4);
 }
 
 .choiceGrid {

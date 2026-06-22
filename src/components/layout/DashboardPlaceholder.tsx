@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui";
-import { nav } from "@/content/portal";
+import { nav, pages } from "@/content/portal";
 import { PageIntro, PageShell } from "@/components/layout";
 import contentStyles from "./PageContent.module.css";
 
@@ -22,7 +22,7 @@ export function DashboardPlaceholder({
     <PageShell backHref={backHref} backLabel={backLabel} width="default">
       <PageIntro tagline={areaLabel} title={greeting} lead={lead} />
 
-      <p className={contentStyles.bodyCopy}>More screens coming soon.</p>
+      <p className={contentStyles.bodyCopy}>{pages.placeholderBody}</p>
 
       <div className={contentStyles.pageActions}>
         <Button href={backHref} variant="secondary">

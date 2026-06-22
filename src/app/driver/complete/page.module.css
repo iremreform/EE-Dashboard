@@ -1,0 +1,38 @@
+.successCard {
+  align-self: stretch;
+}
+
+.successAnimation {
+  height: 5rem;
+  margin-bottom: var(--space-4);
+  margin-left: auto;
+  margin-right: auto;
+  width: 5rem;
+}
+
+.successTitle {
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  font-size: var(--fluid-h3);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-heading);
+  margin: 0 0 var(--space-3);
+  text-transform: uppercase;
+}
+
+.successMeta {
+  color: var(--text-subheading);
+  font-size: var(--text-small);
+  line-height: var(--line-height-body);
+  margin: var(--space-4) 0 0;
+}
+
+.nextCard {
+  align-self: stretch;
+  margin-top: var(--card-gap);
+}
+
+.actions {
+  display: grid;
+  gap: var(--button-group-gap);
+}

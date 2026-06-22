@@ -11,6 +11,7 @@ type PageShellProps = {
   backLabel?: string;
   width?: "narrow" | "default" | "wide";
   centerContent?: boolean;
+  showFooter?: boolean;
 };
 
 export function PageShell({
@@ -19,6 +20,7 @@ export function PageShell({
   backLabel = nav.home,
   width = "default",
   centerContent = false,
+  showFooter = true,
 }: PageShellProps) {
   return (
     <div className={styles.shell}>
@@ -50,7 +52,7 @@ export function PageShell({
         {children}
       </main>
 
-      <SiteFooter />
+      {showFooter ? <SiteFooter /> : null}
     </div>
   );
 }

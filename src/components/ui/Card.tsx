@@ -4,6 +4,8 @@ import styles from "./Card.module.css";
 
 type CardProps = HTMLAttributes<HTMLDivElement> & {
   title?: string;
+  titleVariant?: "heading" | "subheading";
+  surface?: "filled" | "transparent";
   centered?: boolean;
   compact?: boolean;
   children: ReactNode;
@@ -11,6 +13,8 @@ type CardProps = HTMLAttributes<HTMLDivElement> & {
 
 export function Card({
   title,
+  titleVariant = "heading",
+  surface = "filled",
   centered = false,
   compact = false,
   className,
@@ -19,10 +23,20 @@ export function Card({
 }: CardProps) {
   return (
     <section
-      className={cn(styles.card, centered && styles.centered, compact && styles.compact, className)}
+      className={cn(
+        styles.card,
+        surface === "transparent" && styles.transparent,
+        centered && styles.centered,
+        compact && styles.compact,
+        className,
+      )}
       {...props}
     >
-      {title ? <h2 className={styles.title}>{title}</h2> : null}
+      {title ? (
+        <h2 className={cn(styles.title, titleVariant === "subheading" && styles.titleSubheading)}>
+          {title}
+        </h2>
+      ) : null}
       {children}
     </section>
   );

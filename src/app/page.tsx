@@ -1,4 +1,4 @@
-import { areas, pages } from "@/content/portal";
+import { areas, homeChoices, pages } from "@/content/portal";
 import { ChoiceCard } from "@/components/ui";
 import { ChoiceGrid, PageIntro, PageShell } from "@/components/layout";
 
@@ -14,14 +14,14 @@ export default function HomePage() {
         <ChoiceCard
           href="/driver/login"
           title={areas.driver}
-          description="Delivery check-in, pickup / return, and submissions."
+          description={homeChoices.driver.description}
           actionLabel={pages.signIn}
         />
 
         <ChoiceCard
           href="/admin/login"
           title={areas.admin}
-          description="Driver management, submission review, and alerts."
+          description={homeChoices.admin.description}
           actionLabel={pages.signIn}
         />
       </ChoiceGrid>
