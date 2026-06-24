@@ -106,7 +106,7 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 - `/driver/pickup` — Pickup form
 - `/driver/complete` — Submission success
 - `/admin/login` — Admin login
-- `/admin/dashboard` — Dashboard + notification banner
+- `/admin/dashboard` — Dashboard + alert bell/recent submissions
 - `/admin/drivers` — Manage drivers
 - `/admin/drivers/new` — Create driver
 - `/admin/submissions` — Submissions list
@@ -161,7 +161,7 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 
 **Conflict:** Wireframe admin dashboard included Email/Zapier/Slack notification settings. Client requested removal.
 
-**Decision:** **Do not implement** notification channel settings in v1. Admin notification **banner** (alert count) remains.
+**Decision:** **Do not implement** notification channel settings in v1. Admin alerts are exposed through the topbar bell/dropdown and recent submissions, not a dashboard notification settings card.
 
 ---
 
@@ -252,17 +252,100 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 
 ---
 
+### D22 — Reservation source: Google Calendar
+
+**Client answer:** Reservation information is kept on **Google Calendar**.
+
+**Decision:** Treat Google Calendar as the reservation source for v1. The backend should normalize reservation data into the app database so submitted reports remain stable even if calendar events are edited later.
+
+**Required form data:** reservation number, date(s), guest name, number, drop-off location, pickup location. Clarify what "number" means before schema finalization.
+
+---
+
+### D23 — Delivery/pickup forms auto-fill reservation data
+
+**Client answer:** Forms should auto-fill.
+
+**Decision:** Driver delivery and pickup forms should search/select a reservation and auto-fill guest, reservation, location, and vehicle fields where available. Manual entry can be kept for admin corrections or fallback, but the main workflow is reservation-driven.
+
+---
+
+### D24 — Auth direction: username/password for now
+
+**Client answer:** Drivers/admins should use username and passwords. Admin access is needed for roughly **2 admins**.
+
+**Decision:** Backend auth planning should use username/password unless the client later reverses course to Google OAuth. Keep separate driver and admin authorization.
+
+**Impact:** `/driver/forgot-password` remains a password help page for now; no self-serve email reset flow is required unless requested later.
+
+---
+
+### D25 — Submission edit rules
+
+**Client answer:** Drivers can only make notes after submitting. Admins can edit submitted reports.
+
+**Decision:** Submitted reports are locked for drivers except driver notes. Admins can edit report fields and statuses. Every edit/note should be audit logged.
+
+---
+
+### D26 — Submission statuses
+
+**Client answer:** Statuses should be **Submitted**, **Completed**, and **Archived**.
+
+**Decision:** Use these as the primary report lifecycle statuses. Keep issue/alert flags separate from lifecycle status so a report can be Submitted + alert flagged without inventing another status.
+
+---
+
+### D27 — Audit trail required
+
+**Client answer:** Yes, audit trail is required with date/time stamps.
+
+**Decision:** Add audit events for report submission, viewing, editing, note additions, status changes, PDF export, archive, and admin account changes.
+
+---
+
+### D28 — Pickup reports link to delivery reports
+
+**Client answer:** Pickup/return is always tied to an earlier delivery report for the same reservation. Mileage and fuel should be compared automatically.
+
+**Decision:** Pickup reports must reference the matching delivery report. The system should compare return mileage/fuel against delivery mileage/fuel and surface differences for admin review.
+
+**Exception handling:** If no match is found, flag as needs review. If pickup location differs from drop-off/location details, note it on the original report and alert admins.
+
+---
+
+### D29 — Media capture and retention
+
+**Client answer:** Live photo capture is preferred; gallery upload should be available as backup. Reports/media/signatures should be kept for 1 year or trigger a reminder to offload if storage becomes an issue. Files should also be saved to Google Drive.
+
+**Decision:** Implement live capture where browser support allows it, with upload fallback. Store originals securely in app storage, copy files to Google Drive, and defer automated deletion until retention/offload rules are confirmed.
+
+---
+
+### D30 — Payments use Square invoices
+
+**Client answer:** Payments are handled through Square invoice links sent to customers by email/text.
+
+**Decision:** Model payments as external Square invoice references/statuses, not card data. Do not add PCI-sensitive payment fields.
+
+**Open:** Confirm whether the portal should show manual payment verified, Square invoice status, invoice link/reference ID, or invoice status plus manual override.
+
+---
+
 ## Open questions for client
 
 | # | Question | Impact |
 |---|----------|--------|
 | Q1 | Are PP Monument Extended and Editor's Note licensed for self-hosting in the dashboard? | Font implementation |
 | Q2 | Should admin dashboard show real-time metrics or static greeting (as wireframed)? | Admin dashboard scope |
-| Q3 | PDF download on submission detail — what generates the PDF? | Backend integration |
-| Q4 | Photo/video upload — camera capture on mobile or file picker only? | FileUpload component |
-| Q5 | Will payment card data appear in driver forms? (PCI concern flagged earlier) | Form fields scope |
-| Q6 | Should the portal selector (`/`) be public or redirect to login? | Routing/auth |
-| Q7 | Light theme toggle for admin users? | Theme system scope |
+| Q3 | In the reservation fields, what exactly does "Number" mean: guest phone number, member number, reservation number, or another internal value? | Reservation schema + form labels |
+| Q4 | What is the Google Calendar event format, and which calendar(s) should the portal read from? | Reservation integration |
+| Q5 | What should the portal display for Square payments: verified yes/no, invoice status, invoice link/reference, or a manual admin field? | Payment schema + admin UI |
+| Q6 | What Google Drive folder structure and file naming convention should be used for report copies? | File export workflow |
+| Q7 | Should 1-year retention be automatic deletion, archive/offload reminder, or manual admin cleanup? | Storage lifecycle |
+| Q8 | PDF download on submission detail — what template/data should generate the PDF? | Backend integration |
+| Q9 | Should the portal selector (`/`) remain public, or redirect authenticated users to their dashboard? | Routing/auth |
+| Q10 | Light theme toggle for admin users? | Theme system scope |
 
 ---
 
@@ -286,17 +369,19 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 
 ### Done
 - Brand tokens in `src/styles/tokens.css`
-- Phase 1 UI: `Button`, `Input`, `Select`, `Textarea`, `Field`, `Card`, `Tag`, `Tagline`, `Heading`, `Logo`, `ChoiceCard`, `ArrowIcon`
-- Layout: `PageShell`, `PageIntro`, `ChoiceGrid`, `PageGrid`, `PageContent` styles, `SiteFooter`, `DashboardPlaceholder`, `LoginForm`
-- Pages: portal selector, driver/admin login, password help, placeholder dashboards
+- Phase 1 UI: `Button`, `Input`, `Select`, `Textarea`, `Field`, `Card`, `Tag`, `Tagline`, `Heading`, `Logo`, `ChoiceCard`, `ArrowIcon`, `Checkbox`, `DotLottieAnimation`
+- Layout: `PageShell`, `PageIntro`, `PageContent` styles, `SiteFooter`, `DashboardPlaceholder`, `LoginForm`, `AdminShell`
+- Pages: portal selector, driver/admin login, password help, driver dashboard, delivery form, pickup form, completion screen, admin dashboard, manage drivers, create driver, submissions list, submission detail
 - Copy centralized in `src/content/portal.ts`
 - Global CSS reset (post-Tailwind removal)
 
-### Not started / stub
-- Real auth, API, database
-- Driver delivery/pickup forms and success screen
-- Admin sidebar, drivers list, submissions list/detail
-- `ListRow`, `FileUpload`, `NotificationBanner`, modals, toasts, etc.
+### Not started / backend-functional
+- Real auth, API, database, route protection
+- Persistent delivery/pickup submission handling
+- Real reservation auto-fill from Google Calendar
+- Real photo/video upload and Google Drive copy
+- Admin edit actions, driver disable/reset actions, and audit trail
+- PDF export, notifications, modals, toasts, loading/error states
 
 ---
 
@@ -306,7 +391,8 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 2. Add font files or document fallbacks in `src/app/layout.tsx` (D15 — still open)
 3. ~~Build Phase 1 components (see `component-inventory.md`)~~ ✅
 4. ~~Rebuild stub pages (`/`, `/driver/login`, `/admin/login`) with branded components~~ ✅
-5. **Driver dashboard** — add delivery/pickup `ChoiceCard`s (wireframe `driver-dashboard.html`)
-6. Implement remaining wireframe screens in flow order (forms → admin shell → lists)
+5. ~~Build driver dashboard delivery/pickup choice cards~~ ✅
+6. ~~Implement remaining planned wireframe frontend screens~~ ✅
 7. Backend + auth; protect dashboard routes
-8. Visual QA against energeticexotics.com side-by-side
+8. Connect reservations, submissions, media, notifications, audit trail, and PDF export
+9. Visual QA against energeticexotics.com side-by-side

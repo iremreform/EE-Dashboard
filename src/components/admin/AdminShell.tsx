@@ -6,15 +6,19 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { adminPortal } from "@/content/portal";
 import { cn } from "@/lib/cn";
-import { Logo } from "@/components/ui";
+import { ArrowIcon, Logo } from "@/components/ui";
 import styles from "./AdminShell.module.css";
 
 type AdminShellProps = {
   title: string;
+  topbarBackLink?: {
+    href: string;
+    label: string;
+  };
   children: ReactNode;
 };
 
-export function AdminShell({ title, children }: AdminShellProps) {
+export function AdminShell({ title, topbarBackLink, children }: AdminShellProps) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
@@ -59,14 +63,31 @@ export function AdminShell({ title, children }: AdminShellProps) {
           aria-label="Admin navigation"
         >
           <div className={styles.sidebarHead}>
-            <Logo />
+            <div className={styles.sidebarLogo}>
+              <Logo />
+            </div>
             <button
               type="button"
               className={styles.closeButton}
               aria-label="Close menu"
               onClick={() => setIsSidebarOpen(false)}
             >
-              Close
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="M18 6 6 18M6 6l12 12"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                />
+              </svg>
             </button>
           </div>
 
@@ -100,16 +121,38 @@ export function AdminShell({ title, children }: AdminShellProps) {
 
         <div className={styles.mainArea}>
           <header className={styles.topbar} aria-label={title}>
-            <button
-              type="button"
-              className={styles.menuButton}
-              aria-expanded={isSidebarOpen}
-              aria-controls="admin-sidebar"
-              onClick={() => setIsSidebarOpen(true)}
-            >
-              Menu
-            </button>
-            <span className={styles.topbarSpacer} aria-hidden="true" />
+            <div className={styles.topbarLeft}>
+              <button
+                type="button"
+                className={styles.menuButton}
+                aria-expanded={isSidebarOpen}
+                aria-controls="admin-sidebar"
+                onClick={() => setIsSidebarOpen(true)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M4 7h16M4 12h16M4 17h16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeWidth="2"
+                  />
+                </svg>
+              </button>
+              {topbarBackLink ? (
+                <Link className={styles.topbarBackLink} href={topbarBackLink.href}>
+                  <ArrowIcon direction="left" className={styles.topbarBackIcon} />
+                  {topbarBackLink.label}
+                </Link>
+              ) : null}
+            </div>
+            <Logo href="/admin/dashboard" className={styles.mobileLogo} />
             <div className={styles.alertMenu}>
               <button
                 type="button"

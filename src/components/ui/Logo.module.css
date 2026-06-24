@@ -3,7 +3,31 @@
   line-height: 0;
 }
 
+.logoMark {
+  display: inline-block;
+  line-height: 0;
+}
+
 .image {
   height: auto;
   width: auto;
+}
+
+.fullLogo {
+  display: none;
+}
+
+.smallLogo {
+  display: block;
+  width: 3.25rem;
+}
+
+@media (min-width: 48rem) {
+  .fullLogo {
+    display: block;
+  }
+
+  .smallLogo {
+    display: none;
+  }
 }

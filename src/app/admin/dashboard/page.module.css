@@ -1,29 +1,15 @@
 .choiceGrid {
+  align-items: stretch;
+  display: grid;
+  gap: var(--card-gap);
+  grid-template-columns: 1fr;
   margin: 0 auto var(--card-gap);
   max-width: 64rem;
 }
 
-.choiceGrid > * {
-  aspect-ratio: auto;
-  gap: var(--space-6);
-  justify-content: space-between;
-  min-height: 11rem;
-  padding: var(--space-6);
-  width: 100%;
-}
-
 .choiceGrid > * > :first-child {
   align-items: center;
-  max-width: none;
   text-align: center;
-}
-
-.choiceGrid h2 {
-  font-size: var(--text-regular);
-}
-
-.choiceGrid > *:hover {
-  transform: scale3d(1.02, 1.02, 1);
 }
 
 .recentCard {
@@ -95,10 +81,8 @@
   transition: var(--transition-button);
 }
 
-@media (min-width: 48rem) {
+@media (min-width: 64rem) {
   .choiceGrid {
-    align-items: stretch;
-    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

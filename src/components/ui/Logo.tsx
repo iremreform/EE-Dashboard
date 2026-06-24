@@ -19,14 +19,25 @@ export function Logo({
   priority = false,
 }: LogoProps) {
   const image = (
-    <Image
-      src="/company-logo.svg"
-      alt="Energetic Exotics"
-      width={width}
-      height={height}
-      className={cn(styles.image, className)}
-      priority={priority}
-    />
+    <span className={cn(styles.logoMark, className)}>
+      <Image
+        src="/company-logo.svg"
+        alt="Energetic Exotics"
+        width={width}
+        height={height}
+        className={cn(styles.image, styles.fullLogo)}
+        priority={priority}
+      />
+      <Image
+        src="/ee%20logo%20small.png"
+        alt=""
+        width={60}
+        height={40}
+        className={cn(styles.image, styles.smallLogo)}
+        priority={priority}
+        aria-hidden="true"
+      />
+    </span>
   );
 
   if (!href) {

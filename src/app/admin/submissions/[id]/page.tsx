@@ -17,13 +17,10 @@ export default async function AdminSubmissionDetailPage({
   const detail = adminPortal.submissionDetail;
 
   return (
-    <AdminShell title={detail.title}>
-      <div className={styles.backLink}>
-        <Button href="/admin/submissions" variant="link" arrow="left">
-          {detail.backLabel}
-        </Button>
-      </div>
-
+    <AdminShell
+      title={detail.title}
+      topbarBackLink={{ href: "/admin/submissions", label: detail.backLabel }}
+    >
       <PageIntro
         tagline={adminPortal.label}
         title={detail.title}
@@ -36,7 +33,7 @@ export default async function AdminSubmissionDetailPage({
           <Tag>{detail.type}</Tag>
           <Tag>{detail.reservation}</Tag>
         </div>
-        <Button href="#" size="small">{detail.downloadAction}</Button>
+        <Button href="#">{detail.downloadAction}</Button>
       </div>
 
       <div className={styles.formStack}>

@@ -83,7 +83,7 @@
 | Page Back Link | Wire | `← Parent` | `Button variant="link" arrow="left"` in top bar |
 | Content Layout | Wire | Default, wide, login | `PageShell` width props; shared form/page styles in `PageContent.module.css` |
 | Site Footer | Dash | Copyright + credit | `SiteFooter` — see `ui-decisions.md` D19 |
-| Dashboard Placeholder | Dash | Stub greeting | `DashboardPlaceholder` — shared driver/admin hub until real dashboards |
+| Dashboard Placeholder | Dash | Stub greeting | Legacy scaffold component; current dashboard routes use real branded layouts |
 | Card | Web, Wire | Default, success, spaced | Primary content container |
 | Choice Card | Wire | Delivery, Pickup | Dashboard hub options |
 | Toolbar | Wire | Filters + actions | Above lists/forms |
@@ -99,10 +99,10 @@
 | Component | Source | Variants | Notes |
 |-----------|--------|----------|-------|
 | Marketing Navbar | Web | Desktop, mobile drawer | Not used in dashboard |
-| Logo | Web, Wire | Default | `public/company-logo.svg` via `<Logo>` |
+| Logo | Web, Wire | Full, compact mobile | `public/company-logo.svg` and `public/ee logo small.png` via `<Logo>` |
 | Driver Top Bar | Wire | Logo + actions | Simple header |
-| Admin Sidebar | Wire, Figma | Expanded, mobile drawer | 288px, nav links |
-| Admin Top Bar | Wire | Menu, title, alerts | Sticky header |
+| Admin Sidebar | Wire, Figma | Expanded, mobile drawer | 288px desktop, drawer mobile, compact mobile logo |
+| Admin Top Bar | Wire | Menu, alerts, mobile logo | Sticky header, alert dropdown |
 | Admin Nav Link | Wire | Default, active, muted | Dashboard, drivers, submissions, logout |
 | Sidebar Close Button | Wire | `×` | Mobile drawer |
 | Sidebar Overlay | Wire | Scrim | Mobile only |
@@ -115,8 +115,8 @@
 
 | Component | Source | Variants | Notes |
 |-----------|--------|----------|-------|
-| Notification Banner | Wire | Info, dismissible | Admin dashboard alerts |
-| Alert Badge | Wire | Count indicator | `Alerts · 1` in topbar |
+| Notification Banner | Wire | Info, dismissible | Removed from dashboard; alerts live in topbar bell |
+| Alert Badge | Wire | Count indicator | Bell badge in admin topbar |
 | Toast | Figma, Dash | Success, error, info | Form submission feedback |
 | Modal | Figma | Info, filters, sorting | Confirmations, filter panels |
 | Modal Footer | Figma | Action buttons | |
@@ -193,31 +193,32 @@ These exist in the Figma file but are primarily for the marketing site. Include 
 5. Tag / Badge
 6. Logo
 
-### Phase 2 — Layout ✅ (partial)
+### Phase 2 — Layout ✅
 7. Page Shell + Site Footer
 8. Page Intro + ChoiceGrid / PageGrid
 9. Driver Top Bar (logo + back link in `PageShell`)
-10. Admin Sidebar + Top Bar + Overlay — **not started**
+10. Admin Sidebar + Top Bar + Overlay ✅
 11. Content layout (`PageContent.module.css`)
 
-### Phase 3 — Dashboard screens (partial)
+### Phase 3 — Dashboard screens ✅ (static data)
 12. Login Card (`LoginForm`) ✅
 13. Choice Card (`ChoiceCard` on `/`) ✅
-14. Data List Row — **not started**
-15. Filter Bar — **not started**
-16. Detail Grid — **not started**
-17. File Upload / Media Thumbnail — **not started**
-18. Notification Banner — **not started**
-19. Success Screen — **not started**
+14. Data List Row ✅
+15. Filter Bar ✅
+16. Detail Grid ✅
+17. File Upload / Media Thumbnail ✅ (static upload/capture placeholders)
+18. Notification Bell / Alert Menu ✅
+19. Success Screen ✅
 20. Empty State — **not started**
-21. Driver dashboard hub (delivery/pickup cards) — **stub only**
+21. Driver dashboard hub (delivery/pickup cards) ✅
 
-### Phase 4 — Polish
+### Phase 4 — Backend/functionality polish
 21. Modal
 22. Toast
 23. Loading Spinner / Skeleton
 24. Error Banner
 25. Signature Pad
+26. Real validation, persistence, auth, file upload, notifications, export
 
 ---
 
@@ -238,7 +239,7 @@ These exist in the Figma file but are primarily for the marketing site. Include 
 | `.wf-list-row` | `<ListRow>` |
 | `.wf-admin-sidebar` | `<AdminSidebar>` |
 | `.wf-admin-topbar` | `<AdminTopBar>` |
-| `.wf-notification-banner` | `<NotificationBanner>` |
+| `.wf-notification-banner` | Replaced by admin topbar alert menu |
 | `.wf-upload` | `<FileUpload>` |
 | `.wf-choice-card` | `<ChoiceCard>` |
 

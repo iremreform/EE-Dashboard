@@ -15,9 +15,9 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
+  gap: var(--space-4);
   left: 0;
-  padding: var(--space-6);
+  padding: var(--space-3) var(--space-6) var(--space-6);
   position: fixed;
   top: 0;
   transform: translateX(-100%);
@@ -33,37 +33,47 @@
 .sidebarHead {
   align-items: center;
   display: flex;
-  justify-content: space-between;
   gap: var(--space-4);
+  justify-content: flex-end;
+}
+
+.sidebarLogo {
+  display: none;
 }
 
 .closeButton,
 .menuButton {
   align-items: center;
-  background-color: var(--button-secondary-bg);
-  border: var(--stroke-width) solid var(--button-secondary-border);
-  border-radius: var(--button-radius);
-  color: var(--button-secondary-text);
+  background-color: transparent;
+  border: 0;
+  border-radius: 0;
   cursor: pointer;
   display: inline-flex;
-  font-family: var(--font-body);
-  font-size: var(--text-small);
-  font-weight: var(--font-weight-medium);
+  flex: 0 0 auto;
   justify-content: center;
   min-height: 2.75rem;
-  padding: var(--space-2) var(--space-4);
-  transition: var(--transition-button);
+  padding: var(--space-2);
+  transition: color var(--transition-fast);
+  width: 2.75rem;
+}
+
+.closeButton {
+  color: var(--text-subheading);
+}
+
+.menuButton {
+  color: var(--color-white);
 }
 
 .closeButton:hover,
 .menuButton:hover {
-  border-color: var(--button-secondary-border-hover);
-  color: var(--button-secondary-text-hover);
+  color: var(--text-subheading);
 }
 
 .closeButton:focus-visible,
 .menuButton:focus-visible,
 .navLink:focus-visible,
+.topbarBackLink:focus-visible,
 .alertButton:focus-visible,
 .alertItem:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
@@ -99,13 +109,12 @@
 
 .navLink:hover,
 .navLinkActive {
-  background-color: var(--opacity-white-5);
+  background-color: transparent;
   border-left-color: var(--text-subheading);
-  color: var(--text-primary);
+  color: var(--text-subheading);
 }
 
 .navLinkMuted {
-  color: var(--text-subheading);
   margin-top: var(--space-4);
 }
 
@@ -148,8 +157,47 @@
   z-index: var(--z-topbar);
 }
 
-.topbarSpacer {
+.topbarLeft {
+  align-items: center;
+  display: flex;
+  gap: var(--space-3);
   min-width: 0;
+}
+
+.mobileLogo {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.topbarBackLink {
+  align-items: center;
+  color: var(--button-link-color);
+  display: inline-flex;
+  font-family: var(--font-subheading);
+  font-size: var(--button-link-font-size);
+  font-style: italic;
+  font-weight: var(--font-weight-light);
+  gap: var(--button-link-gap);
+  justify-self: start;
+  line-height: var(--button-link-line-height);
+  padding: var(--button-link-padding-y) var(--button-link-padding-x);
+  text-decoration: none;
+  transition: var(--transition-button);
+  white-space: nowrap;
+}
+
+.topbarBackLink:hover {
+  color: var(--button-link-color-hover);
+}
+
+.topbarBackIcon {
+  transition: var(--transition-button);
+}
+
+.topbarBackLink:hover .topbarBackIcon {
+  transform: translateX(calc(var(--button-link-icon-hover-shift) * -1));
 }
 
 .alertMenu {
@@ -258,13 +306,24 @@
 
   .sidebar {
     bottom: auto;
+    gap: var(--space-8);
     height: 100vh;
+    padding: var(--space-6);
     position: sticky;
     transform: none;
   }
 
+  .sidebarHead {
+    justify-content: space-between;
+  }
+
+  .sidebarLogo {
+    display: block;
+  }
+
   .closeButton,
   .menuButton,
+  .mobileLogo,
   .overlay {
     display: none;
   }

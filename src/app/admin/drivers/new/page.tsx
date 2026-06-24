@@ -8,13 +8,10 @@ export default function AdminCreateDriverPage() {
   const createDriver = adminPortal.createDriver;
 
   return (
-    <AdminShell title={createDriver.title}>
-      <div className={styles.backLink}>
-        <Button href="/admin/drivers" variant="link" arrow="left">
-          {createDriver.backLabel}
-        </Button>
-      </div>
-
+    <AdminShell
+      title={createDriver.title}
+      topbarBackLink={{ href: "/admin/drivers", label: createDriver.backLabel }}
+    >
       <div className={styles.pageHeader}>
         <PageIntro
           tagline={adminPortal.label}

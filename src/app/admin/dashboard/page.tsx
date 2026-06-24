@@ -2,7 +2,7 @@ import Link from "next/link";
 import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
 import { Card, ChoiceCard } from "@/components/ui";
-import { ChoiceGrid, PageIntro } from "@/components/layout";
+import { PageIntro } from "@/components/layout";
 import styles from "./page.module.css";
 
 export default function AdminDashboardPage() {
@@ -19,12 +19,13 @@ export default function AdminDashboardPage() {
         leadSize="large"
       />
 
-      <ChoiceGrid className={styles.choiceGrid}>
+      <div className={styles.choiceGrid}>
         <ChoiceCard
           href={dashboard.choices.drivers.href}
           title={dashboard.choices.drivers.title}
           description={dashboard.choices.drivers.description}
           actionLabel={dashboard.choices.drivers.actionLabel}
+          variant="panel"
         />
 
         <ChoiceCard
@@ -32,8 +33,9 @@ export default function AdminDashboardPage() {
           title={dashboard.choices.submissions.title}
           description={dashboard.choices.submissions.description}
           actionLabel={dashboard.choices.submissions.actionLabel}
+          variant="panel"
         />
-      </ChoiceGrid>
+      </div>
 
       <Card title={dashboard.recentTitle} titleVariant="subheading" className={styles.recentCard}>
         <div className={styles.list}>
