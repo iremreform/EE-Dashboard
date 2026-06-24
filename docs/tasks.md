@@ -4,11 +4,14 @@ This task list reflects client answers received in `Driver Admin Portal Response
 
 ## Confirm before backend implementation
 
-- Payment display details: client uses Square invoice links by customer email/text, but still needs to confirm whether the portal should show payment verified only, Square invoice status, Square invoice URL/reference, or a manual admin field.
-- Reservation "Number" field meaning: client requested "Number" on delivery/pickup forms; confirm whether this means guest phone number, member number, reservation number, or another internal identifier.
 - Google Calendar data shape: confirm which calendar(s), event title format, event description fields, and whether reservation numbers already exist in events.
 - Google Drive organization: confirm folder structure, naming convention, permissions, and whether files should be copied immediately on submission or after admin review.
-- Report retention: client said 1 year or send reminder to offload if storage is an issue. Confirm final retention/offload policy before automating deletion.
+
+## Resolved backend assumptions
+
+- Reservation "Number" means the guest phone number.
+- Payment display is `Payment verified: Yes / No` only for now.
+- Reports, photos, videos, and signatures should not be deleted automatically. Keep them indefinitely and alert admins when storage is close to full.
 
 ## Backend phase 1: foundation
 
@@ -23,7 +26,7 @@ This task list reflects client answers received in `Driver Admin Portal Response
   - submission notes
   - alerts
   - audit events
-  - payment references
+  - payment verification
 - Add seed/sample data that matches current frontend examples.
 - Add server-side data access helpers with a clear boundary between UI components and backend calls.
 
@@ -45,7 +48,7 @@ This task list reflects client answers received in `Driver Admin Portal Response
   - reservation number
   - date(s)
   - guest name
-  - guest/contact number once clarified
+  - guest phone number
   - drop-off location
   - pickup location
   - vehicle details if present in calendar data
@@ -71,7 +74,8 @@ This task list reflects client answers received in `Driver Admin Portal Response
 - Store files in Supabase Storage with database metadata.
 - Copy submitted report media to Google Drive.
 - Prepare PDF export from submission detail.
-- Add retention/offload reminder once the final retention policy is confirmed.
+- Keep report/media files indefinitely.
+- Add storage capacity alerts before storage becomes full.
 
 ## Backend phase 6: notifications and audit
 
@@ -95,4 +99,3 @@ This task list reflects client answers received in `Driver Admin Portal Response
 - Add admin edit flows for submitted reports.
 - Add disabled-driver states and confirmation flows.
 - Add PDF export button behavior.
-

@@ -89,7 +89,7 @@ export const driverForms = {
       payment: {
         title: "Payment Verified Status",
         label: "Payment verified status",
-        placeholder: "Verified / reference ID",
+        placeholder: "Verified / not verified",
       },
       signature: {
         title: "Guest Signature",
@@ -365,7 +365,7 @@ export const adminPortal = {
     videoLabel: "Walkaround video",
     verificationTitle: "Verification & signature",
     licenses: ["License front", "License back"],
-    payment: ["Payment verified status", "Verified - REF-88421"],
+    payment: ["Payment verified status", "Verified"],
     signature: "Guest signature",
     notesTitle: "Notes",
     notes: "No additional notes recorded.",

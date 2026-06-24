@@ -10,7 +10,7 @@ This project is a branded Next.js portal for Energetic Exotics internal operatio
 - **Supabase/Postgres modeling:** expected backend direction for drivers, submissions, reservations, media metadata, audit events, and admin users.
 - **Auth and sessions:** username/password is the current client answer; Google OAuth was discussed but is not the current chosen login method.
 - **File/media workflows:** delivery/pickup reports need live photo/video capture, gallery fallback, storage, metadata, and Google Drive copies.
-- **External integrations:** Google Calendar reservations, Google Drive file copies, Square invoice/payment references, Vercel deployment.
+- **External integrations:** Google Calendar reservations, Google Drive file copies, Square payment verification context, Vercel deployment, Marker.io feedback.
 
 ## Project rules for agents
 
@@ -41,4 +41,3 @@ All planned v1 routes are present:
 - `/admin/submissions/[id]`
 
 The UI is still using static/sample content. Form submission, auth, upload, notification, export, and admin edit actions are not wired to real services yet.
-

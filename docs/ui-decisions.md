@@ -258,7 +258,7 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 
 **Decision:** Treat Google Calendar as the reservation source for v1. The backend should normalize reservation data into the app database so submitted reports remain stable even if calendar events are edited later.
 
-**Required form data:** reservation number, date(s), guest name, number, drop-off location, pickup location. Clarify what "number" means before schema finalization.
+**Required form data:** reservation number, date(s), guest name, guest phone number, drop-off location, pickup location.
 
 ---
 
@@ -316,9 +316,9 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 
 ### D29 — Media capture and retention
 
-**Client answer:** Live photo capture is preferred; gallery upload should be available as backup. Reports/media/signatures should be kept for 1 year or trigger a reminder to offload if storage becomes an issue. Files should also be saved to Google Drive.
+**Client answer:** Live photo capture is preferred; gallery upload should be available as backup. Files should also be saved to Google Drive. Retention is now decided as keep indefinitely, with a storage-capacity alert before storage is close to full.
 
-**Decision:** Implement live capture where browser support allows it, with upload fallback. Store originals securely in app storage, copy files to Google Drive, and defer automated deletion until retention/offload rules are confirmed.
+**Decision:** Implement live capture where browser support allows it, with upload fallback. Store originals securely in app storage, copy files to Google Drive, do not automatically delete reports/media/signatures, and alert admins before storage is close to full.
 
 ---
 
@@ -326,9 +326,7 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 
 **Client answer:** Payments are handled through Square invoice links sent to customers by email/text.
 
-**Decision:** Model payments as external Square invoice references/statuses, not card data. Do not add PCI-sensitive payment fields.
-
-**Open:** Confirm whether the portal should show manual payment verified, Square invoice status, invoice link/reference ID, or invoice status plus manual override.
+**Decision:** Show `Payment verified: Yes / No` only for now. Do not add PCI-sensitive payment fields, Square invoice links, Square references, or live Square status in the first backend pass.
 
 ---
 
@@ -338,14 +336,11 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 |---|----------|--------|
 | Q1 | Are PP Monument Extended and Editor's Note licensed for self-hosting in the dashboard? | Font implementation |
 | Q2 | Should admin dashboard show real-time metrics or static greeting (as wireframed)? | Admin dashboard scope |
-| Q3 | In the reservation fields, what exactly does "Number" mean: guest phone number, member number, reservation number, or another internal value? | Reservation schema + form labels |
-| Q4 | What is the Google Calendar event format, and which calendar(s) should the portal read from? | Reservation integration |
-| Q5 | What should the portal display for Square payments: verified yes/no, invoice status, invoice link/reference, or a manual admin field? | Payment schema + admin UI |
-| Q6 | What Google Drive folder structure and file naming convention should be used for report copies? | File export workflow |
-| Q7 | Should 1-year retention be automatic deletion, archive/offload reminder, or manual admin cleanup? | Storage lifecycle |
-| Q8 | PDF download on submission detail — what template/data should generate the PDF? | Backend integration |
-| Q9 | Should the portal selector (`/`) remain public, or redirect authenticated users to their dashboard? | Routing/auth |
-| Q10 | Light theme toggle for admin users? | Theme system scope |
+| Q3 | What is the Google Calendar event format, and which calendar(s) should the portal read from? | Reservation integration |
+| Q4 | What Google Drive folder structure and file naming convention should be used for report copies? | File export workflow |
+| Q5 | PDF download on submission detail — what template/data should generate the PDF? | Backend integration |
+| Q6 | Should the portal selector (`/`) remain public, or redirect authenticated users to their dashboard? | Routing/auth |
+| Q7 | Light theme toggle for admin users? | Theme system scope |
 
 ---
 

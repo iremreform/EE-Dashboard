@@ -13,7 +13,7 @@ This document captures external systems needed for the production backend.
 - reservation number
 - date(s)
 - guest name
-- guest/contact number, pending clarification
+- guest phone number
 - drop-off location
 - pickup location
 - vehicle details if available
@@ -43,23 +43,25 @@ This document captures external systems needed for the production backend.
 
 **Recommended use:**
 
-- Postgres for drivers, admins, reservations, submissions, media metadata, alerts, audit events, and payment references.
+- Postgres for drivers, admins, reservations, submissions, media metadata, alerts, audit events, and payment verification.
 - Supabase Storage for original photos, walkaround videos, signatures, and generated PDFs.
+- Keep report and media files indefinitely; do not automatically delete them.
+- Add storage usage monitoring and alert admins before storage is close to full.
 - Row-level security and service-role access where appropriate.
 
 **Open choice:** Supabase Auth can support username/password style login, but the final auth approach should be confirmed before implementation.
 
 ## Square
 
-**Purpose:** Payment/invoice reference.
+**Purpose:** Payment verification context.
 
 **Client answer:** Payments are handled through Square invoice links sent to customers by email/text.
 
-**Open questions:**
+**Portal behavior for now:**
 
-- Should the portal display manual `Payment verified: Yes / No`, Square invoice status, invoice URL/reference, or all of these?
-- Should the portal integrate with Square API or only store a manually entered Square invoice reference?
-- Should unpaid/overdue payment trigger an alert?
+- Show only `Payment verified: Yes / No`.
+- Do not store card data or PCI-sensitive payment details.
+- Do not integrate with the Square API in the first backend pass unless the client later asks for live invoice status.
 
 ## Vercel
 
@@ -70,6 +72,21 @@ This document captures external systems needed for the production backend.
 - Store production environment variables in Vercel project settings.
 - Use Vercel preview deployments for client review.
 - Confirm file upload limits and serverless runtime constraints before large video handling.
+
+## Marker.io
+
+**Purpose:** Client QA feedback/reporting on preview deployments.
+
+**Implementation:**
+
+- Loaded globally from `src/app/layout.tsx` using Next.js `<Script>`.
+- Project ID: `6a20413903d28bc4520d2e1d`.
+- Source: `snippet`.
+
+**Notes:**
+
+- Keep enabled for staging/client preview while frontend polish is active.
+- Revisit before production launch if the portal contains real customer/reservation data.
 
 ## Notifications
 
@@ -86,4 +103,3 @@ This document captures external systems needed for the production backend.
 
 - Notification settings card was removed from the UI; do not add configurable notification channels in v1 unless requested.
 - Keep alert records in the database even if email/Slack delivery fails.
-

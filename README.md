@@ -84,7 +84,7 @@ Static prototypes live in `reference/` for flow and layout context (agents, deve
 ## Next steps
 
 - Confirm and implement backend stack: Next.js server routes/actions, Supabase Postgres + Storage, username/password auth, Google Calendar/Drive integrations.
-- Build database schema for drivers, admin users, reservations, submissions, media, audit events, alerts, and payment references.
+- Build database schema for drivers, admin users, reservations, submissions, media, audit events, alerts, and payment verification.
 - Replace static sample data with reservation auto-fill from Google Calendar and persisted delivery/pickup submissions.
 - Implement real media capture/upload, Google Drive copy/export, notifications for every submission, and PDF export.
 - Add auth/session enforcement for driver vs admin routes.
