@@ -14,7 +14,6 @@ export default function DriverForgotPasswordPage() {
       <PageIntro
         tagline={areas.driver}
         title={pages.passwordHelp}
-        lead={passwordHelp.lead}
         centered
       />
 

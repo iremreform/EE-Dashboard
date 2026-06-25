@@ -12,6 +12,15 @@ export default function AdminCreateDriverPage() {
       title={createDriver.title}
       topbarBackLink={{ href: "/admin/drivers", label: createDriver.backLabel }}
     >
+      <Button
+        href="/admin/drivers"
+        variant="link"
+        arrow="left"
+        className={styles.mobileBackLink}
+      >
+        {createDriver.backLabel}
+      </Button>
+
       <div className={styles.pageHeader}>
         <PageIntro
           tagline={adminPortal.label}

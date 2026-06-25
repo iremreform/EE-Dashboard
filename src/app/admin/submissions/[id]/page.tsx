@@ -21,6 +21,15 @@ export default async function AdminSubmissionDetailPage({
       title={detail.title}
       topbarBackLink={{ href: "/admin/submissions", label: detail.backLabel }}
     >
+      <Button
+        href="/admin/submissions"
+        variant="link"
+        arrow="left"
+        className={styles.mobileBackLink}
+      >
+        {detail.backLabel}
+      </Button>
+
       <PageIntro
         tagline={adminPortal.label}
         title={detail.title}

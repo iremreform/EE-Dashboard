@@ -373,7 +373,6 @@ export const adminPortal = {
 } as const;
 
 export const passwordHelp = {
-  lead: "Contact Energetic Exotics and an administrator will reset your password.",
   bodyBeforeEmail: "For security, password resets are handled by your administrator. Email",
   email: "support@energeticexotics.com",
   bodyAfterEmail: "or contact your fleet manager directly.",

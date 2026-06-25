@@ -174,7 +174,7 @@
 .topbarBackLink {
   align-items: center;
   color: var(--button-link-color);
-  display: inline-flex;
+  display: none;
   font-family: var(--font-subheading);
   font-size: var(--button-link-font-size);
   font-style: italic;
@@ -326,6 +326,10 @@
   .mobileLogo,
   .overlay {
     display: none;
+  }
+
+  .topbarBackLink {
+    display: inline-flex;
   }
 
   .mainArea {

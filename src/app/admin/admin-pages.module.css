@@ -159,6 +159,12 @@
   margin-bottom: var(--space-4);
 }
 
+a.mobileBackLink {
+  display: inline-flex;
+  margin-left: calc(var(--button-link-padding-x) * -1);
+  margin-bottom: var(--space-4);
+}
+
 .tagToolbar {
   align-items: center;
   display: flex;
@@ -256,5 +262,11 @@
   .listRow {
     align-items: center;
     grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+@media (min-width: 64rem) {
+  a.mobileBackLink {
+    display: none;
   }
 }
