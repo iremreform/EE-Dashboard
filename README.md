@@ -2,7 +2,7 @@
 
 Next.js portal for driver delivery/pickup workflows and internal admin review.
 
-**Status:** Frontend routes are built for the planned v1 driver/admin flows, and the first Supabase backend wiring is active. Admin dashboard/submissions/drivers read from Supabase, `/admin/drivers/new` creates driver records plus Supabase Auth users, and `/driver/login` uses real Supabase Auth. Admin login, route protection, driver form persistence, media uploads, PDF export, notifications, and external integrations are still pending.
+**Status:** Frontend routes are built for the planned v1 driver/admin flows, and the first Supabase backend wiring is active. Admin dashboard/submissions/drivers read from Supabase, `/admin/drivers/new` creates driver records plus Supabase Auth users, and driver/admin login, route protection, and logout use Supabase Auth. Delivery reports now persist text/checklist/payment fields to Supabase. Pickup report persistence, media uploads, PDF export, notifications, and external integrations are still pending.
 
 ## Project structure
 
@@ -71,6 +71,12 @@ Current backend state:
 - Admin dashboard recent submissions, admin submissions list/detail, alert summary, and drivers list read from Supabase.
 - `/admin/drivers/new` inserts into `drivers`, creates a Supabase Auth user, and links `drivers.auth_user_id`.
 - `/driver/login` signs in with Supabase Auth and verifies a matching active `drivers` row.
+- Driver dashboard, delivery, pickup, and completion routes require an active driver session.
+- Driver dashboard logout signs out through Supabase.
+- `/admin/login` signs in with Supabase Auth and verifies a matching active `admin_users` row.
+- Admin dashboard, drivers, create-driver, submissions, and submission detail routes require an active admin session.
+- Admin sidebar logout signs out through Supabase.
+- `/driver/delivery` persists the first-pass delivery report payload, payment verified status, new-submission alert, driver last-active timestamp, and audit event.
 - Broad client-side RLS policies are intentionally not added yet; server-side code should use `SUPABASE_SECRET_KEY` until route protection and driver/admin auth policies are implemented.
 
 ## Routes (implemented)
@@ -91,7 +97,7 @@ Current backend state:
 | `/admin/submissions` | Filterable submissions list |
 | `/admin/submissions/[id]` | Submission detail / review |
 
-Planned frontend routes from `docs/ui-decisions.md` (D8) are now represented in the app. Some admin routes are backed by Supabase; driver forms and many action buttons are still static until the next backend phases are implemented.
+Planned frontend routes from `docs/ui-decisions.md` (D8) are now represented in the app. Admin routes and delivery report creation are backed by Supabase; pickup forms, media uploads, and several action buttons are still static until the next backend phases are implemented.
 
 ## Wireframe reference
 
@@ -109,6 +115,5 @@ Static prototypes live in `reference/` for flow and layout context (agents, deve
 ## Next steps
 
 - Continue backend stack: Next.js server routes/actions, Supabase Postgres + Storage, username/password auth, Google Calendar/Drive integrations.
-- Wire admin login and route protection for driver/admin areas.
-- Replace remaining static sample data with reservation auto-fill from Google Calendar and persisted delivery/pickup submissions.
+- Replace remaining static sample data with reservation auto-fill from Google Calendar and persisted pickup submissions.
 - Implement real media capture/upload, Google Drive copy/export, notifications for every submission, and PDF export.

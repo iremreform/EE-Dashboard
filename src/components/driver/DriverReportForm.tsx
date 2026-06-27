@@ -1,3 +1,4 @@
+import type { FormHTMLAttributes } from "react";
 import { Button, Card, Checkbox, Field, Input, Textarea } from "@/components/ui";
 import styles from "./DriverReportForm.module.css";
 
@@ -63,16 +64,23 @@ type DriverReportFormProps =
       type: "delivery";
       submitLabel: string;
       sections: DeliverySections;
+      submitAction?: FormHTMLAttributes<HTMLFormElement>["action"];
     }
   | {
       type: "pickup";
       submitLabel: string;
       sections: PickupSections;
+      submitAction?: FormHTMLAttributes<HTMLFormElement>["action"];
     };
 
-export function DriverReportForm({ type, submitLabel, sections }: DriverReportFormProps) {
+export function DriverReportForm({
+  type,
+  submitLabel,
+  sections,
+  submitAction,
+}: DriverReportFormProps) {
   return (
-    <form className={styles.formStack} noValidate>
+    <form action={submitAction} className={styles.formStack} noValidate>
       {type === "pickup" ? <SearchSection section={sections.search} /> : null}
 
       <FieldsSection
@@ -101,7 +109,12 @@ export function DriverReportForm({ type, submitLabel, sections }: DriverReportFo
       )}
 
       <SignatureSection section={sections.signature} type={type} />
-      <DriverConfirmationSection section={sections.driver} submitLabel={submitLabel} type={type} />
+      <DriverConfirmationSection
+        section={sections.driver}
+        submitAction={submitAction}
+        submitLabel={submitLabel}
+        type={type}
+      />
     </form>
   );
 }
@@ -273,10 +286,12 @@ function SignatureSection({
 
 function DriverConfirmationSection({
   section,
+  submitAction,
   submitLabel,
   type,
 }: {
   section: SharedSections["driver"];
+  submitAction?: FormHTMLAttributes<HTMLFormElement>["action"];
   submitLabel: string;
   type: "delivery" | "pickup";
 }) {
@@ -286,9 +301,15 @@ function DriverConfirmationSection({
         {section.confirmation}
       </Checkbox>
       <div className={styles.actions}>
-        <Button href="/driver/complete" className={styles.actionButton}>
-          {submitLabel}
-        </Button>
+        {submitAction ? (
+          <Button type="submit" className={styles.actionButton}>
+            {submitLabel}
+          </Button>
+        ) : (
+          <Button href="/driver/complete" className={styles.actionButton}>
+            {submitLabel}
+          </Button>
+        )}
         <Button href="/driver/dashboard" variant="secondary" className={styles.actionButton}>
           Cancel
         </Button>

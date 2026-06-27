@@ -11,6 +11,15 @@
   margin: calc(var(--space-2) * -1) 0 var(--space-4);
 }
 
+.errorNotice {
+  border-left: var(--stroke-width-tag) solid var(--color-error);
+  color: var(--color-error);
+  font-size: var(--text-small);
+  line-height: var(--line-height-body);
+  margin: 0 0 var(--space-4);
+  padding: var(--space-2) var(--space-3);
+}
+
 .searchNote {
   margin-top: var(--space-4);
 }

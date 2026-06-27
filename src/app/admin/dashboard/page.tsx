@@ -3,12 +3,15 @@ import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
 import { Card, ChoiceCard } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
+import { requireActiveAdmin } from "@/lib/admin-auth";
 import { getAdminAlertSummary, getRecentAdminSubmissions } from "@/lib/admin-submissions";
 import styles from "./page.module.css";
+import { adminLogoutAction } from "../actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
+  await requireActiveAdmin();
   const dashboard = adminPortal.dashboard;
   const [recentSubmissions, alertSummary] = await Promise.all([
     getRecentAdminSubmissions(),
@@ -16,7 +19,7 @@ export default async function AdminDashboardPage() {
   ]);
 
   return (
-    <AdminShell title={dashboard.title} alertSummary={alertSummary}>
+    <AdminShell title={dashboard.title} alertSummary={alertSummary} logoutAction={adminLogoutAction}>
       <PageIntro
         tagline={adminPortal.label}
         title={dashboard.greeting}

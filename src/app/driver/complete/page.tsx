@@ -1,10 +1,15 @@
 import { driverWorkflows, submissionComplete } from "@/content/portal";
 import { Button, Card, DotLottieAnimation } from "@/components/ui";
 import { PageShell } from "@/components/layout";
+import { requireActiveDriver } from "@/lib/driver-auth";
 import styles from "@/components/layout/PageContent.module.css";
 import pageStyles from "./page.module.css";
 
-export default function DriverCompletePage() {
+export const dynamic = "force-dynamic";
+
+export default async function DriverCompletePage() {
+  await requireActiveDriver();
+
   return (
     <PageShell centerContent width="narrow">
       <Card centered className={pageStyles.successCard}>

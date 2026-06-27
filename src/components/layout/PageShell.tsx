@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { FormHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 import { nav } from "@/content/portal";
 import { Button, Logo } from "@/components/ui";
@@ -7,6 +8,7 @@ import styles from "./PageShell.module.css";
 
 type PageShellProps = {
   children: ReactNode;
+  backAction?: FormHTMLAttributes<HTMLFormElement>["action"];
   backHref?: string;
   backLabel?: string;
   width?: "narrow" | "default" | "wide";
@@ -16,6 +18,7 @@ type PageShellProps = {
 
 export function PageShell({
   children,
+  backAction,
   backHref,
   backLabel = nav.home,
   width = "default",
@@ -26,7 +29,13 @@ export function PageShell({
     <div className={styles.shell}>
       <header className={styles.topBar}>
         <div className={styles.topBarStart}>
-          {backHref ? (
+          {backAction ? (
+            <form action={backAction}>
+              <Button type="submit" variant="link" arrow="left">
+                {backLabel}
+              </Button>
+            </form>
+          ) : backHref ? (
             <Button href={backHref} variant="link" arrow="left">
               {backLabel}
             </Button>

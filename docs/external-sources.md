@@ -49,11 +49,17 @@ This document captures external systems needed for the production backend.
 - Admin dashboard/submissions/drivers reads are wired through server-side Supabase helpers.
 - Driver creation creates both a `drivers` row and a Supabase Auth user.
 - Driver login uses Supabase Auth and checks the linked active `drivers` row.
+- Driver dashboard, delivery, pickup, and completion routes require an active driver session.
+- Driver logout signs out through Supabase.
+- Delivery report creation persists text/checklist/payment fields, creates a new-submission alert, updates driver last-active, and records an audit event. Media upload is still pending.
+- Admin login uses Supabase Auth and checks the linked active `admin_users` row.
+- Admin dashboard, drivers, create-driver, submissions, and submission detail routes require an active admin session.
+- Admin logout signs out through Supabase.
 - Keep report and media files indefinitely; do not automatically delete them.
 - Add storage usage monitoring and alert admins before storage is close to full.
 - Row-level security and service-role access where appropriate.
 
-**Auth status:** Supabase Auth is the active username/password direction. Driver login is implemented; admin login and route protection are still pending.
+**Auth status:** Supabase Auth is the active username/password direction. Driver/admin login, route protection, and logout are implemented.
 
 ## Square
 

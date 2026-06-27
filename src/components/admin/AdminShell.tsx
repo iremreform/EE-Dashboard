@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import type { FormHTMLAttributes, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { adminPortal } from "@/content/portal";
 import type { AdminAlertSummary } from "@/lib/admin-submissions";
@@ -12,6 +12,7 @@ import styles from "./AdminShell.module.css";
 
 type AdminShellProps = {
   alertSummary?: AdminAlertSummary;
+  logoutAction?: FormHTMLAttributes<HTMLFormElement>["action"];
   title: string;
   topbarBackLink?: {
     href: string;
@@ -20,7 +21,13 @@ type AdminShellProps = {
   children: ReactNode;
 };
 
-export function AdminShell({ alertSummary, title, topbarBackLink, children }: AdminShellProps) {
+export function AdminShell({
+  alertSummary,
+  logoutAction,
+  title,
+  topbarBackLink,
+  children,
+}: AdminShellProps) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
@@ -98,10 +105,25 @@ export function AdminShell({ alertSummary, title, topbarBackLink, children }: Ad
 
           <nav className={styles.nav}>
             {adminPortal.nav.map((item) => {
+              const isLogout = item.href === "/admin/login" && "muted" in item && item.muted;
               const isActive =
                 item.href === "/admin/dashboard"
                   ? pathname === item.href
                   : pathname.startsWith(item.href);
+
+              if (isLogout && logoutAction) {
+                return (
+                  <form key={item.href} action={logoutAction}>
+                    <button
+                      type="submit"
+                      className={cn(styles.navLink, styles.navButton, styles.navLinkMuted)}
+                      onClick={() => setIsSidebarOpen(false)}
+                    >
+                      {item.label}
+                    </button>
+                  </form>
+                );
+              }
 
               return (
                 <Link

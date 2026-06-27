@@ -3,12 +3,15 @@ import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
 import { Button, Card, Field, Input } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
+import { requireActiveAdmin } from "@/lib/admin-auth";
 import { getAdminAlertSummary, getAdminSubmissions } from "@/lib/admin-submissions";
 import styles from "../admin-pages.module.css";
+import { adminLogoutAction } from "../actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminSubmissionsPage() {
+  await requireActiveAdmin();
   const submissions = adminPortal.submissions;
   const [rows, alertSummary] = await Promise.all([
     getAdminSubmissions(),
@@ -16,7 +19,11 @@ export default async function AdminSubmissionsPage() {
   ]);
 
   return (
-    <AdminShell title={submissions.title} alertSummary={alertSummary}>
+    <AdminShell
+      title={submissions.title}
+      alertSummary={alertSummary}
+      logoutAction={adminLogoutAction}
+    >
       <PageIntro
         tagline={adminPortal.label}
         title={submissions.title}

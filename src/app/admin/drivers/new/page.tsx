@@ -2,8 +2,10 @@ import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
 import { Button, Card, Checkbox, Field, Input } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
+import { requireActiveAdmin } from "@/lib/admin-auth";
 import { getAdminAlertSummary } from "@/lib/admin-submissions";
 import styles from "../../admin-pages.module.css";
+import { adminLogoutAction } from "../../actions";
 import { createDriverAction } from "./actions";
 
 type AdminCreateDriverPageProps = {
@@ -17,6 +19,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminCreateDriverPage({
   searchParams,
 }: AdminCreateDriverPageProps) {
+  await requireActiveAdmin();
   const createDriver = adminPortal.createDriver;
   const [{ error }, alertSummary] = await Promise.all([
     searchParams ?? Promise.resolve({} as { error?: string }),
@@ -27,6 +30,7 @@ export default async function AdminCreateDriverPage({
     <AdminShell
       title={createDriver.title}
       alertSummary={alertSummary}
+      logoutAction={adminLogoutAction}
       topbarBackLink={{ href: "/admin/drivers", label: createDriver.backLabel }}
     >
       <Button

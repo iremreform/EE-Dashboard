@@ -23,7 +23,7 @@ Start here when working on the Energetic Exotics dashboard. These docs describe 
 | Logo assets | `public/company-logo.svg`, `public/ee logo small.png` |
 | Backend plan | `docs/tasks.md` |
 | External services | `docs/external-sources.md` |
-| Supabase backend | Schema/seed applied; admin reads, driver creation, and driver login are wired |
+| Supabase backend | Schema/seed applied; admin reads, driver creation, driver/admin login/protection/logout, and first-pass delivery report persistence are wired |
 | Figma file | [Internal UI Style Guide](https://www.figma.com/design/vjj9rDRMUTzSM9v3Twa49m/Energetic-Exotics--Internal-UI-?node-id=2368-52) |
 
 ## Rules of thumb
@@ -31,5 +31,5 @@ Start here when working on the Energetic Exotics dashboard. These docs describe 
 - **Visual styling:** website + Figma + `design-system.md` — not wireframe grayscale CSS
 - **Layout & flows:** wireframes in `reference/` — not served by the app
 - **Styling in code:** CSS modules + tokens — no Tailwind
-- **Auth:** driver login validates through Supabase Auth; admin login and route protection are still pending
+- **Auth:** driver/admin login, protected routes, and logout use Supabase Auth
 - **Footer:** minimal `SiteFooter` on all `PageShell` pages (see D19 in `ui-decisions.md`)

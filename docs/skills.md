@@ -8,7 +8,7 @@ This project is a branded Next.js portal for Energetic Exotics internal operatio
 - **React + TypeScript:** keep components typed, small, and aligned with existing patterns.
 - **CSS modules + design tokens:** use `src/styles/tokens.css`; do not add Tailwind or one-off visual systems.
 - **Supabase/Postgres modeling:** active backend for drivers, submissions, reservations, media metadata, audit events, and admin users.
-- **Auth and sessions:** username/password is the current client answer; driver login uses Supabase Auth, while admin login and route protection are still pending.
+- **Auth and sessions:** username/password is the current client answer; driver/admin login, protected routes, and logout use Supabase Auth.
 - **File/media workflows:** delivery/pickup reports need live photo/video capture, gallery fallback, storage, metadata, and Google Drive copies.
 - **External integrations:** Google Calendar reservations, Google Drive file copies, Square payment verification context, Vercel deployment, Marker.io feedback.
 
@@ -45,5 +45,11 @@ Current backend wiring:
 - `/admin/dashboard`, `/admin/submissions`, `/admin/submissions/[id]`, and `/admin/drivers` read from Supabase.
 - `/admin/drivers/new` creates a driver row plus a Supabase Auth user.
 - `/driver/login` signs in with Supabase Auth and checks for an active driver row.
+- Driver dashboard, delivery, pickup, and completion routes require an active driver session.
+- Driver dashboard logout signs out through Supabase.
+- `/admin/login` signs in with Supabase Auth and checks for an active admin row.
+- Admin dashboard, drivers, create-driver, submissions, and submission detail routes require an active admin session.
+- Admin sidebar logout signs out through Supabase.
+- `/driver/delivery` persists first-pass delivery report text/checklist/payment fields, creates an alert, updates driver last-active, and records an audit event.
 
-Still pending: admin login, route protection, driver form submission, uploads, notifications, PDF export, admin edit actions, and reset/disable/re-enable actions.
+Still pending: pickup form submission, media uploads, notifications, PDF export, admin edit actions, and reset/disable/re-enable actions.

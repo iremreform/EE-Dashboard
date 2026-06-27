@@ -107,6 +107,18 @@
     color var(--transition-fast);
 }
 
+.navButton {
+  background: transparent;
+  border-bottom: 0;
+  border-right: 0;
+  border-top: 0;
+  cursor: pointer;
+  display: block;
+  font: inherit;
+  text-align: left;
+  width: 100%;
+}
+
 .navLink:hover,
 .navLinkActive {
   background-color: transparent;

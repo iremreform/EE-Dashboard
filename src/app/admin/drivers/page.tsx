@@ -2,13 +2,16 @@ import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
 import { Button, Card, Field, Input, Tag } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
+import { requireActiveAdmin } from "@/lib/admin-auth";
 import { getAdminDrivers } from "@/lib/admin-drivers";
 import { getAdminAlertSummary } from "@/lib/admin-submissions";
 import styles from "../admin-pages.module.css";
+import { adminLogoutAction } from "../actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDriversPage() {
+  await requireActiveAdmin();
   const drivers = adminPortal.drivers;
   const [rows, alertSummary] = await Promise.all([
     getAdminDrivers(),
@@ -16,7 +19,7 @@ export default async function AdminDriversPage() {
   ]);
 
   return (
-    <AdminShell title={drivers.title} alertSummary={alertSummary}>
+    <AdminShell title={drivers.title} alertSummary={alertSummary} logoutAction={adminLogoutAction}>
       <PageIntro
         tagline={adminPortal.label}
         title={drivers.title}

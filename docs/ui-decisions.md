@@ -276,7 +276,7 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 
 **Decision:** Backend auth planning should use username/password unless the client later reverses course to Google OAuth. Keep separate driver and admin authorization.
 
-**Implementation status:** `/driver/login` uses Supabase Auth and verifies a linked active `drivers` row. `/admin/login`, route protection, and real logout are still pending.
+**Implementation status:** `/driver/login` and `/admin/login` use Supabase Auth and verify linked active `drivers` / `admin_users` rows. Driver and admin dashboard/workflow routes are protected, and logout is real for both portals.
 
 **Impact:** `/driver/forgot-password` remains a password help page for now; no self-serve email reset flow is required unless requested later.
 
@@ -373,11 +373,11 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 - Global CSS reset (post-Tailwind removal)
 - Supabase foundation: schema/seed applied in dashboard, server helpers added, admin dashboard/submissions/drivers reads wired
 - Driver creation: `/admin/drivers/new` creates `drivers` records and Supabase Auth users
-- Driver login: `/driver/login` validates with Supabase Auth and active driver status
+- Driver/admin login/protection/logout: `/driver/login` and `/admin/login` validate with Supabase Auth and active account status; driver/admin workflow routes are protected
 
 ### Not started / backend-functional
-- Admin login, route protection, real logout
-- Persistent delivery/pickup submission handling
+- Pickup submission persistence
+- Delivery media upload persistence
 - Real reservation auto-fill from Google Calendar
 - Real photo/video upload and Google Drive copy
 - Admin edit actions, driver disable/reset actions, and audit trail
@@ -393,6 +393,5 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 4. ~~Rebuild stub pages (`/`, `/driver/login`, `/admin/login`) with branded components~~ ✅
 5. ~~Build driver dashboard delivery/pickup choice cards~~ ✅
 6. ~~Implement remaining planned wireframe frontend screens~~ ✅
-7. Continue backend + auth: admin login, route protection, real logout
-8. Connect driver form submissions, reservations, media, notifications, audit trail, and PDF export
+7. Connect pickup submissions, reservation auto-fill, media, notifications, admin audit trail views, and PDF export
 9. Visual QA against energeticexotics.com side-by-side

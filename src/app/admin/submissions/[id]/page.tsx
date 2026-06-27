@@ -3,8 +3,10 @@ import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
 import { Button, Card, Tag } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
+import { requireActiveAdmin } from "@/lib/admin-auth";
 import { getAdminAlertSummary, getAdminSubmissionDetail } from "@/lib/admin-submissions";
 import styles from "../../admin-pages.module.css";
+import { adminLogoutAction } from "../../actions";
 
 type AdminSubmissionDetailPageProps = {
   params: Promise<{
@@ -17,6 +19,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminSubmissionDetailPage({
   params,
 }: AdminSubmissionDetailPageProps) {
+  await requireActiveAdmin();
   const { id } = await params;
   const [detail, alertSummary] = await Promise.all([
     getAdminSubmissionDetail(id),
@@ -31,6 +34,7 @@ export default async function AdminSubmissionDetailPage({
     <AdminShell
       title={detail.title}
       alertSummary={alertSummary}
+      logoutAction={adminLogoutAction}
       topbarBackLink={{ href: "/admin/submissions", label: detail.backLabel }}
     >
       <Button

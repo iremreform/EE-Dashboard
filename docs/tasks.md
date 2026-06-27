@@ -32,14 +32,14 @@ This task list reflects client answers received in `Driver Admin Portal Response
 
 ## Backend phase 2: auth and access
 
-- Implement username/password login for drivers and admins. ✅ Driver login is wired to Supabase Auth and verifies an active `drivers` row. Admin login still pending.
-- Separate driver and admin sessions/authorization. Driver role check exists at login; route protection still pending.
+- Implement username/password login for drivers and admins. ✅ Driver/admin login are wired to Supabase Auth and verify active `drivers` / `admin_users` rows.
+- Separate driver and admin sessions/authorization. ✅ Driver/admin routes require active matching account rows.
 - Support exactly the current admin operations:
   - admins can disable drivers immediately
   - admins can reset/change driver access later
   - only admins can edit submitted reports
 - Keep `/driver/forgot-password` as password help unless the client changes the login approach.
-- Add route protection for all dashboard/form/admin pages.
+- Add route protection for all dashboard/form/admin pages. ✅ Driver dashboard/delivery/pickup/complete and admin dashboard/drivers/create-driver/submissions/detail are protected.
 
 ## Backend phase 3: reservations and auto-fill
 
@@ -58,7 +58,7 @@ This task list reflects client answers received in `Driver Admin Portal Response
 
 ## Backend phase 4: delivery and pickup submissions
 
-- Persist delivery reports.
+- Persist delivery reports. ✅ First pass wired for text/checklist/payment fields; media uploads are still pending.
 - Persist pickup/return reports.
 - Lock submitted driver reports except for driver notes.
 - Allow admins to edit submitted reports.
