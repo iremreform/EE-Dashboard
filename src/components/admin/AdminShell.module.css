@@ -288,6 +288,13 @@
   line-height: var(--line-height-body);
 }
 
+.alertEmpty {
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+  line-height: var(--line-height-body);
+  margin: 0;
+}
+
 .alertItem:hover strong {
   color: var(--text-subheading);
 }

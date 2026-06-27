@@ -1,7 +1,9 @@
+import { notFound } from "next/navigation";
 import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
 import { Button, Card, Tag } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
+import { getAdminAlertSummary, getAdminSubmissionDetail } from "@/lib/admin-submissions";
 import styles from "../../admin-pages.module.css";
 
 type AdminSubmissionDetailPageProps = {
@@ -10,15 +12,25 @@ type AdminSubmissionDetailPageProps = {
   }>;
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminSubmissionDetailPage({
   params,
 }: AdminSubmissionDetailPageProps) {
-  await params;
-  const detail = adminPortal.submissionDetail;
+  const { id } = await params;
+  const [detail, alertSummary] = await Promise.all([
+    getAdminSubmissionDetail(id),
+    getAdminAlertSummary(),
+  ]);
+
+  if (!detail) {
+    notFound();
+  }
 
   return (
     <AdminShell
       title={detail.title}
+      alertSummary={alertSummary}
       topbarBackLink={{ href: "/admin/submissions", label: detail.backLabel }}
     >
       <Button

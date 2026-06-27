@@ -3,13 +3,20 @@ import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
 import { Button, Card, Field, Input } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
+import { getAdminAlertSummary, getAdminSubmissions } from "@/lib/admin-submissions";
 import styles from "../admin-pages.module.css";
 
-export default function AdminSubmissionsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminSubmissionsPage() {
   const submissions = adminPortal.submissions;
+  const [rows, alertSummary] = await Promise.all([
+    getAdminSubmissions(),
+    getAdminAlertSummary(),
+  ]);
 
   return (
-    <AdminShell title={submissions.title}>
+    <AdminShell title={submissions.title} alertSummary={alertSummary}>
       <PageIntro
         tagline={adminPortal.label}
         title={submissions.title}
@@ -49,23 +56,27 @@ export default function AdminSubmissionsPage() {
       </Card>
 
       <Card title={submissions.listTitle} titleVariant="subheading" className={styles.listCard}>
-        <div className={styles.list}>
-          {submissions.rows.map((submission) => (
-            <Link
-              key={submission.href}
-              href={submission.href}
-              className={`${styles.listRow} ${styles.interactiveListRow}`}
-            >
-              <div>
-                <strong className={styles.listTitle}>{submission.title}</strong>
-                <p className={styles.listMeta}>{submission.meta}</p>
-              </div>
-              <span className={styles.rowButton}>
-                {submission.status}
-              </span>
-            </Link>
-          ))}
-        </div>
+        {rows.length ? (
+          <div className={styles.list}>
+            {rows.map((submission) => (
+              <Link
+                key={submission.href}
+                href={submission.href}
+                className={`${styles.listRow} ${styles.interactiveListRow}`}
+              >
+                <div>
+                  <strong className={styles.listTitle}>{submission.title}</strong>
+                  <p className={styles.listMeta}>{submission.meta}</p>
+                </div>
+                <span className={styles.rowButton}>
+                  {submission.status}
+                </span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className={styles.emptyText}>No submissions found.</p>
+        )}
       </Card>
     </AdminShell>
   );

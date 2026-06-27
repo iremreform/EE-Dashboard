@@ -1,6 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
+import type { FormHTMLAttributes } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Card, Field, Input } from "@/components/ui";
@@ -12,6 +13,8 @@ type LoginFormProps = {
   title: string;
   emailLabel: string;
   emailPlaceholder: string;
+  error?: string;
+  formAction?: FormHTMLAttributes<HTMLFormElement>["action"];
   submitHref: string;
   secureNotice: string;
   helpHref?: string;
@@ -23,6 +26,8 @@ export function LoginForm({
   title,
   emailLabel,
   emailPlaceholder,
+  error,
+  formAction,
   submitHref,
   secureNotice,
   helpHref,
@@ -40,7 +45,18 @@ export function LoginForm({
       <PageIntro tagline={areaLabel} title={title} centered />
 
       <Card centered className={styles.formCard}>
-        <form className={styles.formStack} noValidate onSubmit={handleSubmit}>
+        <form
+          action={formAction}
+          className={styles.formStack}
+          noValidate
+          onSubmit={formAction ? undefined : handleSubmit}
+        >
+          {error ? (
+            <p className={styles.loginError} role="alert">
+              {error}
+            </p>
+          ) : null}
+
           <Field label={emailLabel} htmlFor="email">
             {({ describedBy, hasError }) => (
               <Input

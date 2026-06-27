@@ -15,9 +15,9 @@ This task list reflects client answers received in `Driver Admin Portal Response
 
 ## Backend phase 1: foundation
 
-- Choose and document the final backend stack.
-- Add environment variable documentation for Supabase, Google, Square, auth secrets, and app URLs.
-- Create database schema/migrations for:
+- Choose and document the final backend stack. ✅ Supabase + Next.js server routes/actions is the current direction.
+- Add environment variable documentation for Supabase, Google, Square, auth secrets, and app URLs. ✅ Supabase env vars are documented in `.env.example` and `README.md`.
+- Create database schema/migrations for: ✅ Initial Supabase schema was applied in the dashboard on June 27, 2026.
   - admin users
   - drivers
   - reservations
@@ -27,13 +27,13 @@ This task list reflects client answers received in `Driver Admin Portal Response
   - alerts
   - audit events
   - payment verification
-- Add seed/sample data that matches current frontend examples.
-- Add server-side data access helpers with a clear boundary between UI components and backend calls.
+- Add seed/sample data that matches current frontend examples. ✅ Seed data was applied in the dashboard on June 27, 2026.
+- Add server-side data access helpers with a clear boundary between UI components and backend calls. ✅ Supabase helpers live in `src/lib/supabase/`.
 
 ## Backend phase 2: auth and access
 
-- Implement username/password login for drivers and admins.
-- Separate driver and admin sessions/authorization.
+- Implement username/password login for drivers and admins. ✅ Driver login is wired to Supabase Auth and verifies an active `drivers` row. Admin login still pending.
+- Separate driver and admin sessions/authorization. Driver role check exists at login; route protection still pending.
 - Support exactly the current admin operations:
   - admins can disable drivers immediately
   - admins can reset/change driver access later
@@ -92,10 +92,10 @@ This task list reflects client answers received in `Driver Admin Portal Response
 
 ## Frontend follow-up tasks
 
-- Replace static data in `src/content/portal.ts` with server data where appropriate.
+- Replace static data in `src/content/portal.ts` with server data where appropriate. ✅ Admin dashboard recent submissions, admin submissions list, submission detail, alert summary, and drivers list now read from Supabase.
 - Add loading, empty, error, and success states for all dynamic pages.
 - Add real form validation and required checklist enforcement.
 - Add media previews/progress states.
 - Add admin edit flows for submitted reports.
-- Add disabled-driver states and confirmation flows.
+- Add disabled-driver states and confirmation flows. Create-driver is wired to Supabase database + Auth, but reset/disable/re-enable actions are still pending.
 - Add PDF export button behavior.

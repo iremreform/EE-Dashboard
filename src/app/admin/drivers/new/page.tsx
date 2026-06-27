@@ -2,14 +2,31 @@ import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
 import { Button, Card, Checkbox, Field, Input } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
+import { getAdminAlertSummary } from "@/lib/admin-submissions";
 import styles from "../../admin-pages.module.css";
+import { createDriverAction } from "./actions";
 
-export default function AdminCreateDriverPage() {
+type AdminCreateDriverPageProps = {
+  searchParams?: Promise<{
+    error?: string;
+  }>;
+};
+
+export const dynamic = "force-dynamic";
+
+export default async function AdminCreateDriverPage({
+  searchParams,
+}: AdminCreateDriverPageProps) {
   const createDriver = adminPortal.createDriver;
+  const [{ error }, alertSummary] = await Promise.all([
+    searchParams ?? Promise.resolve({} as { error?: string }),
+    getAdminAlertSummary(),
+  ]);
 
   return (
     <AdminShell
       title={createDriver.title}
+      alertSummary={alertSummary}
       topbarBackLink={{ href: "/admin/drivers", label: createDriver.backLabel }}
     >
       <Button
@@ -30,7 +47,13 @@ export default function AdminCreateDriverPage() {
         />
       </div>
 
-      <form className={styles.formStack} noValidate>
+      {error ? (
+        <p className={styles.errorNotice} role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      <form action={createDriverAction} className={styles.formStack} noValidate>
         <Card
           title={createDriver.sections.account.title}
           titleVariant="subheading"
@@ -89,7 +112,7 @@ export default function AdminCreateDriverPage() {
             </Field>
 
             {createDriver.sections.access.options.map((option) => (
-              <Checkbox key={option} className={styles.checkboxRow}>
+              <Checkbox key={option} name={slugify(option)} className={styles.checkboxRow}>
                 {option}
               </Checkbox>
             ))}
@@ -97,7 +120,7 @@ export default function AdminCreateDriverPage() {
         </Card>
 
         <div className={styles.actions}>
-          <Button href="/admin/drivers">{createDriver.saveAction}</Button>
+          <Button type="submit">{createDriver.saveAction}</Button>
           <Button href="/admin/drivers" variant="secondary">
             {createDriver.cancelAction}
           </Button>

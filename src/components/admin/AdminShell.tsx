@@ -5,11 +5,13 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { adminPortal } from "@/content/portal";
+import type { AdminAlertSummary } from "@/lib/admin-submissions";
 import { cn } from "@/lib/cn";
 import { ArrowIcon, Logo } from "@/components/ui";
 import styles from "./AdminShell.module.css";
 
 type AdminShellProps = {
+  alertSummary?: AdminAlertSummary;
   title: string;
   topbarBackLink?: {
     href: string;
@@ -18,11 +20,12 @@ type AdminShellProps = {
   children: ReactNode;
 };
 
-export function AdminShell({ title, topbarBackLink, children }: AdminShellProps) {
+export function AdminShell({ alertSummary, title, topbarBackLink, children }: AdminShellProps) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
-  const dashboardAlert = adminPortal.dashboard.notification;
+  const dashboardAlert = alertSummary?.item ?? adminPortal.dashboard.notification;
+  const alertCount = alertSummary?.count ?? adminPortal.alertCount;
 
   useEffect(() => {
     if (!isSidebarOpen && !isAlertsOpen) {
@@ -158,7 +161,7 @@ export function AdminShell({ title, topbarBackLink, children }: AdminShellProps)
                 type="button"
                 className={styles.alertButton}
                 aria-expanded={isAlertsOpen}
-                aria-label={`${adminPortal.alertCount} alert`}
+                aria-label={`${alertCount} alert${alertCount === 1 ? "" : "s"}`}
                 onClick={() => setIsAlertsOpen((isOpen) => !isOpen)}
               >
                 <svg
@@ -186,20 +189,24 @@ export function AdminShell({ title, topbarBackLink, children }: AdminShellProps)
                     fill="none"
                   />
                 </svg>
-                <span className={styles.alertBadge}>{adminPortal.alertCount}</span>
+                {alertCount > 0 ? <span className={styles.alertBadge}>{alertCount}</span> : null}
               </button>
 
               {isAlertsOpen ? (
                 <div className={styles.alertDropdown}>
                   <p className={styles.alertDropdownTitle}>Alerts</p>
-                  <Link
-                    className={styles.alertItem}
-                    href={dashboardAlert.href}
-                    onClick={() => setIsAlertsOpen(false)}
-                  >
-                    <strong>{dashboardAlert.title}</strong>
-                    <span>{dashboardAlert.meta}</span>
-                  </Link>
+                  {dashboardAlert ? (
+                    <Link
+                      className={styles.alertItem}
+                      href={dashboardAlert.href}
+                      onClick={() => setIsAlertsOpen(false)}
+                    >
+                      <strong>{dashboardAlert.title}</strong>
+                      <span>{dashboardAlert.meta}</span>
+                    </Link>
+                  ) : (
+                    <p className={styles.alertEmpty}>No open alerts.</p>
+                  )}
                 </div>
               ) : null}
             </div>

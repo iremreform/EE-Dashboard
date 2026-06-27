@@ -276,6 +276,8 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 
 **Decision:** Backend auth planning should use username/password unless the client later reverses course to Google OAuth. Keep separate driver and admin authorization.
 
+**Implementation status:** `/driver/login` uses Supabase Auth and verifies a linked active `drivers` row. `/admin/login`, route protection, and real logout are still pending.
+
 **Impact:** `/driver/forgot-password` remains a password help page for now; no self-serve email reset flow is required unless requested later.
 
 ---
@@ -369,9 +371,12 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 - Pages: portal selector, driver/admin login, password help, driver dashboard, delivery form, pickup form, completion screen, admin dashboard, manage drivers, create driver, submissions list, submission detail
 - Copy centralized in `src/content/portal.ts`
 - Global CSS reset (post-Tailwind removal)
+- Supabase foundation: schema/seed applied in dashboard, server helpers added, admin dashboard/submissions/drivers reads wired
+- Driver creation: `/admin/drivers/new` creates `drivers` records and Supabase Auth users
+- Driver login: `/driver/login` validates with Supabase Auth and active driver status
 
 ### Not started / backend-functional
-- Real auth, API, database, route protection
+- Admin login, route protection, real logout
 - Persistent delivery/pickup submission handling
 - Real reservation auto-fill from Google Calendar
 - Real photo/video upload and Google Drive copy
@@ -388,6 +393,6 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 4. ~~Rebuild stub pages (`/`, `/driver/login`, `/admin/login`) with branded components~~ ✅
 5. ~~Build driver dashboard delivery/pickup choice cards~~ ✅
 6. ~~Implement remaining planned wireframe frontend screens~~ ✅
-7. Backend + auth; protect dashboard routes
-8. Connect reservations, submissions, media, notifications, audit trail, and PDF export
+7. Continue backend + auth: admin login, route protection, real logout
+8. Connect driver form submissions, reservations, media, notifications, audit trail, and PDF export
 9. Visual QA against energeticexotics.com side-by-side

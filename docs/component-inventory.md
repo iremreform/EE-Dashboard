@@ -200,7 +200,7 @@ These exist in the Figma file but are primarily for the marketing site. Include 
 10. Admin Sidebar + Top Bar + Overlay ✅
 11. Content layout (`PageContent.module.css`)
 
-### Phase 3 — Dashboard screens ✅ (static data)
+### Phase 3 — Dashboard screens ✅ (partially Supabase-backed)
 12. Login Card (`LoginForm`) ✅
 13. Choice Card (`ChoiceCard` on `/`) ✅
 14. Data List Row ✅
@@ -218,7 +218,7 @@ These exist in the Figma file but are primarily for the marketing site. Include 
 23. Loading Spinner / Skeleton
 24. Error Banner
 25. Signature Pad
-26. Real validation, persistence, auth, file upload, notifications, export
+26. Real validation, persistence, auth, file upload, notifications, export. Supabase reads, driver creation, and driver login are partially implemented.
 
 ---
 

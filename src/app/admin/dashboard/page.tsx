@@ -3,13 +3,20 @@ import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
 import { Card, ChoiceCard } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
+import { getAdminAlertSummary, getRecentAdminSubmissions } from "@/lib/admin-submissions";
 import styles from "./page.module.css";
 
-export default function AdminDashboardPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminDashboardPage() {
   const dashboard = adminPortal.dashboard;
+  const [recentSubmissions, alertSummary] = await Promise.all([
+    getRecentAdminSubmissions(),
+    getAdminAlertSummary(),
+  ]);
 
   return (
-    <AdminShell title={dashboard.title}>
+    <AdminShell title={dashboard.title} alertSummary={alertSummary}>
       <PageIntro
         tagline={adminPortal.label}
         title={dashboard.greeting}
@@ -38,19 +45,23 @@ export default function AdminDashboardPage() {
       </div>
 
       <Card title={dashboard.recentTitle} titleVariant="subheading" className={styles.recentCard}>
-        <div className={styles.list}>
-          {dashboard.recentSubmissions.map((submission) => (
-            <Link key={submission.href} href={submission.href} className={styles.listRow}>
-              <div>
-                <strong className={styles.listTitle}>{submission.title}</strong>
-                <p className={styles.listMeta}>{submission.meta}</p>
-              </div>
-              <span className={styles.rowButton}>
-                {submission.status}
-              </span>
-            </Link>
-          ))}
-        </div>
+        {recentSubmissions.length ? (
+          <div className={styles.list}>
+            {recentSubmissions.map((submission) => (
+              <Link key={submission.href} href={submission.href} className={styles.listRow}>
+                <div>
+                  <strong className={styles.listTitle}>{submission.title}</strong>
+                  <p className={styles.listMeta}>{submission.meta}</p>
+                </div>
+                <span className={styles.rowButton}>
+                  {submission.status}
+                </span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className={styles.emptyText}>No recent submissions found.</p>
+        )}
       </Card>
     </AdminShell>
   );

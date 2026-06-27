@@ -39,17 +39,21 @@ This document captures external systems needed for the production backend.
 
 ## Supabase
 
-**Purpose:** Recommended app backend for Postgres database, storage, and possibly auth.
+**Purpose:** Active app backend for Postgres database, storage, and auth.
 
 **Recommended use:**
 
 - Postgres for drivers, admins, reservations, submissions, media metadata, alerts, audit events, and payment verification.
 - Supabase Storage for original photos, walkaround videos, signatures, and generated PDFs.
+- Initial schema and seed data were applied in the Supabase dashboard on June 27, 2026. The one-time SQL files were removed from the repo after successful execution.
+- Admin dashboard/submissions/drivers reads are wired through server-side Supabase helpers.
+- Driver creation creates both a `drivers` row and a Supabase Auth user.
+- Driver login uses Supabase Auth and checks the linked active `drivers` row.
 - Keep report and media files indefinitely; do not automatically delete them.
 - Add storage usage monitoring and alert admins before storage is close to full.
 - Row-level security and service-role access where appropriate.
 
-**Open choice:** Supabase Auth can support username/password style login, but the final auth approach should be confirmed before implementation.
+**Auth status:** Supabase Auth is the active username/password direction. Driver login is implemented; admin login and route protection are still pending.
 
 ## Square
 
