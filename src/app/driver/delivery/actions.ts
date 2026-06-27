@@ -1,6 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import {
+  formDataToPayload,
+  getFormValue,
+  parseFuelLevel,
+  parseMileage,
+} from "@/lib/driver-form-data";
 import { requireActiveDriver } from "@/lib/driver-auth";
 import { createDeliverySubmission } from "@/lib/driver-submissions";
 
@@ -47,40 +53,11 @@ export async function createDeliverySubmissionAction(formData: FormData) {
 
   redirect("/driver/complete");
 }
-
-function formDataToPayload(formData: FormData) {
-  return Object.fromEntries(
-    Array.from(formData.entries()).filter(([, value]) => typeof value === "string"),
-  );
-}
-
-function getFormValue(formData: FormData, name: string) {
-  const value = formData.get(name);
-  return typeof value === "string" ? value.trim() : "";
-}
-
 function parsePaymentVerified(value: string) {
   const normalized = value.toLowerCase();
   return normalized.includes("verified") && !normalized.includes("not");
 }
 
-function parseMileage(value: string) {
-  const match = value.replace(/,/g, "").match(/(\d+(\.\d+)?)/);
-  return match ? Number(match[1]) : undefined;
-}
-
-function parseFuelLevel(value: string) {
-  const match = value.match(/(\d{1,3})\s*%/);
-
-  if (!match) {
-    return undefined;
-  }
-
-  const fuelLevel = Number(match[1]);
-  return fuelLevel >= 0 && fuelLevel <= 100 ? fuelLevel : undefined;
-}
-
 function redirectWithError(message: string): never {
   redirect(`/driver/delivery?error=${encodeURIComponent(message)}`);
 }
-

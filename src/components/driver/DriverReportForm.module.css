@@ -24,6 +24,32 @@
   margin-top: var(--space-4);
 }
 
+.lookupActions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.lookupButton {
+  flex-shrink: 0;
+}
+
+.lookupMessage {
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+  line-height: var(--line-height-body);
+  margin: 0;
+}
+
+.lookupRow {
+  align-items: end;
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: 1fr auto;
+}
+
 .gridTwo,
 .gridThree {
   display: grid;
@@ -231,5 +257,16 @@
 
   .gridThree {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .lookupRow {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .lookupButton {
+    width: 100%;
   }
 }

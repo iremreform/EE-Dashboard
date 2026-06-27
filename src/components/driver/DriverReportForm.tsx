@@ -1,7 +1,11 @@
+"use client";
+
 import type { FormHTMLAttributes } from "react";
+import { useState } from "react";
 import { Button, Card, Checkbox, Field, Input, Textarea } from "@/components/ui";
 import styles from "./DriverReportForm.module.css";
 
+type ReportType = "delivery" | "pickup";
 type FieldTuple = readonly [label: string, placeholder: string];
 type UploadTuple = readonly [label: string, meta: string];
 
@@ -73,21 +77,104 @@ type DriverReportFormProps =
       submitAction?: FormHTMLAttributes<HTMLFormElement>["action"];
     };
 
+type ReservationLookupResponse = {
+  reservation: {
+    deliveryBaseline: {
+      fuelLevelPercent: number | null;
+      mileage: number | null;
+    } | null;
+    guestFirstName: string;
+    guestLastName: string;
+    memberNumber: string;
+    paymentVerified: boolean;
+    reservationNumber: string;
+    vehicleColorPlate: string;
+    vehicleMakeModel: string;
+  };
+};
+
 export function DriverReportForm({
   type,
   submitLabel,
   sections,
   submitAction,
 }: DriverReportFormProps) {
+  const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
+  const [lookupMessage, setLookupMessage] = useState("");
+  const [isLookupLoading, setIsLookupLoading] = useState(false);
+
+  const updateFieldValue = (name: string, value: string) => {
+    setFieldValues((current) => ({ ...current, [name]: value }));
+  };
+
+  const handleLookup = async () => {
+    const reservationQuery = getReservationQuery(type, fieldValues);
+
+    if (!reservationQuery) {
+      setLookupMessage("Enter a reservation number first.");
+      return;
+    }
+
+    setIsLookupLoading(true);
+    setLookupMessage("");
+
+    try {
+      const response = await fetch(
+        `/api/driver/reservations?query=${encodeURIComponent(reservationQuery)}`,
+      );
+
+      if (response.status === 404) {
+        setLookupMessage("Reservation not found.");
+        return;
+      }
+
+      if (!response.ok) {
+        setLookupMessage("Reservation lookup failed.");
+        return;
+      }
+
+      const data = (await response.json()) as ReservationLookupResponse;
+      setFieldValues((current) => ({
+        ...current,
+        ...mapReservationToFields(type, data.reservation),
+      }));
+      setLookupMessage("Reservation found.");
+    } catch {
+      setLookupMessage("Reservation lookup failed.");
+    } finally {
+      setIsLookupLoading(false);
+    }
+  };
+
   return (
     <form action={submitAction} className={styles.formStack} noValidate>
-      {type === "pickup" ? <SearchSection section={sections.search} /> : null}
+      {type === "pickup" ? (
+        <SearchSection
+          isLookupLoading={isLookupLoading}
+          lookupMessage={lookupMessage}
+          onFieldChange={updateFieldValue}
+          onLookup={handleLookup}
+          section={sections.search}
+          value={fieldValues["pickup-search"] ?? ""}
+        />
+      ) : null}
 
       <FieldsSection
         title={sections.guest.title}
         note={sections.guest.note}
         fields={sections.guest.fields}
         idPrefix={`${type}-guest`}
+        lookup={
+          type === "delivery"
+            ? {
+                isLoading: isLookupLoading,
+                message: lookupMessage,
+                onLookup: handleLookup,
+              }
+            : undefined
+        }
+        onFieldChange={updateFieldValue}
+        values={fieldValues}
       />
 
       <FieldsSection
@@ -95,6 +182,8 @@ export function DriverReportForm({
         note={sections.vehicle.note}
         fields={sections.vehicle.fields}
         idPrefix={`${type}-vehicle`}
+        onFieldChange={updateFieldValue}
+        values={fieldValues}
       />
 
       <MediaSection section={sections.media} />
@@ -102,10 +191,18 @@ export function DriverReportForm({
       {type === "delivery" ? (
         <>
           <VerificationSection section={sections.verification} />
-          <PaymentSection section={sections.payment} />
+          <PaymentSection
+            onFieldChange={updateFieldValue}
+            section={sections.payment}
+            value={fieldValues["payment-status"] ?? ""}
+          />
         </>
       ) : (
-        <ChecklistSection section={sections.checklist} />
+        <ChecklistSection
+          onFieldChange={updateFieldValue}
+          section={sections.checklist}
+          values={fieldValues}
+        />
       )}
 
       <SignatureSection section={sections.signature} type={type} />
@@ -119,20 +216,49 @@ export function DriverReportForm({
   );
 }
 
-function SearchSection({ section }: { section: PickupSections["search"] }) {
+function SearchSection({
+  isLookupLoading,
+  lookupMessage,
+  onFieldChange,
+  onLookup,
+  section,
+  value,
+}: {
+  isLookupLoading: boolean;
+  lookupMessage: string;
+  onFieldChange: (name: string, value: string) => void;
+  onLookup: () => void;
+  section: PickupSections["search"];
+  value: string;
+}) {
   return (
     <Card title={section.title} titleVariant="subheading" surface="transparent">
-      <Field label={section.label} htmlFor="pickup-search">
-        {({ describedBy, hasError }) => (
-          <Input
-            id="pickup-search"
-            name="pickup-search"
-            placeholder={section.placeholder}
-            aria-describedby={describedBy}
-            hasError={hasError}
-          />
-        )}
-      </Field>
+      <div className={styles.lookupRow}>
+        <Field label={section.label} htmlFor="pickup-search">
+          {({ describedBy, hasError }) => (
+            <Input
+              id="pickup-search"
+              name="pickup-search"
+              placeholder={section.placeholder}
+              aria-describedby={describedBy}
+              hasError={hasError}
+              onChange={(event) => onFieldChange("pickup-search", event.target.value)}
+              value={value}
+            />
+          )}
+        </Field>
+        <Button
+          type="button"
+          variant="secondary"
+          size="small"
+          className={styles.lookupButton}
+          disabled={isLookupLoading}
+          onClick={onLookup}
+        >
+          {isLookupLoading ? "Looking up" : "Lookup"}
+        </Button>
+      </div>
+      {lookupMessage ? <p className={styles.lookupMessage}>{lookupMessage}</p> : null}
       <p className={`${styles.sectionNote} ${styles.searchNote}`}>{section.note}</p>
     </Card>
   );
@@ -143,11 +269,21 @@ function FieldsSection({
   note,
   fields,
   idPrefix,
+  lookup,
+  onFieldChange,
+  values,
 }: {
   title: string;
   note?: string;
   fields: readonly FieldTuple[];
   idPrefix: string;
+  lookup?: {
+    isLoading: boolean;
+    message: string;
+    onLookup: () => void;
+  };
+  onFieldChange: (name: string, value: string) => void;
+  values: Record<string, string>;
 }) {
   return (
     <Card title={title} titleVariant="subheading" surface="transparent">
@@ -164,12 +300,29 @@ function FieldsSection({
                   placeholder={placeholder}
                   aria-describedby={describedBy}
                   hasError={hasError}
+                  onChange={(event) => onFieldChange(id, event.target.value)}
+                  value={values[id] ?? ""}
                 />
               )}
             </Field>
           );
         })}
       </div>
+      {lookup ? (
+        <div className={styles.lookupActions}>
+          <Button
+            type="button"
+            variant="secondary"
+            size="small"
+            className={styles.lookupButton}
+            disabled={lookup.isLoading}
+            onClick={lookup.onLookup}
+          >
+            {lookup.isLoading ? "Looking up" : "Lookup reservation"}
+          </Button>
+          {lookup.message ? <p className={styles.lookupMessage}>{lookup.message}</p> : null}
+        </div>
+      ) : null}
     </Card>
   );
 }
@@ -205,7 +358,15 @@ function VerificationSection({ section }: { section: DeliverySections["verificat
   );
 }
 
-function PaymentSection({ section }: { section: DeliverySections["payment"] }) {
+function PaymentSection({
+  onFieldChange,
+  section,
+  value,
+}: {
+  onFieldChange: (name: string, value: string) => void;
+  section: DeliverySections["payment"];
+  value: string;
+}) {
   return (
     <Card title={section.title} titleVariant="subheading" surface="transparent">
       <Field label={section.label} htmlFor="payment-status">
@@ -216,6 +377,8 @@ function PaymentSection({ section }: { section: DeliverySections["payment"] }) {
             placeholder={section.placeholder}
             aria-describedby={describedBy}
             hasError={hasError}
+            onChange={(event) => onFieldChange("payment-status", event.target.value)}
+            value={value}
           />
         )}
       </Field>
@@ -223,7 +386,15 @@ function PaymentSection({ section }: { section: DeliverySections["payment"] }) {
   );
 }
 
-function ChecklistSection({ section }: { section: PickupSections["checklist"] }) {
+function ChecklistSection({
+  onFieldChange,
+  section,
+  values,
+}: {
+  onFieldChange: (name: string, value: string) => void;
+  section: PickupSections["checklist"];
+  values: Record<string, string>;
+}) {
   return (
     <Card title={section.title} titleVariant="subheading" surface="transparent">
       <div className={styles.gridTwo}>
@@ -238,6 +409,8 @@ function ChecklistSection({ section }: { section: PickupSections["checklist"] })
                   placeholder={placeholder}
                   aria-describedby={describedBy}
                   hasError={hasError}
+                  onChange={(event) => onFieldChange(id, event.target.value)}
+                  value={values[id] ?? ""}
                 />
               )}
             </Field>
@@ -271,7 +444,7 @@ function SignatureSection({
   type,
 }: {
   section: SharedSections["signature"];
-  type: "delivery" | "pickup";
+  type: ReportType;
 }) {
   return (
     <Card title={section.title} titleVariant="subheading" surface="transparent">
@@ -293,7 +466,7 @@ function DriverConfirmationSection({
   section: SharedSections["driver"];
   submitAction?: FormHTMLAttributes<HTMLFormElement>["action"];
   submitLabel: string;
-  type: "delivery" | "pickup";
+  type: ReportType;
 }) {
   return (
     <Card title={section.title} titleVariant="subheading" surface="transparent">
@@ -370,4 +543,48 @@ function slugify(value: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
+}
+
+function getReservationQuery(type: ReportType, values: Record<string, string>) {
+  if (type === "pickup") {
+    return values["pickup-search"] || values["pickup-guest-reservation-number"] || "";
+  }
+
+  return values["delivery-guest-reservation-number"] || "";
+}
+
+function mapReservationToFields(
+  type: ReportType,
+  reservation: ReservationLookupResponse["reservation"],
+) {
+  const deliveryBaseline = formatMileageFuel(
+    reservation.deliveryBaseline?.mileage ?? null,
+    reservation.deliveryBaseline?.fuelLevelPercent ?? null,
+  );
+
+  return {
+    [`${type}-guest-guest-first-name`]: reservation.guestFirstName,
+    [`${type}-guest-guest-last-name`]: reservation.guestLastName,
+    [`${type}-guest-member-number`]: reservation.memberNumber,
+    [`${type}-guest-reservation-number`]: reservation.reservationNumber,
+    [`${type}-vehicle-color-plate`]: reservation.vehicleColorPlate,
+    [`${type}-vehicle-make-model`]: reservation.vehicleMakeModel,
+    ...(type === "delivery"
+      ? {
+          "payment-status": reservation.paymentVerified ? "Verified" : "Not verified",
+        }
+      : {
+          "pickup-search": reservation.reservationNumber,
+          "pickup-vehicle-mileage-at-delivery": deliveryBaseline,
+        }),
+  };
+}
+
+function formatMileageFuel(mileage: number | null, fuelLevel: number | null) {
+  return [
+    mileage === null ? null : `${new Intl.NumberFormat("en-US").format(mileage)} mi`,
+    fuelLevel === null ? null : `${fuelLevel}% fuel`,
+  ]
+    .filter(Boolean)
+    .join(" - ");
 }

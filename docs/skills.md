@@ -51,5 +51,7 @@ Current backend wiring:
 - Admin dashboard, drivers, create-driver, submissions, and submission detail routes require an active admin session.
 - Admin sidebar logout signs out through Supabase.
 - `/driver/delivery` persists first-pass delivery report text/checklist/payment fields, creates an alert, updates driver last-active, and records an audit event.
+- `/driver/pickup` persists first-pass pickup report text/checklist fields, compares mileage/fuel against the latest delivery report where present, creates an alert, updates driver last-active, and records an audit event.
+- `/api/driver/reservations` supports active-driver reservation lookup and delivery/pickup form autofill from Supabase reservations.
 
-Still pending: pickup form submission, media uploads, notifications, PDF export, admin edit actions, and reset/disable/re-enable actions.
+Still pending: Google Calendar reservation sync/import, media uploads, notifications, PDF export, admin edit actions, and reset/disable/re-enable actions.

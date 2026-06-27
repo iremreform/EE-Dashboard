@@ -52,6 +52,8 @@ This document captures external systems needed for the production backend.
 - Driver dashboard, delivery, pickup, and completion routes require an active driver session.
 - Driver logout signs out through Supabase.
 - Delivery report creation persists text/checklist/payment fields, creates a new-submission alert, updates driver last-active, and records an audit event. Media upload is still pending.
+- Pickup report creation persists text/checklist fields, links to the same reservation, compares mileage/fuel against the latest delivery report where present, creates a new-submission alert, updates driver last-active, and records an audit event. Media upload is still pending.
+- Driver reservation lookup/autofill reads from the Supabase `reservations` table. Google Calendar should sync or import into that table later.
 - Admin login uses Supabase Auth and checks the linked active `admin_users` row.
 - Admin dashboard, drivers, create-driver, submissions, and submission detail routes require an active admin session.
 - Admin logout signs out through Supabase.

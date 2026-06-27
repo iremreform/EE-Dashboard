@@ -23,7 +23,7 @@ Start here when working on the Energetic Exotics dashboard. These docs describe 
 | Logo assets | `public/company-logo.svg`, `public/ee logo small.png` |
 | Backend plan | `docs/tasks.md` |
 | External services | `docs/external-sources.md` |
-| Supabase backend | Schema/seed applied; admin reads, driver creation, driver/admin login/protection/logout, and first-pass delivery report persistence are wired |
+| Supabase backend | Schema/seed applied; admin reads, driver creation, driver/admin login/protection/logout, first-pass delivery/pickup report persistence, and reservation lookup/autofill are wired |
 | Figma file | [Internal UI Style Guide](https://www.figma.com/design/vjj9rDRMUTzSM9v3Twa49m/Energetic-Exotics--Internal-UI-?node-id=2368-52) |
 
 ## Rules of thumb

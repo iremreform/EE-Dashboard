@@ -52,19 +52,19 @@ This task list reflects client answers received in `Driver Admin Portal Response
   - drop-off location
   - pickup location
   - vehicle details if present in calendar data
-- Build reservation search/lookup API for driver forms.
-- Auto-fill delivery and pickup fields from matched reservation data.
+- Build reservation search/lookup API for driver forms. ✅ First pass reads existing Supabase `reservations` rows.
+- Auto-fill delivery and pickup fields from matched reservation data. ✅ First pass fills visible guest, reservation, vehicle, payment status, and pickup delivery-baseline fields from Supabase.
 - If pickup cannot match a reservation/delivery report, flag the record as needs review.
 
 ## Backend phase 4: delivery and pickup submissions
 
 - Persist delivery reports. ✅ First pass wired for text/checklist/payment fields; media uploads are still pending.
-- Persist pickup/return reports.
+- Persist pickup/return reports. ✅ First pass wired for text/checklist fields; media uploads are still pending.
 - Lock submitted driver reports except for driver notes.
 - Allow admins to edit submitted reports.
-- Link every pickup report to the earlier delivery report for the same reservation.
-- Compare pickup mileage and fuel against delivery mileage and fuel.
-- Trigger alerts for new damage, smoking/vaping evidence, late return, missing keys, low fuel, different pickup/drop-off location, and unmatched pickup.
+- Link every pickup report to the earlier delivery report for the same reservation. ✅ Stored in the pickup checklist payload when a delivery match exists.
+- Compare pickup mileage and fuel against delivery mileage and fuel. ✅ First-pass comparison creates review alerts.
+- Trigger alerts for new damage, smoking/vaping evidence, late return, missing keys, low fuel, different pickup/drop-off location, and unmatched pickup. ✅ First pass covers damage, smoking/vaping, late return, missing keys, low fuel, and missing delivery match; pickup/drop-off location comparison is pending reservation auto-fill.
 - Implement statuses: `Submitted`, `Completed`, `Archived`.
 
 ## Backend phase 5: media and documents

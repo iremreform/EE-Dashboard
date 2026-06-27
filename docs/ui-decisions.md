@@ -374,11 +374,12 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 - Supabase foundation: schema/seed applied in dashboard, server helpers added, admin dashboard/submissions/drivers reads wired
 - Driver creation: `/admin/drivers/new` creates `drivers` records and Supabase Auth users
 - Driver/admin login/protection/logout: `/driver/login` and `/admin/login` validate with Supabase Auth and active account status; driver/admin workflow routes are protected
+- Driver report persistence: `/driver/delivery` and `/driver/pickup` create first-pass Supabase submission records and alerts
+- Reservation lookup/autofill: `/api/driver/reservations` fills delivery/pickup forms from Supabase `reservations`
 
 ### Not started / backend-functional
-- Pickup submission persistence
-- Delivery media upload persistence
-- Real reservation auto-fill from Google Calendar
+- Delivery/pickup media upload persistence
+- Google Calendar reservation sync/import
 - Real photo/video upload and Google Drive copy
 - Admin edit actions, driver disable/reset actions, and audit trail
 - PDF export, notifications, modals, toasts, loading/error states
@@ -393,5 +394,5 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 4. ~~Rebuild stub pages (`/`, `/driver/login`, `/admin/login`) with branded components~~ ✅
 5. ~~Build driver dashboard delivery/pickup choice cards~~ ✅
 6. ~~Implement remaining planned wireframe frontend screens~~ ✅
-7. Connect pickup submissions, reservation auto-fill, media, notifications, admin audit trail views, and PDF export
+7. Connect reservation auto-fill, media, notifications, admin audit trail views, and PDF export
 9. Visual QA against energeticexotics.com side-by-side
