@@ -111,18 +111,8 @@ export function AdminShell({
                   ? pathname === item.href
                   : pathname.startsWith(item.href);
 
-              if (isLogout && logoutAction) {
-                return (
-                  <form key={item.href} action={logoutAction}>
-                    <button
-                      type="submit"
-                      className={cn(styles.navLink, styles.navButton, styles.navLinkMuted)}
-                      onClick={() => setIsSidebarOpen(false)}
-                    >
-                      {item.label}
-                    </button>
-                  </form>
-                );
+              if (isLogout) {
+                return null;
               }
 
               return (
@@ -178,59 +168,92 @@ export function AdminShell({
               ) : null}
             </div>
             <Logo href="/admin/dashboard" className={styles.mobileLogo} />
-            <div className={styles.alertMenu}>
-              <button
-                type="button"
-                className={styles.alertButton}
-                aria-expanded={isAlertsOpen}
-                aria-label={`${alertCount} alert${alertCount === 1 ? "" : "s"}`}
-                onClick={() => setIsAlertsOpen((isOpen) => !isOpen)}
-              >
-                <svg
-                  className={styles.alertIcon}
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="28"
-                  height="28"
-                  viewBox="0 0 18 18"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M15.75 12.75C14.645 12.75 13.75 11.855 13.75 10.75V6.5C13.75 3.877 11.623 1.75 9 1.75C6.377 1.75 4.25 3.877 4.25 6.5V10.75C4.25 11.855 3.355 12.75 2.25 12.75H15.75Z"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    fill="none"
-                  />
-                  <path
-                    d="M10.5 15.3843C10.2005 15.9018 9.6409 16.25 9 16.25C8.3591 16.25 7.7995 15.9018 7.5 15.3843"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    fill="none"
-                  />
-                </svg>
-                {alertCount > 0 ? <span className={styles.alertBadge}>{alertCount}</span> : null}
-              </button>
-
-              {isAlertsOpen ? (
-                <div className={styles.alertDropdown}>
-                  <p className={styles.alertDropdownTitle}>Alerts</p>
-                  {dashboardAlert ? (
-                    <Link
-                      className={styles.alertItem}
-                      href={dashboardAlert.href}
-                      onClick={() => setIsAlertsOpen(false)}
+            <div className={styles.topbarActions}>
+              {logoutAction ? (
+                <form action={logoutAction}>
+                  <button type="submit" className={styles.logoutButton} aria-label="Logout">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
-                      <strong>{dashboardAlert.title}</strong>
-                      <span>{dashboardAlert.meta}</span>
-                    </Link>
-                  ) : (
-                    <p className={styles.alertEmpty}>No open alerts.</p>
-                  )}
-                </div>
+                      <path
+                        d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="1.8"
+                      />
+                      <path
+                        d="M16 17l5-5-5-5M21 12H9"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="1.8"
+                      />
+                    </svg>
+                  </button>
+                </form>
               ) : null}
+
+              <div className={styles.alertMenu}>
+                <button
+                  type="button"
+                  className={styles.alertButton}
+                  aria-expanded={isAlertsOpen}
+                  aria-label={`${alertCount} alert${alertCount === 1 ? "" : "s"}`}
+                  onClick={() => setIsAlertsOpen((isOpen) => !isOpen)}
+                >
+                  <svg
+                    className={styles.alertIcon}
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="28"
+                    height="28"
+                    viewBox="0 0 18 18"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M15.75 12.75C14.645 12.75 13.75 11.855 13.75 10.75V6.5C13.75 3.877 11.623 1.75 9 1.75C6.377 1.75 4.25 3.877 4.25 6.5V10.75C4.25 11.855 3.355 12.75 2.25 12.75H15.75Z"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      fill="none"
+                    />
+                    <path
+                      d="M10.5 15.3843C10.2005 15.9018 9.6409 16.25 9 16.25C8.3591 16.25 7.7995 15.9018 7.5 15.3843"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      fill="none"
+                    />
+                  </svg>
+                  {alertCount > 0 ? <span className={styles.alertBadge}>{alertCount}</span> : null}
+                </button>
+
+                {isAlertsOpen ? (
+                  <div className={styles.alertDropdown}>
+                    <p className={styles.alertDropdownTitle}>Alerts</p>
+                    {dashboardAlert ? (
+                      <Link
+                        className={styles.alertItem}
+                        href={dashboardAlert.href}
+                        onClick={() => setIsAlertsOpen(false)}
+                      >
+                        <strong>{dashboardAlert.title}</strong>
+                        <span>{dashboardAlert.meta}</span>
+                      </Link>
+                    ) : (
+                      <p className={styles.alertEmpty}>No open alerts.</p>
+                    )}
+                  </div>
+                ) : null}
+              </div>
             </div>
           </header>
 

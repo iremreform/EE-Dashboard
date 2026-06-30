@@ -50,8 +50,8 @@
 | Radio | Web | Default, selected | |
 | Label | Web, Wire | Default, required | Small caps / uppercase |
 | Field Group | Wire | 1-col, 2-col, 3-col grid | Responsive collapse |
-| Signature Pad | Wire, Dash | Empty, captured | Guest signature on delivery/pickup |
-| File Upload | Wire, Dash | Default, uploading, preview | Photo/video capture areas |
+| Signature Pad | Wire, Dash | Empty, captured | Canvas guest signature on delivery/pickup; storage upload pending |
+| File Upload | Wire, Dash | Default, uploading, preview | Photo/video capture areas; live capture preferred with gallery upload fallback, local previews implemented, Supabase upload wired |
 | Yes/No Toggle | Wire | Active pill state | Condition assessment fields |
 
 ---
@@ -68,7 +68,7 @@
 | Detail Grid | Wire | 2-column key-value | Submission detail |
 | Data Table | Figma, Dash | Header, row, empty | Desktop admin views |
 | Status Badge | Wire, Dash | Delivery, Pickup, Active, Disabled | Color-coded tags |
-| Media Thumbnail | Wire | Placeholder, image, video | Vehicle photos |
+| Media Thumbnail | Wire | Placeholder, image, video | Vehicle photos; admin image thumbnails use click-to-zoom preview |
 | Empty State | Figma, Dash | Icon, heading, CTA | No submissions, no drivers |
 | Stat Card | Dash | Number + label | Admin dashboard metrics |
 
@@ -117,6 +117,7 @@
 |-----------|--------|----------|-------|
 | Notification Banner | Wire | Info, dismissible | Removed from dashboard; alerts live in topbar bell |
 | Alert Badge | Wire | Count indicator | Bell badge in admin topbar |
+| Click Zoom Image | Dash | Trigger, lightbox, Escape/backdrop/scroll close | `ClickZoomImage`; used by admin submission photo/license previews |
 | Toast | Figma, Dash | Success, error, info | Form submission feedback |
 | Modal | Figma | Info, filters, sorting | Confirmations, filter panels |
 | Modal Footer | Figma | Action buttons | |
@@ -206,7 +207,7 @@ These exist in the Figma file but are primarily for the marketing site. Include 
 14. Data List Row ✅
 15. Filter Bar ✅
 16. Detail Grid ✅
-17. File Upload / Media Thumbnail ✅ (static upload/capture placeholders)
+17. File Upload / Media Thumbnail ✅ (live capture + gallery fallback with local previews; Supabase upload wired)
 18. Notification Bell / Alert Menu ✅
 19. Success Screen ✅
 20. Empty State — **not started**
@@ -217,7 +218,7 @@ These exist in the Figma file but are primarily for the marketing site. Include 
 22. Toast
 23. Loading Spinner / Skeleton
 24. Error Banner
-25. Signature Pad
+25. Signature Pad ✅ (canvas capture; Storage persistence pending)
 26. Real validation, persistence, auth, file upload, notifications, export. Supabase reads, driver creation, and driver login are partially implemented.
 
 ---

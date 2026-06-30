@@ -4,6 +4,7 @@ export type { ButtonProps } from "./Button";
 export { Card } from "./Card";
 export { Checkbox } from "./Checkbox";
 export { ChoiceCard } from "./ChoiceCard";
+export { ClickZoomImage } from "./ClickZoomImage";
 export { DotLottieAnimation } from "./DotLottieAnimation";
 export { Field } from "./Field";
 export { Heading } from "./Heading";

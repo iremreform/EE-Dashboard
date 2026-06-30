@@ -74,6 +74,7 @@
 .menuButton:focus-visible,
 .navLink:focus-visible,
 .topbarBackLink:focus-visible,
+.logoutButton:focus-visible,
 .alertButton:focus-visible,
 .alertItem:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
@@ -212,8 +213,32 @@
   transform: translateX(calc(var(--button-link-icon-hover-shift) * -1));
 }
 
-.alertMenu {
+.topbarActions {
+  align-items: center;
+  display: flex;
+  gap: var(--space-2);
   justify-self: end;
+}
+
+.logoutButton {
+  align-items: center;
+  background-color: transparent;
+  border: 0;
+  color: var(--text-subheading);
+  cursor: pointer;
+  display: inline-flex;
+  height: 2.75rem;
+  justify-content: center;
+  padding: 0;
+  transition: color var(--transition-fast);
+  width: 2.75rem;
+}
+
+.logoutButton:hover {
+  color: var(--color-leather-darker);
+}
+
+.alertMenu {
   position: relative;
 }
 

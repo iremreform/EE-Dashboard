@@ -2,7 +2,7 @@
 
 Next.js portal for driver delivery/pickup workflows and internal admin review.
 
-**Status:** Frontend routes are built for the planned v1 driver/admin flows, and the first Supabase backend wiring is active. Admin dashboard/submissions/drivers read from Supabase, `/admin/drivers/new` creates driver records plus Supabase Auth users, and driver/admin login, route protection, and logout use Supabase Auth. Delivery and pickup reports now persist text/checklist/payment fields to Supabase, and driver forms can look up/autofill existing Supabase reservations. Media uploads, PDF export, notifications, and external integrations are still pending.
+**Status:** Frontend routes are built for the planned v1 driver/admin flows, and the first Supabase backend wiring is active. Admin dashboard/submissions/drivers read from Supabase, `/admin/drivers/new` creates driver records plus Supabase Auth users, and driver/admin login, route protection, and logout use Supabase Auth. Delivery and pickup reports now persist text/checklist/payment/signature fields to Supabase, driver forms can look up/autofill existing Supabase reservations, selected photos/videos upload to Supabase Storage with metadata rows, admins can edit submitted reports/statuses, and drivers can append post-submit notes. PDF export, notifications, Google Drive copy, and external integrations are still pending.
 
 ## Project structure
 
@@ -78,6 +78,9 @@ Current backend state:
 - Admin sidebar logout signs out through Supabase.
 - `/driver/delivery` persists the first-pass delivery report payload, payment verified status, new-submission alert, driver last-active timestamp, and audit event.
 - `/driver/pickup` persists the first-pass pickup report payload, links to the same reservation, stores checklist state, compares mileage/fuel to the latest delivery report where present, creates an alert, updates driver last-active, and records an audit event.
+- Delivery/pickup selected photos and videos upload directly from the browser to private Supabase Storage bucket `submission-media` via signed upload URLs; report submission finalizes `submission_media` metadata rows.
+- `/admin/submissions/[id]` lets active admins edit lifecycle status, reservation/guest/vehicle details, mileage/fuel, payment verified status, and admin notes.
+- `/driver/complete?report=...` lets the submitting active driver append notes immediately after submit; `/driver/reports` and `/driver/reports/[id]` let active drivers revisit their own locked reports and append follow-up notes.
 - `/api/driver/reservations` lets active drivers look up Supabase reservations for delivery/pickup auto-fill.
 - Broad client-side RLS policies are intentionally not added yet; server-side code should use `SUPABASE_SECRET_KEY` until route protection and driver/admin auth policies are implemented.
 
@@ -92,6 +95,8 @@ Current backend state:
 | `/driver/delivery` | Delivery check-in form |
 | `/driver/pickup` | Pickup / return form |
 | `/driver/complete` | Submission success screen |
+| `/driver/reports` | Driver submitted reports list |
+| `/driver/reports/[id]` | Locked driver report detail + notes |
 | `/admin/login` | Admin sign-in |
 | `/admin/dashboard` | Admin hub with alerts and recent submissions |
 | `/admin/drivers` | Manage driver accounts |
@@ -99,7 +104,7 @@ Current backend state:
 | `/admin/submissions` | Filterable submissions list |
 | `/admin/submissions/[id]` | Submission detail / review |
 
-Planned frontend routes from `docs/ui-decisions.md` (D8) are now represented in the app. Admin routes plus delivery/pickup report creation are backed by Supabase; media uploads and several action buttons are still static until the next backend phases are implemented.
+Planned frontend routes from `docs/ui-decisions.md` (D8) are now represented in the app. Admin routes plus delivery/pickup report creation and media upload metadata are backed by Supabase; PDF export, notifications, Google Drive copy, and several action buttons are still static until the next backend phases are implemented.
 
 ## Wireframe reference
 
@@ -118,4 +123,4 @@ Static prototypes live in `reference/` for flow and layout context (agents, deve
 
 - Continue backend stack: Next.js server routes/actions, Supabase Postgres + Storage, username/password auth, Google Calendar/Drive integrations.
 - Connect Google Calendar reservation sync/import into the existing Supabase reservation lookup flow.
-- Implement real media capture/upload, Google Drive copy/export, notifications for every submission, and PDF export.
+- Add admin media download controls, Google Drive copy/export, notifications for every submission, and PDF export.

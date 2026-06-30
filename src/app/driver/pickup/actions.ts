@@ -8,18 +8,21 @@ import {
   parseMileage,
   parseYesNo,
 } from "@/lib/driver-form-data";
+import { finalizeSubmissionMedia, parseUploadedMediaRefs } from "@/lib/driver-media";
 import { requireActiveDriver } from "@/lib/driver-auth";
 import { createPickupSubmission } from "@/lib/driver-submissions";
 
 const ERROR_MESSAGES = {
   confirmation: "Please confirm the guest and driver acknowledgements before submitting.",
   reservation: "Enter a valid reservation number before submitting.",
+  signature: "Please capture the guest signature before submitting.",
   unknown: "Pickup report could not be submitted. Please try again.",
 } as const;
 
 export async function createPickupSubmissionAction(formData: FormData) {
   const { driver } = await requireActiveDriver();
   const reservationNumber = getReservationNumber(formData);
+  let completedPublicId = "";
 
   if (!reservationNumber) {
     redirectWithError(ERROR_MESSAGES.reservation);
@@ -32,8 +35,12 @@ export async function createPickupSubmissionAction(formData: FormData) {
     redirectWithError(ERROR_MESSAGES.confirmation);
   }
 
+  if (!getFormValue(formData, "pickup-guest-signature")) {
+    redirectWithError(ERROR_MESSAGES.signature);
+  }
+
   try {
-    await createPickupSubmission({
+    const submission = await createPickupSubmission({
       checklist: {
         hasNewDamage: parseYesNo(getFormValue(formData, "pickup-new-damage")),
         hasSmokingEvidence: parseYesNo(getFormValue(formData, "pickup-smoking-vaping-evidence")),
@@ -48,6 +55,12 @@ export async function createPickupSubmissionAction(formData: FormData) {
       mileage: parseMileage(getFormValue(formData, "pickup-checklist-mileage")),
       reservationNumber,
     });
+    completedPublicId = submission.publicId;
+    await finalizeSubmissionMedia({
+      media: parseUploadedMediaRefs(formData),
+      publicId: submission.publicId,
+      submissionId: submission.submissionId,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
 
@@ -58,7 +71,7 @@ export async function createPickupSubmissionAction(formData: FormData) {
     redirectWithError(ERROR_MESSAGES.unknown);
   }
 
-  redirect("/driver/complete");
+  redirect(`/driver/complete?report=${encodeURIComponent(completedPublicId)}`);
 }
 
 function getReservationNumber(formData: FormData) {

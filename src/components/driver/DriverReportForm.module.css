@@ -50,6 +50,13 @@
   grid-template-columns: 1fr auto;
 }
 
+.lookupFieldRow {
+  align-items: end;
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
 .gridTwo,
 .gridThree {
   display: grid;
@@ -74,6 +81,7 @@
   justify-content: center;
   min-height: 7rem;
   padding: var(--space-4);
+  position: relative;
   text-align: center;
   transition: border-color var(--transition-fast), background-color var(--transition-fast);
 }
@@ -81,6 +89,10 @@
 .uploadTile:hover,
 .uploadTile:focus-within {
   background-color: var(--opacity-white-5);
+  border-color: var(--text-subheading);
+}
+
+.uploadSelected {
   border-color: var(--text-subheading);
 }
 
@@ -104,6 +116,99 @@
   color: var(--text-secondary);
   font-size: var(--text-small);
   line-height: var(--line-height-body);
+  overflow-wrap: anywhere;
+}
+
+.uploadError {
+  color: var(--text-error);
+  font-size: var(--text-small);
+  line-height: var(--line-height-body);
+}
+
+.uploadActions {
+  align-items: center;
+  display: none;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: center;
+  margin-top: var(--space-2);
+  position: relative;
+  z-index: 2;
+}
+
+.uploadActionPrimary,
+.uploadActionSecondary,
+.uploadRemoveButton {
+  align-items: center;
+  border-radius: var(--button-radius);
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: var(--button-font-weight);
+  justify-content: center;
+  line-height: 1;
+  min-height: 2.25rem;
+  padding: var(--space-2) var(--space-4);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.uploadActionPrimary {
+  background-color: var(--button-primary-bg);
+  border: var(--stroke-width) solid var(--button-primary-border);
+  color: var(--button-primary-text);
+}
+
+.uploadActionPrimary:hover {
+  background-color: var(--button-primary-bg-hover);
+  border-color: var(--button-primary-bg-hover);
+}
+
+.uploadActionSecondary,
+.uploadRemoveButton {
+  background-color: transparent;
+  border: var(--stroke-width) solid var(--button-secondary-border);
+  color: var(--button-secondary-text);
+}
+
+.uploadActionSecondary:hover,
+.uploadRemoveButton:hover {
+  border-color: var(--button-secondary-border-hover);
+  color: var(--button-secondary-text-hover);
+}
+
+.uploadRemoveButton {
+  font: inherit;
+  margin-top: var(--space-2);
+  position: relative;
+  z-index: 2;
+}
+
+.uploadDesktopTrigger {
+  cursor: pointer;
+  inset: 0;
+  position: absolute;
+  z-index: 1;
+}
+
+.uploadPreviewFrame {
+  aspect-ratio: 16 / 10;
+  border-radius: var(--radius-sm);
+  display: block;
+  margin-bottom: var(--space-2);
+  max-height: 8rem;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  z-index: 0;
+}
+
+.uploadPreview {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
 }
 
 .fileInput {
@@ -113,21 +218,44 @@
   width: 1px;
 }
 
-.signatureBox {
-  align-items: center;
+.signaturePad {
   background-color: var(--background-primary);
   border: var(--stroke-width) solid var(--border-tertiary);
   border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  display: flex;
-  font-family: var(--font-subheading);
-  font-size: var(--fluid-subheading-6);
-  font-style: italic;
-  font-weight: var(--font-weight-light);
-  justify-content: center;
+  box-sizing: border-box;
   min-height: 12rem;
-  padding: var(--space-4);
-  text-align: center;
+  overflow: hidden;
+  position: relative;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.signaturePad:focus-within {
+  border-color: var(--input-border-focus);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.signatureCanvas {
+  cursor: crosshair;
+  display: block;
+  height: 12rem;
+  touch-action: none;
+  width: 100%;
+}
+
+.signatureActions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.signatureStatus {
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+  line-height: var(--line-height-body);
+  margin: 0;
 }
 
 .checkboxRow {
@@ -261,12 +389,23 @@
 }
 
 @media (max-width: 520px) {
-  .lookupRow {
+  .lookupRow,
+  .lookupFieldRow {
     align-items: stretch;
     grid-template-columns: 1fr;
   }
 
   .lookupButton {
     width: 100%;
+  }
+}
+
+@media (max-width: 63.9375rem) {
+  .uploadActions {
+    display: flex;
+  }
+
+  .uploadDesktopTrigger {
+    display: none;
   }
 }

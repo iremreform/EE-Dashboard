@@ -1,8 +1,9 @@
-import { areas, driverWorkflows, nav, pages } from "@/content/portal";
+import { areas, driverWorkflows, pages } from "@/content/portal";
 import { ChoiceCard } from "@/components/ui";
 import { ChoiceGrid, PageIntro, PageShell } from "@/components/layout";
 import { requireActiveDriver } from "@/lib/driver-auth";
 import { driverLogoutAction } from "../actions";
+import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +12,7 @@ export default async function DriverDashboardPage() {
 
   return (
     <PageShell
-      backAction={driverLogoutAction}
-      backLabel={nav.logout}
+      logoutAction={driverLogoutAction}
       width="default"
       centerContent
     >
@@ -25,12 +25,13 @@ export default async function DriverDashboardPage() {
         leadSize="large"
       />
 
-      <ChoiceGrid>
+      <ChoiceGrid className={styles.workflowGrid}>
         <ChoiceCard
           href={driverWorkflows.delivery.href}
           title={driverWorkflows.delivery.title}
           description={driverWorkflows.delivery.description}
           actionLabel={driverWorkflows.delivery.actionLabel}
+          variant="panel"
         />
 
         <ChoiceCard
@@ -38,6 +39,15 @@ export default async function DriverDashboardPage() {
           title={driverWorkflows.pickup.title}
           description={driverWorkflows.pickup.description}
           actionLabel={driverWorkflows.pickup.actionLabel}
+          variant="panel"
+        />
+
+        <ChoiceCard
+          href={driverWorkflows.reports.href}
+          title={driverWorkflows.reports.title}
+          description={driverWorkflows.reports.description}
+          actionLabel={driverWorkflows.reports.actionLabel}
+          variant="panel"
         />
       </ChoiceGrid>
     </PageShell>

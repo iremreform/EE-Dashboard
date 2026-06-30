@@ -376,12 +376,13 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 - Driver/admin login/protection/logout: `/driver/login` and `/admin/login` validate with Supabase Auth and active account status; driver/admin workflow routes are protected
 - Driver report persistence: `/driver/delivery` and `/driver/pickup` create first-pass Supabase submission records and alerts
 - Reservation lookup/autofill: `/api/driver/reservations` fills delivery/pickup forms from Supabase `reservations`
+- Submission edit rules: drivers can append post-submit notes from completion and locked report detail; admins can edit report fields and Submitted/Completed/Archived status from submission detail
 
 ### Not started / backend-functional
-- Delivery/pickup media upload persistence
+- Admin media download controls from private Supabase Storage paths
 - Google Calendar reservation sync/import
-- Real photo/video upload and Google Drive copy
-- Admin edit actions, driver disable/reset actions, and audit trail
+- Google Drive media copy
+- Driver disable/reset actions and admin-visible audit trail
 - PDF export, notifications, modals, toasts, loading/error states
 
 ---

@@ -1,11 +1,18 @@
 "use client";
 
-import type { FormHTMLAttributes } from "react";
-import { useState } from "react";
-import { Button, Card, Checkbox, Field, Input, Textarea } from "@/components/ui";
+import type {
+  ChangeEvent,
+  FormHTMLAttributes,
+  PointerEvent as ReactPointerEvent,
+} from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { Button, Card, Checkbox, Field, Input, Select, Textarea } from "@/components/ui";
+import { SUPABASE_BUCKETS } from "@/lib/supabase/constants";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import styles from "./DriverReportForm.module.css";
 
 type ReportType = "delivery" | "pickup";
+type MediaKind = "photo" | "video" | "license";
 type FieldTuple = readonly [label: string, placeholder: string];
 type UploadTuple = readonly [label: string, meta: string];
 
@@ -91,6 +98,20 @@ type ReservationLookupResponse = {
     vehicleColorPlate: string;
     vehicleMakeModel: string;
   };
+};
+
+type UploadedMediaRef = {
+  label: string;
+  mediaKind: MediaKind;
+  mimeType: string;
+  originalName: string;
+  path: string;
+  sizeBytes: number;
+};
+
+type SignedUploadResponse = {
+  path: string;
+  token: string;
 };
 
 export function DriverReportForm({
@@ -291,18 +312,33 @@ function FieldsSection({
       <div className={styles.gridTwo}>
         {fields.map(([label, placeholder]) => {
           const id = `${idPrefix}-${slugify(label)}`;
+          const isLookupField = Boolean(lookup && label.toLowerCase() === "reservation number");
+
           return (
             <Field key={id} label={label} htmlFor={id}>
               {({ describedBy, hasError }) => (
-                <Input
-                  id={id}
-                  name={id}
-                  placeholder={placeholder}
-                  aria-describedby={describedBy}
-                  hasError={hasError}
-                  onChange={(event) => onFieldChange(id, event.target.value)}
-                  value={values[id] ?? ""}
-                />
+                <div className={isLookupField ? styles.lookupFieldRow : undefined}>
+                  <Input
+                    id={id}
+                    name={id}
+                    placeholder={placeholder}
+                    aria-describedby={describedBy}
+                    hasError={hasError}
+                    onChange={(event) => onFieldChange(id, event.target.value)}
+                    value={values[id] ?? ""}
+                  />
+                  {isLookupField && lookup ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className={styles.lookupButton}
+                      disabled={lookup.isLoading}
+                      onClick={lookup.onLookup}
+                    >
+                      {lookup.isLoading ? "Searching" : "Search"}
+                    </Button>
+                  ) : null}
+                </div>
               )}
             </Field>
           );
@@ -310,16 +346,6 @@ function FieldsSection({
       </div>
       {lookup ? (
         <div className={styles.lookupActions}>
-          <Button
-            type="button"
-            variant="secondary"
-            size="small"
-            className={styles.lookupButton}
-            disabled={lookup.isLoading}
-            onClick={lookup.onLookup}
-          >
-            {lookup.isLoading ? "Looking up" : "Lookup reservation"}
-          </Button>
           {lookup.message ? <p className={styles.lookupMessage}>{lookup.message}</p> : null}
         </div>
       ) : null}
@@ -332,12 +358,17 @@ function MediaSection({ section }: { section: SharedSections["media"] }) {
     <Card title={section.title} titleVariant="subheading" surface="transparent">
       <div className={styles.gridThree}>
         {section.uploads.map(([label, meta]) => (
-          <UploadTile key={`${label}-${meta}`} label={label} meta={meta} accept="image/*" />
+          <UploadTile
+            key={`${label}-${meta}`}
+            label={label}
+            mediaKind="photo"
+            accept="image/*"
+          />
         ))}
       </div>
       <UploadTile
         label={section.videoLabel}
-        meta="Tap to record or upload"
+        mediaKind="video"
         accept="video/*"
         tall
         spaced
@@ -351,7 +382,13 @@ function VerificationSection({ section }: { section: DeliverySections["verificat
     <Card title={section.title} titleVariant="subheading" surface="transparent">
       <div className={styles.gridTwo}>
         {section.uploads.map((label) => (
-          <UploadTile key={label} label={label} accept="image/*" tall />
+          <UploadTile
+            key={label}
+            label={label}
+            mediaKind="license"
+            accept="image/*"
+            tall
+          />
         ))}
       </div>
     </Card>
@@ -371,15 +408,20 @@ function PaymentSection({
     <Card title={section.title} titleVariant="subheading" surface="transparent">
       <Field label={section.label} htmlFor="payment-status">
         {({ describedBy, hasError }) => (
-          <Input
+          <Select
             id="payment-status"
             name="payment-status"
-            placeholder={section.placeholder}
             aria-describedby={describedBy}
             hasError={hasError}
             onChange={(event) => onFieldChange("payment-status", event.target.value)}
             value={value}
-          />
+          >
+            <option value="" disabled>
+              {section.placeholder}
+            </option>
+            <option value="Verified">Verified</option>
+            <option value="Not verified">Not verified</option>
+          </Select>
         )}
       </Field>
     </Card>
@@ -446,13 +488,120 @@ function SignatureSection({
   section: SharedSections["signature"];
   type: ReportType;
 }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isDrawingRef = useRef(false);
+  const [signatureValue, setSignatureValue] = useState("");
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+
+    if (!canvas) {
+      return;
+    }
+
+    const resizeCanvas = () => {
+      const rect = canvas.getBoundingClientRect();
+      const scale = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, Math.floor(rect.width * scale));
+      canvas.height = Math.max(1, Math.floor(rect.height * scale));
+
+      const context = canvas.getContext("2d");
+
+      if (!context) {
+        return;
+      }
+
+      context.scale(scale, scale);
+      context.lineCap = "round";
+      context.lineJoin = "round";
+      context.lineWidth = 2;
+      context.strokeStyle = "#ffffff";
+      setSignatureValue("");
+    };
+
+    resizeCanvas();
+
+    const observer = new ResizeObserver(resizeCanvas);
+    observer.observe(canvas);
+
+    return () => observer.disconnect();
+  }, []);
+
+  const handlePointerDown = (event: ReactPointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
+
+    if (!canvas || !context) {
+      return;
+    }
+
+    const point = getCanvasPoint(canvas, event);
+    isDrawingRef.current = true;
+    canvas.setPointerCapture(event.pointerId);
+    context.beginPath();
+    context.moveTo(point.x, point.y);
+  };
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
+
+    if (!canvas || !context || !isDrawingRef.current) {
+      return;
+    }
+
+    const point = getCanvasPoint(canvas, event);
+    context.lineTo(point.x, point.y);
+    context.stroke();
+  };
+
+  const handlePointerUp = (event: ReactPointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+
+    if (!canvas || !isDrawingRef.current) {
+      return;
+    }
+
+    isDrawingRef.current = false;
+    canvas.releasePointerCapture(event.pointerId);
+    setSignatureValue(canvas.toDataURL("image/png"));
+  };
+
+  const clearSignature = () => {
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
+
+    if (!canvas || !context) {
+      return;
+    }
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    setSignatureValue("");
+  };
+
   return (
     <Card title={section.title} titleVariant="subheading" surface="transparent">
-      <div className={styles.signatureBox}>Digital signature box</div>
+      <div className={styles.signaturePad}>
+        <canvas
+          ref={canvasRef}
+          className={styles.signatureCanvas}
+          aria-label="Guest signature"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+        />
+        <input type="hidden" name={`${type}-guest-signature`} value={signatureValue} />
+      </div>
+      <div className={styles.signatureActions}>
+        <Button type="button" variant="secondary" size="small" onClick={clearSignature}>
+          Clear signature
+        </Button>
+        {signatureValue ? <p className={styles.signatureStatus}>Signature captured</p> : null}
+      </div>
       <Checkbox className={styles.checkboxRow} name={`${type}-guest-confirmation`}>
         {section.confirmation}
       </Checkbox>
-      <p className={styles.caption}>Date / time stamp - captured automatically on submit</p>
     </Card>
   );
 }
@@ -493,31 +642,186 @@ function DriverConfirmationSection({
 
 function UploadTile({
   label,
-  meta = "Tap to upload",
+  mediaKind,
   accept,
   tall = false,
   spaced = false,
 }: {
   label: string;
-  meta?: string;
+  mediaKind: MediaKind;
   accept: string;
   tall?: boolean;
   spaced?: boolean;
 }) {
+  const inputId = useId();
+  const [preview, setPreview] = useState<{
+    name: string;
+    type: string;
+    url: string;
+  } | null>(null);
+  const [uploadedMedia, setUploadedMedia] = useState<UploadedMediaRef | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "uploaded" | "error">("idle");
+  const [uploadError, setUploadError] = useState("");
+  const isVideo = accept.startsWith("video");
+  const captureLabel = isVideo ? "Record video" : "Take photo";
+
+  useEffect(() => {
+    return () => {
+      if (preview?.url) {
+        URL.revokeObjectURL(preview.url);
+      }
+    };
+  }, [preview?.url]);
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      setPreview(null);
+      return;
+    }
+
+    setPreview({
+      name: file.name,
+      type: file.type,
+      url: URL.createObjectURL(file),
+    });
+    setUploadedMedia(null);
+    setUploadStatus("uploading");
+    setUploadError("");
+
+    try {
+      const signedUpload = await createSignedUpload(file, mediaKind);
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase.storage
+        .from(SUPABASE_BUCKETS.submissionMedia)
+        .uploadToSignedUrl(signedUpload.path, signedUpload.token, file, {
+          contentType: file.type || undefined,
+        });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setUploadedMedia({
+        label,
+        mediaKind,
+        mimeType: file.type,
+        originalName: file.name,
+        path: signedUpload.path,
+        sizeBytes: file.size,
+      });
+      setUploadStatus("uploaded");
+    } catch {
+      setUploadedMedia(null);
+      setUploadStatus("error");
+      setUploadError("Upload failed. Please try again.");
+    }
+  };
+
+  const handleRemove = async () => {
+    const captureInput = document.getElementById(`${inputId}-capture`) as HTMLInputElement | null;
+    const uploadInput = document.getElementById(`${inputId}-upload`) as HTMLInputElement | null;
+
+    if (captureInput) {
+      captureInput.value = "";
+    }
+
+    if (uploadInput) {
+      uploadInput.value = "";
+    }
+
+    if (uploadedMedia?.path) {
+      await fetch("/api/driver/media", {
+        body: JSON.stringify({ path: uploadedMedia.path }),
+        headers: { "Content-Type": "application/json" },
+        method: "DELETE",
+      });
+    }
+
+    setPreview(null);
+    setUploadedMedia(null);
+    setUploadStatus("idle");
+    setUploadError("");
+  };
+
   return (
-    <label
+    <div
       className={[
         styles.uploadTile,
         tall ? styles.uploadTall : "",
+        preview ? styles.uploadSelected : "",
         spaced ? styles.uploadSpaced : "",
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <input className={styles.fileInput} type="file" accept={accept} />
+      <input
+        id={`${inputId}-capture`}
+        className={styles.fileInput}
+        type="file"
+        accept={accept}
+        capture="environment"
+        onChange={handleFileChange}
+      />
+      <input
+        id={`${inputId}-upload`}
+        className={styles.fileInput}
+        type="file"
+        accept={accept}
+        onChange={handleFileChange}
+      />
+      {uploadedMedia ? (
+        <input
+          type="hidden"
+          name="uploaded-media"
+          value={JSON.stringify(uploadedMedia)}
+        />
+      ) : null}
+      {preview ? (
+        <span className={styles.uploadPreviewFrame}>
+          {preview.type.startsWith("image/") ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className={styles.uploadPreview} src={preview.url} alt="" />
+          ) : (
+            <video className={styles.uploadPreview} src={preview.url} muted playsInline />
+          )}
+        </span>
+      ) : null}
       <span className={styles.uploadLabel}>{label}</span>
-      <span className={styles.uploadMeta}>{meta}</span>
-    </label>
+      {preview ? (
+        <span className={styles.uploadMeta}>
+          {uploadStatus === "uploading" ? "Uploading..." : preview.name}
+        </span>
+      ) : null}
+      {uploadError ? <span className={styles.uploadError}>{uploadError}</span> : null}
+      {preview ? (
+        <button
+          type="button"
+          className={styles.uploadRemoveButton}
+          disabled={uploadStatus === "uploading"}
+          onClick={handleRemove}
+        >
+          Remove
+        </button>
+      ) : (
+        <>
+          <label
+            className={styles.uploadDesktopTrigger}
+            htmlFor={`${inputId}-upload`}
+            aria-label={`Upload ${label}`}
+          />
+          <span className={styles.uploadActions}>
+            <label className={styles.uploadActionPrimary} htmlFor={`${inputId}-capture`}>
+              {captureLabel}
+            </label>
+            <label className={styles.uploadActionSecondary} htmlFor={`${inputId}-upload`}>
+              Upload
+            </label>
+          </span>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -587,4 +891,34 @@ function formatMileageFuel(mileage: number | null, fuelLevel: number | null) {
   ]
     .filter(Boolean)
     .join(" - ");
+}
+
+function getCanvasPoint(
+  canvas: HTMLCanvasElement,
+  event: ReactPointerEvent<HTMLCanvasElement>,
+) {
+  const rect = canvas.getBoundingClientRect();
+
+  return {
+    x: event.clientX - rect.left,
+    y: event.clientY - rect.top,
+  };
+}
+
+async function createSignedUpload(file: File, mediaKind: MediaKind) {
+  const response = await fetch("/api/driver/media", {
+    body: JSON.stringify({
+      contentType: file.type,
+      fileName: file.name,
+      mediaKind,
+    }),
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to create upload URL.");
+  }
+
+  return (await response.json()) as SignedUploadResponse;
 }

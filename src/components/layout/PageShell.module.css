@@ -30,7 +30,33 @@
 }
 
 .topBarEnd {
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
   min-width: 0;
+}
+
+.logoutButton {
+  align-items: center;
+  background-color: transparent;
+  border: 0;
+  color: var(--text-subheading);
+  cursor: pointer;
+  display: inline-flex;
+  height: 2.75rem;
+  justify-content: center;
+  padding: 0;
+  transition: color var(--transition-fast);
+  width: 2.75rem;
+}
+
+.logoutButton:hover {
+  color: var(--color-leather-darker);
+}
+
+.logoutButton:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .main {

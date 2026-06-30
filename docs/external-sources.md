@@ -51,11 +51,14 @@ This document captures external systems needed for the production backend.
 - Driver login uses Supabase Auth and checks the linked active `drivers` row.
 - Driver dashboard, delivery, pickup, and completion routes require an active driver session.
 - Driver logout signs out through Supabase.
-- Delivery report creation persists text/checklist/payment fields, creates a new-submission alert, updates driver last-active, and records an audit event. Media upload is still pending.
-- Pickup report creation persists text/checklist fields, links to the same reservation, compares mileage/fuel against the latest delivery report where present, creates a new-submission alert, updates driver last-active, and records an audit event. Media upload is still pending.
+- Delivery report creation persists text/checklist/payment/signature fields, finalizes directly uploaded Supabase Storage media, creates media metadata rows, creates a new-submission alert, updates driver last-active, and records an audit event.
+- Pickup report creation persists text/checklist/signature fields, links to the same reservation, compares mileage/fuel against the latest delivery report where present, finalizes directly uploaded Supabase Storage media, creates media metadata rows, creates a new-submission alert, updates driver last-active, and records an audit event.
+- Driver completion and locked report detail can append notes to driver-owned submitted reports and record audit events.
 - Driver reservation lookup/autofill reads from the Supabase `reservations` table. Google Calendar should sync or import into that table later.
 - Admin login uses Supabase Auth and checks the linked active `admin_users` row.
 - Admin dashboard, drivers, create-driver, submissions, and submission detail routes require an active admin session.
+- Admin submission detail renders uploaded photos/videos using signed read URLs from the private `submission-media` bucket.
+- Admin submission detail can edit submitted report fields/statuses, append admin notes, and record edit/status/note audit events.
 - Admin logout signs out through Supabase.
 - Keep report and media files indefinitely; do not automatically delete them.
 - Add storage usage monitoring and alert admins before storage is close to full.
@@ -83,7 +86,7 @@ This document captures external systems needed for the production backend.
 
 - Store production environment variables in Vercel project settings.
 - Use Vercel preview deployments for client review.
-- Confirm file upload limits and serverless runtime constraints before large video handling.
+- Media uses signed direct-to-Supabase browser uploads so large videos do not pass through the Next.js server action body.
 
 ## Marker.io
 

@@ -58,21 +58,24 @@ This task list reflects client answers received in `Driver Admin Portal Response
 
 ## Backend phase 4: delivery and pickup submissions
 
-- Persist delivery reports. ✅ First pass wired for text/checklist/payment fields; media uploads are still pending.
-- Persist pickup/return reports. ✅ First pass wired for text/checklist fields; media uploads are still pending.
-- Lock submitted driver reports except for driver notes.
-- Allow admins to edit submitted reports.
+- Persist delivery reports. ✅ First pass wired for text/checklist/payment/signature fields and selected media upload.
+- Persist pickup/return reports. ✅ First pass wired for text/checklist/signature fields and selected media upload.
+- Lock submitted driver reports except for driver notes. ✅ Completion screen supports immediate notes, and `/driver/reports/[id]` supports later follow-up notes on locked reports.
+- Allow admins to edit submitted reports. ✅ Submission detail supports admin edits for status, guest/reservation/vehicle fields, mileage/fuel, payment status, and notes.
 - Link every pickup report to the earlier delivery report for the same reservation. ✅ Stored in the pickup checklist payload when a delivery match exists.
 - Compare pickup mileage and fuel against delivery mileage and fuel. ✅ First-pass comparison creates review alerts.
 - Trigger alerts for new damage, smoking/vaping evidence, late return, missing keys, low fuel, different pickup/drop-off location, and unmatched pickup. ✅ First pass covers damage, smoking/vaping, late return, missing keys, low fuel, and missing delivery match; pickup/drop-off location comparison is pending reservation auto-fill.
-- Implement statuses: `Submitted`, `Completed`, `Archived`.
+- Implement statuses: `Submitted`, `Completed`, `Archived`. ✅ Admin submission detail can update these statuses.
 
 ## Backend phase 5: media and documents
 
 - Implement live photo/video capture where browser support allows it.
 - Keep gallery upload as fallback.
-- Store files in Supabase Storage with database metadata.
+- Store files in Supabase Storage with database metadata. ✅ First pass uses signed browser uploads and finalizes metadata during delivery/pickup submit.
+- Move captured signatures from form payload into Supabase Storage metadata flow.
 - Copy submitted report media to Google Drive.
+- Add admin media preview links from private Storage paths. ✅ Submission detail renders signed private Storage previews for uploaded photos/videos.
+- Add explicit admin media download controls.
 - Prepare PDF export from submission detail.
 - Keep report/media files indefinitely.
 - Add storage capacity alerts before storage becomes full.
@@ -95,7 +98,7 @@ This task list reflects client answers received in `Driver Admin Portal Response
 - Replace static data in `src/content/portal.ts` with server data where appropriate. ✅ Admin dashboard recent submissions, admin submissions list, submission detail, alert summary, and drivers list now read from Supabase.
 - Add loading, empty, error, and success states for all dynamic pages.
 - Add real form validation and required checklist enforcement.
-- Add media previews/progress states.
-- Add admin edit flows for submitted reports.
+- Add media previews/progress states. ✅ Admin submission detail previews finalized media; driver upload progress polish is still pending.
+- Add admin edit flows for submitted reports. ✅ First pass lives on submission detail.
 - Add disabled-driver states and confirmation flows. Create-driver is wired to Supabase database + Auth, but reset/disable/re-enable actions are still pending.
 - Add PDF export button behavior.

@@ -3,6 +3,7 @@ import { DriverReportForm } from "@/components/driver";
 import { PageIntro, PageShell } from "@/components/layout";
 import { requireActiveDriver } from "@/lib/driver-auth";
 import styles from "@/components/driver/DriverReportForm.module.css";
+import { driverLogoutAction } from "../actions";
 import { createDeliverySubmissionAction } from "./actions";
 
 type DriverDeliveryPageProps = {
@@ -22,6 +23,7 @@ export default async function DriverDeliveryPage({ searchParams }: DriverDeliver
     <PageShell
       backHref="/driver/dashboard"
       backLabel={nav.dashboard}
+      logoutAction={driverLogoutAction}
       width="wide"
       showFooter={false}
     >

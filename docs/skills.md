@@ -50,8 +50,12 @@ Current backend wiring:
 - `/admin/login` signs in with Supabase Auth and checks for an active admin row.
 - Admin dashboard, drivers, create-driver, submissions, and submission detail routes require an active admin session.
 - Admin sidebar logout signs out through Supabase.
-- `/driver/delivery` persists first-pass delivery report text/checklist/payment fields, creates an alert, updates driver last-active, and records an audit event.
-- `/driver/pickup` persists first-pass pickup report text/checklist fields, compares mileage/fuel against the latest delivery report where present, creates an alert, updates driver last-active, and records an audit event.
+- `/driver/delivery` persists first-pass delivery report text/checklist/payment/signature fields, creates an alert, updates driver last-active, and records an audit event.
+- `/driver/pickup` persists first-pass pickup report text/checklist/signature fields, compares mileage/fuel against the latest delivery report where present, creates an alert, updates driver last-active, and records an audit event.
 - `/api/driver/reservations` supports active-driver reservation lookup and delivery/pickup form autofill from Supabase reservations.
+- Driver selected photos/videos upload directly from the browser to private Supabase Storage bucket `submission-media` via signed upload URLs; delivery/pickup submit finalizes `submission_media` rows.
+- `/driver/complete?report=...` and `/driver/reports/[id]` let the submitting driver append post-submit notes while report fields stay locked.
+- Admin submission detail renders finalized uploaded photos/videos with signed read URLs from the private `submission-media` bucket.
+- Admin submission detail supports admin edits for Submitted/Completed/Archived status, guest/reservation/vehicle fields, mileage/fuel, payment verified status, and admin notes.
 
-Still pending: Google Calendar reservation sync/import, media uploads, notifications, PDF export, admin edit actions, and reset/disable/re-enable actions.
+Still pending: Google Calendar reservation sync/import, admin media download controls, notifications, PDF export, admin-visible audit trail, and reset/disable/re-enable actions.

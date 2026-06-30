@@ -1,7 +1,10 @@
 import "server-only";
+import { SUPABASE_BUCKETS } from "@/lib/supabase/constants";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type Relation<T> = T | T[] | null;
+type SubmissionStatus = "submitted" | "completed" | "archived";
+type PaymentStatus = "verified" | "not_verified";
 
 type DriverRow = {
   first_name: string | null;
@@ -9,6 +12,7 @@ type DriverRow = {
 };
 
 type ReservationRow = {
+  id: string;
   reservation_number: string | null;
   guest_first_name: string | null;
   guest_last_name: string | null;
@@ -19,18 +23,23 @@ type ReservationRow = {
 };
 
 type SubmissionRow = {
+  form_payload: Record<string, unknown> | null;
   public_id: string;
   submission_type: "delivery" | "pickup";
-  status: "submitted" | "completed" | "archived";
+  status: SubmissionStatus;
   submitted_at: string;
   mileage: number | null;
   fuel_level_percent: number | null;
-  payment_status: "verified" | "not_verified";
+  payment_status: PaymentStatus;
   reservations: Relation<ReservationRow>;
   drivers: Relation<DriverRow>;
   submission_media?: Array<{
     label: string;
     media_kind: "photo" | "video" | "license" | "signature" | "pdf";
+    mime_type: string | null;
+    size_bytes: number | null;
+    storage_bucket: string | null;
+    storage_path: string | null;
   }> | null;
   submission_notes?: Array<{
     body: string;
@@ -54,26 +63,54 @@ export type AdminAlertSummary = {
   } | null;
 };
 
+export type AdminSubmissionMediaView = {
+  kind: "photo" | "video" | "license" | "signature" | "pdf";
+  label: string;
+  mimeType: string | null;
+  sizeLabel: string | null;
+  url: string | null;
+};
+
 export type AdminSubmissionDetailView = {
   backLabel: string;
   downloadAction: string;
-  licenses: string[];
-  media: string[];
+  edit: {
+    guestFirstName: string;
+    guestLastName: string;
+    memberNumber: string;
+    mileageFuel: string;
+    paymentStatus: PaymentStatus;
+    publicId: string;
+    reservationNumber: string;
+    status: SubmissionStatus;
+    vehicleColor: string;
+    vehicleMakeModel: string;
+    vehiclePlate: string;
+  };
+  licenses: AdminSubmissionMediaView[];
+  media: AdminSubmissionMediaView[];
   mediaTitle: string;
-  notes: string;
+  notes: Array<{
+    body: string;
+    createdAt: string;
+  }>;
   notesTitle: string;
   payment: [string, string];
   reservation: string;
-  signature: string;
+  signature: {
+    label: string;
+    url: string | null;
+  };
   summary: Array<[string, string]>;
   summaryTitle: string;
   title: string;
   type: string;
+  status: string;
   verificationTitle: string;
-  videoLabel: string;
 };
 
 const SUBMISSION_SELECT = `
+  form_payload,
   public_id,
   submission_type,
   status,
@@ -82,6 +119,7 @@ const SUBMISSION_SELECT = `
   fuel_level_percent,
   payment_status,
   reservations (
+    id,
     reservation_number,
     guest_first_name,
     guest_last_name,
@@ -133,7 +171,11 @@ export async function getAdminSubmissionDetail(publicId: string) {
       ${SUBMISSION_SELECT},
       submission_media (
         label,
-        media_kind
+        media_kind,
+        mime_type,
+        size_bytes,
+        storage_bucket,
+        storage_path
       ),
       submission_notes (
         body,
@@ -151,7 +193,7 @@ export async function getAdminSubmissionDetail(publicId: string) {
     return null;
   }
 
-  return toDetailView(data as unknown as SubmissionRow);
+  return toDetailView(data as unknown as SubmissionRow, supabase);
 }
 
 export async function getAdminAlertSummary(): Promise<AdminAlertSummary> {
@@ -262,32 +304,51 @@ function toListItem(row: SubmissionRow, variant: "compact" | "full"): AdminSubmi
   };
 }
 
-function toDetailView(row: SubmissionRow): AdminSubmissionDetailView {
+async function toDetailView(
+  row: SubmissionRow,
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+): Promise<AdminSubmissionDetailView> {
   const reservation = one(row.reservations);
   const driver = one(row.drivers);
-  const media = row.submission_media ?? [];
-  const photos = media
-    .filter((item) => item.media_kind === "photo")
-    .map((item) => item.label);
-  const licenses = media
-    .filter((item) => item.media_kind === "license")
-    .map((item) => item.label);
-  const video = media.find((item) => item.media_kind === "video");
-  const latestNote = [...(row.submission_notes ?? [])].sort((a, b) =>
+  const mediaItems = await Promise.all(
+    (row.submission_media ?? []).map((item) => toMediaView(item, supabase)),
+  );
+  const media = mediaItems.filter((item) => item.kind === "photo" || item.kind === "video");
+  const licenses = mediaItems.filter((item) => item.kind === "license");
+  const notes = [...(row.submission_notes ?? [])].sort((a, b) =>
     b.created_at.localeCompare(a.created_at),
-  )[0];
+  );
 
   return {
     backLabel: "Submissions",
     downloadAction: "Download PDF",
-    licenses: licenses.length ? licenses : ["License front", "License back"],
-    media: photos.length ? photos : ["Front", "Rear", "Interior", "Odometer"],
+    edit: {
+      guestFirstName: reservation?.guest_first_name ?? "",
+      guestLastName: reservation?.guest_last_name ?? "",
+      memberNumber: reservation?.member_number ?? "",
+      mileageFuel: getMileageFuelDisplay(row),
+      paymentStatus: row.payment_status,
+      publicId: row.public_id,
+      reservationNumber: reservation?.reservation_number ?? "",
+      status: row.status,
+      vehicleColor: reservation?.vehicle_color ?? "",
+      vehicleMakeModel: reservation?.vehicle_make_model ?? "",
+      vehiclePlate: reservation?.vehicle_plate ?? "",
+    },
+    licenses,
+    media,
     mediaTitle: "Uploaded media",
-    notes: latestNote?.body ?? "No additional notes recorded.",
+    notes: notes.map((note) => ({
+      body: note.body,
+      createdAt: formatDateTime(note.created_at),
+    })),
     notesTitle: "Notes",
     payment: ["Payment verified status", formatPaymentStatus(row.payment_status)],
     reservation: `Res #${reservation?.reservation_number ?? row.public_id}`,
-    signature: "Guest signature",
+    signature: {
+      label: "Guest signature",
+      url: getSignatureDataUrl(row),
+    },
     summary: [
       ["Driver", fullName(driver) || "Unassigned"],
       ["Submitted", formatDateTime(row.submitted_at)],
@@ -302,14 +363,88 @@ function toDetailView(row: SubmissionRow): AdminSubmissionDetailView {
           .join(" - "),
       ],
       ["Vehicle", formatVehicle(reservation)],
-      ["Mileage / fuel", formatMileageFuel(row.mileage, row.fuel_level_percent)],
+      ["Mileage / fuel", getMileageFuelDisplay(row)],
     ],
     summaryTitle: "Report summary",
     title: "Submission Detail",
     type: formatSubmissionType(row.submission_type).replace(" / Return", ""),
+    status: formatStatus(row.status),
     verificationTitle: "Verification & signature",
-    videoLabel: video?.label ?? "Walkaround video",
   };
+}
+
+function getSignatureDataUrl(row: SubmissionRow) {
+  const key = `${row.submission_type}-guest-signature`;
+  const value = row.form_payload?.[key];
+
+  if (typeof value !== "string" || !value.startsWith("data:image/")) {
+    return null;
+  }
+
+  return value;
+}
+
+function getMileageFuelDisplay(row: SubmissionRow) {
+  const payload = row.form_payload ?? {};
+  const combinedKeys = [
+    `${row.submission_type}-admin-mileage-fuel`,
+    `${row.submission_type}-vehicle-mileage-fuel-level`,
+  ];
+
+  for (const key of combinedKeys) {
+    const value = getPayloadString(payload, key);
+
+    if (value) {
+      return value;
+    }
+  }
+
+  const mileage = getPayloadString(payload, `${row.submission_type}-checklist-mileage`);
+  const fuel = getPayloadString(payload, `${row.submission_type}-checklist-fuel-level`);
+  const rawValue = [mileage, fuel].filter(Boolean).join(" - ");
+
+  return rawValue || formatMileageFuel(row.mileage, row.fuel_level_percent);
+}
+
+function getPayloadString(payload: Record<string, unknown>, key: string) {
+  const value = payload[key];
+  return typeof value === "string" ? value.trim() : "";
+}
+
+async function toMediaView(
+  item: NonNullable<SubmissionRow["submission_media"]>[number],
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+): Promise<AdminSubmissionMediaView> {
+  const bucket = item.storage_bucket || SUPABASE_BUCKETS.submissionMedia;
+  const url = item.storage_path
+    ? await createSignedMediaUrl({ bucket, path: item.storage_path, supabase })
+    : null;
+
+  return {
+    kind: item.media_kind,
+    label: item.label,
+    mimeType: item.mime_type,
+    sizeLabel: formatFileSize(item.size_bytes),
+    url,
+  };
+}
+
+async function createSignedMediaUrl({
+  bucket,
+  path,
+  supabase,
+}: {
+  bucket: string;
+  path: string;
+  supabase: ReturnType<typeof createSupabaseAdminClient>;
+}) {
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 60 * 60);
+
+  if (error) {
+    return null;
+  }
+
+  return data.signedUrl;
 }
 
 function one<T>(value: Relation<T> | undefined): T | null {
@@ -328,17 +463,17 @@ function formatSubmissionType(type: SubmissionRow["submission_type"]) {
   return type === "pickup" ? "Pickup / Return" : "Delivery";
 }
 
-function formatStatus(status: SubmissionRow["status"]) {
-  const statusMap: Record<SubmissionRow["status"], string> = {
+function formatStatus(status: SubmissionStatus) {
+  const statusMap: Record<SubmissionStatus, string> = {
     archived: "Archived",
     completed: "Completed",
-    submitted: "Open",
+    submitted: "Submitted",
   };
 
   return statusMap[status];
 }
 
-function formatPaymentStatus(status: SubmissionRow["payment_status"]) {
+function formatPaymentStatus(status: PaymentStatus) {
   return status === "verified" ? "Verified" : "Not verified";
 }
 
@@ -359,6 +494,23 @@ function formatMileageFuel(mileage: number | null, fuelLevel: number | null) {
   ]
     .filter(Boolean)
     .join(" - ");
+}
+
+function formatFileSize(sizeBytes: number | null) {
+  if (!sizeBytes) {
+    return null;
+  }
+
+  if (sizeBytes < 1024) {
+    return `${sizeBytes} B`;
+  }
+
+  const isMegabyte = sizeBytes >= 1024 * 1024;
+  const divisor = isMegabyte ? 1024 * 1024 : 1024;
+
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: isMegabyte ? 1 : 0,
+  }).format(sizeBytes / divisor).concat(isMegabyte ? " MB" : " KB");
 }
 
 function formatDateTime(value: string) {

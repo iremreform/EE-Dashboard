@@ -7,18 +7,21 @@ import {
   parseFuelLevel,
   parseMileage,
 } from "@/lib/driver-form-data";
+import { finalizeSubmissionMedia, parseUploadedMediaRefs } from "@/lib/driver-media";
 import { requireActiveDriver } from "@/lib/driver-auth";
 import { createDeliverySubmission } from "@/lib/driver-submissions";
 
 const ERROR_MESSAGES = {
   confirmation: "Please confirm the guest and driver acknowledgements before submitting.",
   reservation: "Enter a valid reservation number before submitting.",
+  signature: "Please capture the guest signature before submitting.",
   unknown: "Delivery report could not be submitted. Please try again.",
 } as const;
 
 export async function createDeliverySubmissionAction(formData: FormData) {
   const { driver } = await requireActiveDriver();
   const reservationNumber = getFormValue(formData, "delivery-guest-reservation-number");
+  let completedPublicId = "";
 
   if (!reservationNumber) {
     redirectWithError(ERROR_MESSAGES.reservation);
@@ -31,8 +34,12 @@ export async function createDeliverySubmissionAction(formData: FormData) {
     redirectWithError(ERROR_MESSAGES.confirmation);
   }
 
+  if (!getFormValue(formData, "delivery-guest-signature")) {
+    redirectWithError(ERROR_MESSAGES.signature);
+  }
+
   try {
-    await createDeliverySubmission({
+    const submission = await createDeliverySubmission({
       driverId: driver.id,
       formPayload: formDataToPayload(formData),
       fuelLevelPercent: parseFuelLevel(getFormValue(formData, "delivery-vehicle-mileage-fuel-level")),
@@ -40,6 +47,12 @@ export async function createDeliverySubmissionAction(formData: FormData) {
       hasPaymentVerified: parsePaymentVerified(getFormValue(formData, "payment-status")),
       mileage: parseMileage(getFormValue(formData, "delivery-vehicle-mileage-fuel-level")),
       reservationNumber,
+    });
+    completedPublicId = submission.publicId;
+    await finalizeSubmissionMedia({
+      media: parseUploadedMediaRefs(formData),
+      publicId: submission.publicId,
+      submissionId: submission.submissionId,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
@@ -51,7 +64,7 @@ export async function createDeliverySubmissionAction(formData: FormData) {
     redirectWithError(ERROR_MESSAGES.unknown);
   }
 
-  redirect("/driver/complete");
+  redirect(`/driver/complete?report=${encodeURIComponent(completedPublicId)}`);
 }
 function parsePaymentVerified(value: string) {
   const normalized = value.toLowerCase();

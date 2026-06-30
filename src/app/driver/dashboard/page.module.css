@@ -1,0 +1,8 @@
+.workflowGrid {
+  align-items: stretch;
+  display: grid;
+  gap: var(--grid-gap);
+  margin: 0 auto;
+  max-width: 56rem;
+  width: 100%;
+}

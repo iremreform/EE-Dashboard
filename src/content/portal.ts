@@ -41,6 +41,12 @@ export const driverWorkflows = {
     href: "/driver/pickup",
     placeholder: "Pickup / return form coming soon.",
   },
+  reports: {
+    title: "Submitted Reports",
+    description: "Review locked reports and add follow-up notes.",
+    actionLabel: "View Reports",
+    href: "/driver/reports",
+  },
 } as const;
 
 export const driverForms = {
