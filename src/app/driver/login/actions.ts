@@ -41,6 +41,10 @@ export async function driverLoginAction(formData: FormData) {
     redirectWithError(ERROR_MESSAGES.disabled);
   }
 
+  if (data.user.user_metadata?.must_change_password) {
+    redirect("/driver/change-password?required=1");
+  }
+
   redirect("/driver/dashboard");
 }
 
@@ -52,4 +56,3 @@ function getFormValue(formData: FormData, name: string) {
 function redirectWithError(message: string): never {
   redirect(`/driver/login?error=${encodeURIComponent(message)}`);
 }
-

@@ -203,6 +203,21 @@ export default async function AdminSubmissionDetailPage({
           </div>
         </Card>
 
+        {detail.detailSections.map((section) => (
+          <Card
+            key={section.title}
+            title={section.title}
+            titleVariant="subheading"
+            surface="transparent"
+          >
+            <div className={styles.detailGrid}>
+              {section.fields.map(([label, value]) => (
+                <ReadOnlyField key={label} label={label} value={value} />
+              ))}
+            </div>
+          </Card>
+        ))}
+
         <Card title={detail.mediaTitle} titleVariant="subheading" surface="transparent">
           <MediaPreviewGrid items={detail.media} emptyText="No photos or videos uploaded." />
         </Card>

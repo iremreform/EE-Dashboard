@@ -6,6 +6,7 @@ import type {
   PointerEvent as ReactPointerEvent,
 } from "react";
 import { useEffect, useId, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { Button, Card, Checkbox, Field, Input, Select, Textarea } from "@/components/ui";
 import { SUPABASE_BUCKETS } from "@/lib/supabase/constants";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -123,9 +124,34 @@ export function DriverReportForm({
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [lookupMessage, setLookupMessage] = useState("");
   const [isLookupLoading, setIsLookupLoading] = useState(false);
+  const [matchedReservationNumber, setMatchedReservationNumber] = useState("");
 
   const updateFieldValue = (name: string, value: string) => {
     setFieldValues((current) => ({ ...current, [name]: value }));
+  };
+
+  const clearPickupLookup = () => {
+    if (type !== "pickup") {
+      return;
+    }
+
+    setMatchedReservationNumber("");
+    setLookupMessage("");
+    setFieldValues((current) => {
+      const next = { ...current };
+
+      delete next["pickup-search"];
+
+      for (const [label] of sections.guest.fields) {
+        delete next[`pickup-guest-${slugify(label)}`];
+      }
+
+      for (const [label] of sections.vehicle.fields) {
+        delete next[`pickup-vehicle-${slugify(label)}`];
+      }
+
+      return next;
+    });
   };
 
   const handleLookup = async () => {
@@ -159,6 +185,7 @@ export function DriverReportForm({
         ...current,
         ...mapReservationToFields(type, data.reservation),
       }));
+      setMatchedReservationNumber(data.reservation.reservationNumber);
       setLookupMessage("Reservation found.");
     } catch {
       setLookupMessage("Reservation lookup failed.");
@@ -171,8 +198,10 @@ export function DriverReportForm({
     <form action={submitAction} className={styles.formStack} noValidate>
       {type === "pickup" ? (
         <SearchSection
+          canClearLookup={Boolean(matchedReservationNumber)}
           isLookupLoading={isLookupLoading}
           lookupMessage={lookupMessage}
+          onClearLookup={clearPickupLookup}
           onFieldChange={updateFieldValue}
           onLookup={handleLookup}
           section={sections.search}
@@ -182,7 +211,7 @@ export function DriverReportForm({
 
       <FieldsSection
         title={sections.guest.title}
-        note={sections.guest.note}
+        note={type === "pickup" && !matchedReservationNumber ? undefined : sections.guest.note}
         fields={sections.guest.fields}
         idPrefix={`${type}-guest`}
         lookup={
@@ -200,10 +229,11 @@ export function DriverReportForm({
 
       <FieldsSection
         title={sections.vehicle.title}
-        note={sections.vehicle.note}
+        note={type === "pickup" && !matchedReservationNumber ? undefined : sections.vehicle.note}
         fields={sections.vehicle.fields}
         idPrefix={`${type}-vehicle`}
         onFieldChange={updateFieldValue}
+        readOnly={type === "pickup"}
         values={fieldValues}
       />
 
@@ -238,20 +268,26 @@ export function DriverReportForm({
 }
 
 function SearchSection({
+  canClearLookup,
   isLookupLoading,
   lookupMessage,
+  onClearLookup,
   onFieldChange,
   onLookup,
   section,
   value,
 }: {
+  canClearLookup: boolean;
   isLookupLoading: boolean;
   lookupMessage: string;
+  onClearLookup: () => void;
   onFieldChange: (name: string, value: string) => void;
   onLookup: () => void;
   section: PickupSections["search"];
   value: string;
 }) {
+  const isLookupError = Boolean(lookupMessage && lookupMessage !== "Reservation found.");
+
   return (
     <Card title={section.title} titleVariant="subheading" surface="transparent">
       <div className={styles.lookupRow}>
@@ -270,16 +306,19 @@ function SearchSection({
         </Field>
         <Button
           type="button"
-          variant="secondary"
-          size="small"
+          variant={canClearLookup ? "secondary" : "primary"}
           className={styles.lookupButton}
-          disabled={isLookupLoading}
-          onClick={onLookup}
+          disabled={isLookupLoading && !canClearLookup}
+          onClick={canClearLookup ? onClearLookup : onLookup}
         >
-          {isLookupLoading ? "Looking up" : "Lookup"}
+          {canClearLookup ? "Clear match" : isLookupLoading ? "Looking up..." : "Lookup"}
         </Button>
       </div>
-      {lookupMessage ? <p className={styles.lookupMessage}>{lookupMessage}</p> : null}
+      {lookupMessage ? (
+        <p className={`${styles.lookupMessage} ${isLookupError ? styles.lookupMessageError : ""}`}>
+          {lookupMessage}
+        </p>
+      ) : null}
       <p className={`${styles.sectionNote} ${styles.searchNote}`}>{section.note}</p>
     </Card>
   );
@@ -292,6 +331,7 @@ function FieldsSection({
   idPrefix,
   lookup,
   onFieldChange,
+  readOnly = false,
   values,
 }: {
   title: string;
@@ -304,6 +344,7 @@ function FieldsSection({
     onLookup: () => void;
   };
   onFieldChange: (name: string, value: string) => void;
+  readOnly?: boolean;
   values: Record<string, string>;
 }) {
   return (
@@ -323,8 +364,10 @@ function FieldsSection({
                     name={id}
                     placeholder={placeholder}
                     aria-describedby={describedBy}
+                    className={readOnly ? styles.readOnlyInput : undefined}
                     hasError={hasError}
                     onChange={(event) => onFieldChange(id, event.target.value)}
+                    readOnly={readOnly}
                     value={values[id] ?? ""}
                   />
                   {isLookupField && lookup ? (
@@ -624,9 +667,7 @@ function DriverConfirmationSection({
       </Checkbox>
       <div className={styles.actions}>
         {submitAction ? (
-          <Button type="submit" className={styles.actionButton}>
-            {submitLabel}
-          </Button>
+          <ReportSubmitButton label={submitLabel} />
         ) : (
           <Button href="/driver/complete" className={styles.actionButton}>
             {submitLabel}
@@ -637,6 +678,16 @@ function DriverConfirmationSection({
         </Button>
       </div>
     </Card>
+  );
+}
+
+function ReportSubmitButton({ label }: { label: string }) {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button type="submit" className={styles.actionButton} disabled={pending}>
+      {pending ? "Submitting..." : label}
+    </Button>
   );
 }
 

@@ -130,7 +130,7 @@ export const driverForms = {
       },
       vehicle: {
         title: "Vehicle Details",
-        note: "Auto-filled from reservation match.",
+        note: "Auto-filled from the delivery report.",
         fields: [
           ["Make / model", "Lamborghini Huracan"],
           ["Color / plate", "Black - ABC 1234"],
@@ -308,10 +308,6 @@ export const adminPortal = {
         roleValue: "Driver",
         passwordLabel: "Temporary password",
         passwordPlaceholder: "Temporary password",
-        options: [
-          "Require password change on first login",
-          "Send login details to driver by email",
-        ],
       },
     },
     saveAction: "Save driver",

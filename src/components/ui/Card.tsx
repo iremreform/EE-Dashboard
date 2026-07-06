@@ -4,6 +4,7 @@ import styles from "./Card.module.css";
 
 type CardProps = HTMLAttributes<HTMLDivElement> & {
   title?: string;
+  titleId?: string;
   titleVariant?: "heading" | "subheading";
   surface?: "filled" | "transparent";
   centered?: boolean;
@@ -13,6 +14,7 @@ type CardProps = HTMLAttributes<HTMLDivElement> & {
 
 export function Card({
   title,
+  titleId,
   titleVariant = "heading",
   surface = "filled",
   centered = false,
@@ -33,7 +35,10 @@ export function Card({
       {...props}
     >
       {title ? (
-        <h2 className={cn(styles.title, titleVariant === "subheading" && styles.titleSubheading)}>
+        <h2
+          id={titleId}
+          className={cn(styles.title, titleVariant === "subheading" && styles.titleSubheading)}
+        >
           {title}
         </h2>
       ) : null}

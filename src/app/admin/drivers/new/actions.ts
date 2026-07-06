@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { requireActiveAdmin } from "@/lib/admin-auth";
 import { createAdminDriver } from "@/lib/admin-drivers";
 
 const ERROR_MESSAGES = {
@@ -11,6 +12,7 @@ const ERROR_MESSAGES = {
 } as const;
 
 export async function createDriverAction(formData: FormData) {
+  const { admin } = await requireActiveAdmin();
   const firstName = getFormValue(formData, "driver-first-name");
   const lastName = getFormValue(formData, "driver-last-name");
   const email = getFormValue(formData, "driver-email").toLowerCase();
@@ -27,6 +29,7 @@ export async function createDriverAction(formData: FormData) {
 
   try {
     await createAdminDriver({
+      actorAdminId: admin.id,
       email,
       firstName,
       lastName,

@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getAdminAccessByAuthUserId } from "@/lib/admin-auth";
+import { adminRequiresPasswordChange, getAdminAccessByAuthUserId } from "@/lib/admin-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const ERROR_MESSAGES = {
@@ -41,6 +41,10 @@ export async function adminLoginAction(formData: FormData) {
     redirectWithError(ERROR_MESSAGES.disabled);
   }
 
+  if (adminRequiresPasswordChange(data.user.user_metadata)) {
+    redirect("/admin/change-password?required=1");
+  }
+
   redirect("/admin/dashboard");
 }
 
@@ -52,4 +56,3 @@ function getFormValue(formData: FormData, name: string) {
 function redirectWithError(message: string): never {
   redirect(`/admin/login?error=${encodeURIComponent(message)}`);
 }
-

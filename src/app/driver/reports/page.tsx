@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { areas } from "@/content/portal";
-import { Card } from "@/components/ui";
+import { Card, Tag } from "@/components/ui";
 import { PageIntro, PageShell } from "@/components/layout";
 import { requireActiveDriver } from "@/lib/driver-auth";
 import { getDriverReports } from "@/lib/driver-reports";
@@ -37,7 +37,7 @@ export default async function DriverReportsPage() {
                   <strong className={styles.listTitle}>{report.title}</strong>
                   <p className={styles.listMeta}>{report.meta}</p>
                 </div>
-                <span className={styles.rowButton}>{report.status}</span>
+                <Tag>{report.status}</Tag>
               </Link>
             ))}
           </div>

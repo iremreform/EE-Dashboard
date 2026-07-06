@@ -1,6 +1,6 @@
 import { areas, driverWorkflows, pages } from "@/content/portal";
 import { ChoiceCard } from "@/components/ui";
-import { ChoiceGrid, PageIntro, PageShell } from "@/components/layout";
+import { PageIntro, PageShell } from "@/components/layout";
 import { requireActiveDriver } from "@/lib/driver-auth";
 import { driverLogoutAction } from "../actions";
 import styles from "./page.module.css";
@@ -8,7 +8,8 @@ import styles from "./page.module.css";
 export const dynamic = "force-dynamic";
 
 export default async function DriverDashboardPage() {
-  await requireActiveDriver();
+  const { driver } = await requireActiveDriver();
+  const driverName = [driver.first_name, driver.last_name].filter(Boolean).join(" ");
 
   return (
     <PageShell
@@ -18,14 +19,14 @@ export default async function DriverDashboardPage() {
     >
       <PageIntro
         tagline={`${areas.driver} Portal`}
-        title={pages.driverDashboardGreeting}
+        title={`Hello, ${driverName || "Driver"}`}
         lead={pages.driverDashboardLead}
         centered
         headingLevel={2}
         leadSize="large"
       />
 
-      <ChoiceGrid className={styles.workflowGrid}>
+      <div className={styles.workflowGrid}>
         <ChoiceCard
           href={driverWorkflows.delivery.href}
           title={driverWorkflows.delivery.title}
@@ -49,7 +50,7 @@ export default async function DriverDashboardPage() {
           actionLabel={driverWorkflows.reports.actionLabel}
           variant="panel"
         />
-      </ChoiceGrid>
+      </div>
     </PageShell>
   );
 }

@@ -2,6 +2,7 @@
 
 import type { FormEvent } from "react";
 import type { FormHTMLAttributes } from "react";
+import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Card, Field, Input } from "@/components/ui";
@@ -88,7 +89,7 @@ export function LoginForm({
           </Field>
 
           <div className={styles.loginActions}>
-            <Button type="submit">{title}</Button>
+            <LoginSubmitButton label={title} />
           </div>
 
           {helpHref && helpLabel ? (
@@ -103,5 +104,15 @@ export function LoginForm({
 
       <p className={styles.secureNotice}>{secureNotice}</p>
     </PageShell>
+  );
+}
+
+function LoginSubmitButton({ label }: { label: string }) {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button type="submit" disabled={pending}>
+      {pending ? "Signing in..." : label}
+    </Button>
   );
 }

@@ -133,6 +133,7 @@ export async function updateAdminSubmissionAction(formData: FormData) {
   }
 
   const metadata = {
+    admin_id: admin.id,
     changed_fields: getChangedFields({
       existing,
       reservationUpdates,
@@ -145,7 +146,6 @@ export async function updateAdminSubmissionAction(formData: FormData) {
   await supabase.from("audit_events").insert([
     {
       action: "submission_edited",
-      actor_admin_id: admin.id,
       actor_type: "admin",
       entity_id: existing.id,
       entity_type: "submission",
@@ -154,11 +154,11 @@ export async function updateAdminSubmissionAction(formData: FormData) {
     ...(existing.status !== status
       ? [{
           action: "submission_status_changed",
-          actor_admin_id: admin.id,
           actor_type: "admin",
           entity_id: existing.id,
           entity_type: "submission",
           metadata: {
+            admin_id: admin.id,
             from: existing.status,
             public_id: publicId,
             to: status,
@@ -168,11 +168,11 @@ export async function updateAdminSubmissionAction(formData: FormData) {
     ...(noteBody
       ? [{
           action: "submission_note_added",
-          actor_admin_id: admin.id,
           actor_type: "admin",
           entity_id: existing.id,
           entity_type: "submission",
           metadata: {
+            admin_id: admin.id,
             public_id: publicId,
           },
         }]

@@ -1,11 +1,12 @@
 import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
-import { Button, Card, Checkbox, Field, Input } from "@/components/ui";
+import { Button, Card, Field, Input } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
 import { requireActiveAdmin } from "@/lib/admin-auth";
 import { getAdminAlertSummary } from "@/lib/admin-submissions";
 import styles from "../../admin-pages.module.css";
 import { adminLogoutAction } from "../../actions";
+import { PendingDriverActionButton } from "../PendingDriverActionButton";
 import { createDriverAction } from "./actions";
 
 type AdminCreateDriverPageProps = {
@@ -115,16 +116,14 @@ export default async function AdminCreateDriverPage({
               )}
             </Field>
 
-            {createDriver.sections.access.options.map((option) => (
-              <Checkbox key={option} name={slugify(option)} className={styles.checkboxRow}>
-                {option}
-              </Checkbox>
-            ))}
           </div>
         </Card>
 
         <div className={styles.actions}>
-          <Button type="submit">{createDriver.saveAction}</Button>
+          <PendingDriverActionButton
+            label={createDriver.saveAction}
+            pendingLabel="Saving..."
+          />
           <Button href="/admin/drivers" variant="secondary">
             {createDriver.cancelAction}
           </Button>

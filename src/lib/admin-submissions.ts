@@ -1,4 +1,5 @@
 import "server-only";
+import { driverForms } from "@/content/portal";
 import { SUPABASE_BUCKETS } from "@/lib/supabase/constants";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -87,6 +88,10 @@ export type AdminSubmissionDetailView = {
     vehicleMakeModel: string;
     vehiclePlate: string;
   };
+  detailSections: Array<{
+    fields: Array<[string, string]>;
+    title: string;
+  }>;
   licenses: AdminSubmissionMediaView[];
   media: AdminSubmissionMediaView[];
   mediaTitle: string;
@@ -335,6 +340,7 @@ async function toDetailView(
       vehicleMakeModel: reservation?.vehicle_make_model ?? "",
       vehiclePlate: reservation?.vehicle_plate ?? "",
     },
+    detailSections: getDetailSections(row, reservation),
     licenses,
     media,
     mediaTitle: "Uploaded media",
@@ -382,6 +388,96 @@ function getSignatureDataUrl(row: SubmissionRow) {
   }
 
   return value;
+}
+
+function getDetailSections(row: SubmissionRow, reservation: ReservationRow | null) {
+  const payload = row.form_payload ?? {};
+  const type = row.submission_type;
+  const form = driverForms[type];
+  const sections: AdminSubmissionDetailView["detailSections"] = [
+    {
+      title: form.sections.guest.title,
+      fields: fieldsFromTuples(payload, `${type}-guest`, form.sections.guest.fields, {
+        [`${type}-guest-guest-first-name`]: reservation?.guest_first_name,
+        [`${type}-guest-guest-last-name`]: reservation?.guest_last_name,
+        [`${type}-guest-member-number`]: reservation?.member_number,
+        [`${type}-guest-reservation-number`]: reservation?.reservation_number,
+      }),
+    },
+    {
+      title: form.sections.vehicle.title,
+      fields: fieldsFromTuples(payload, `${type}-vehicle`, form.sections.vehicle.fields, {
+        [`${type}-vehicle-color-plate`]: [
+          reservation?.vehicle_color,
+          reservation?.vehicle_plate,
+        ].filter(Boolean).join(" - "),
+        [`${type}-vehicle-make-model`]: reservation?.vehicle_make_model,
+        [`${type}-vehicle-mileage-fuel-level`]: getMileageFuelDisplay(row),
+      }),
+    },
+  ];
+
+  if (type === "delivery") {
+    const deliveryForm = driverForms.delivery;
+
+    sections.push({
+      title: deliveryForm.sections.payment.title,
+      fields: [
+        [
+          deliveryForm.sections.payment.label,
+          getPayloadString(payload, "payment-status") || formatPaymentStatus(row.payment_status),
+        ],
+      ],
+    });
+  } else {
+    const pickupForm = driverForms.pickup;
+
+    sections.push({
+      title: pickupForm.sections.checklist.title,
+      fields: [
+        ...fieldsFromTuples(payload, "pickup-checklist", pickupForm.sections.checklist.fields),
+        ...pickupForm.sections.checklist.toggles.map((label) => [
+          label,
+          getPayloadString(payload, `pickup-${slugify(label)}`) || "Not provided",
+        ] as [string, string]),
+        [
+          pickupForm.sections.checklist.notesLabel,
+          getPayloadString(payload, "pickup-notes") || "Not provided",
+        ],
+      ],
+    });
+  }
+
+  sections.push({
+    title: form.sections.driver.title,
+    fields: [
+      [
+        form.sections.signature.title,
+        payload[`${type}-guest-confirmation`] === "on" ? "Confirmed" : "Not confirmed",
+      ],
+      [
+        form.sections.driver.title,
+        payload[`${type}-driver-confirmation`] === "on" ? "Confirmed" : "Not confirmed",
+      ],
+    ],
+  });
+
+  return sections;
+}
+
+function fieldsFromTuples(
+  payload: Record<string, unknown>,
+  prefix: string,
+  fields: readonly (readonly [string, string])[],
+  fallbacks: Record<string, string | null | undefined> = {},
+) {
+  return fields.map(([label]) => {
+    const key = `${prefix}-${slugify(label)}`;
+    return [label, getPayloadString(payload, key) || fallbacks[key] || "Not provided"] as [
+      string,
+      string,
+    ];
+  });
 }
 
 function getMileageFuelDisplay(row: SubmissionRow) {
@@ -475,6 +571,13 @@ function formatStatus(status: SubmissionStatus) {
 
 function formatPaymentStatus(status: PaymentStatus) {
   return status === "verified" ? "Verified" : "Not verified";
+}
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 }
 
 function formatVehicle(reservation: ReservationRow | null) {

@@ -3,7 +3,11 @@ import { redirect } from "next/navigation";
 import { getDriverAccessByAuthUserId } from "@/lib/admin-drivers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export async function requireActiveDriver() {
+export async function requireActiveDriver({
+  allowPasswordChangeRequired = false,
+}: {
+  allowPasswordChangeRequired?: boolean;
+} = {}) {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.getUser();
 
@@ -18,9 +22,12 @@ export async function requireActiveDriver() {
     redirect("/driver/login");
   }
 
+  if (data.user.user_metadata?.must_change_password && !allowPasswordChangeRequired) {
+    redirect("/driver/change-password?required=1");
+  }
+
   return {
     driver,
     user: data.user,
   };
 }
-

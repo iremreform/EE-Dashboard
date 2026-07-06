@@ -3,6 +3,6 @@
   display: grid;
   gap: var(--grid-gap);
   margin: 0 auto;
-  max-width: 56rem;
+  max-width: 24.25rem;
   width: 100%;
 }

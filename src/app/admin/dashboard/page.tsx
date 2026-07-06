@@ -11,8 +11,9 @@ import { adminLogoutAction } from "../actions";
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
-  await requireActiveAdmin();
+  const { admin } = await requireActiveAdmin();
   const dashboard = adminPortal.dashboard;
+  const adminName = [admin.first_name, admin.last_name].filter(Boolean).join(" ");
   const [recentSubmissions, alertSummary] = await Promise.all([
     getRecentAdminSubmissions(),
     getAdminAlertSummary(),
@@ -22,7 +23,7 @@ export default async function AdminDashboardPage() {
     <AdminShell title={dashboard.title} alertSummary={alertSummary} logoutAction={adminLogoutAction}>
       <PageIntro
         tagline={adminPortal.label}
-        title={dashboard.greeting}
+        title={`Hello, ${adminName || "Admin"}`}
         lead={dashboard.lead}
         centered
         headingLevel={2}

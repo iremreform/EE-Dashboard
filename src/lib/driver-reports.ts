@@ -1,5 +1,7 @@
 import "server-only";
+import { driverForms } from "@/content/portal";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { SUPABASE_BUCKETS } from "@/lib/supabase/constants";
 
 type Relation<T> = T | T[] | null;
 type SubmissionStatus = "submitted" | "completed" | "archived";
@@ -24,6 +26,14 @@ type DriverReportRow = {
   submitted_at: string;
   submission_type: "delivery" | "pickup";
   reservations: Relation<ReservationRow>;
+  submission_media?: Array<{
+    label: string;
+    media_kind: "photo" | "video" | "license" | "signature" | "pdf";
+    mime_type: string | null;
+    size_bytes: number | null;
+    storage_bucket: string | null;
+    storage_path: string | null;
+  }> | null;
   submission_notes?: Array<{
     body: string;
     created_at: string;
@@ -39,16 +49,34 @@ export type DriverReportListItem = {
 
 export type DriverReportDetailView = {
   backLabel: string;
+  detailSections: Array<{
+    fields: Array<[string, string]>;
+    title: string;
+  }>;
+  licenses: DriverReportMediaView[];
+  media: DriverReportMediaView[];
   notes: Array<{
     body: string;
     createdAt: string;
   }>;
   publicId: string;
   reservation: string;
+  signature: {
+    label: string;
+    url: string | null;
+  };
   status: string;
   summary: Array<[string, string]>;
   title: string;
   type: string;
+};
+
+export type DriverReportMediaView = {
+  kind: "photo" | "video" | "license" | "signature" | "pdf";
+  label: string;
+  mimeType: string | null;
+  sizeLabel: string | null;
+  url: string | null;
 };
 
 const DRIVER_REPORT_SELECT = `
@@ -92,6 +120,14 @@ export async function getDriverReportDetail(publicId: string, driverId: string) 
     .from("submissions")
     .select(`
       ${DRIVER_REPORT_SELECT},
+      submission_media (
+        label,
+        media_kind,
+        mime_type,
+        size_bytes,
+        storage_bucket,
+        storage_path
+      ),
       submission_notes (
         body,
         created_at
@@ -109,7 +145,7 @@ export async function getDriverReportDetail(publicId: string, driverId: string) 
     return null;
   }
 
-  return toDetailView(data as unknown as DriverReportRow);
+  return toDetailView(data as unknown as DriverReportRow, supabase);
 }
 
 function toListItem(row: DriverReportRow): DriverReportListItem {
@@ -128,21 +164,34 @@ function toListItem(row: DriverReportRow): DriverReportListItem {
   };
 }
 
-function toDetailView(row: DriverReportRow): DriverReportDetailView {
+async function toDetailView(
+  row: DriverReportRow,
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+): Promise<DriverReportDetailView> {
   const reservation = one(row.reservations);
   const notes = [...(row.submission_notes ?? [])].sort((a, b) =>
     b.created_at.localeCompare(a.created_at),
   );
   const reservationNumber = reservation?.reservation_number ?? row.public_id;
+  const mediaItems = await Promise.all(
+    (row.submission_media ?? []).map((item) => toMediaView(item, supabase)),
+  );
 
   return {
     backLabel: "Reports",
+    detailSections: getDetailSections(row, reservation),
+    licenses: mediaItems.filter((item) => item.kind === "license"),
+    media: mediaItems.filter((item) => item.kind === "photo" || item.kind === "video"),
     notes: notes.map((note) => ({
       body: note.body,
       createdAt: formatDateTime(note.created_at),
     })),
     publicId: row.public_id,
     reservation: `Res #${reservationNumber}`,
+    signature: {
+      label: "Guest signature",
+      url: getSignatureDataUrl(row),
+    },
     status: formatStatus(row.status),
     summary: [
       ["Submitted", formatDateTime(row.submitted_at)],
@@ -163,6 +212,143 @@ function toDetailView(row: DriverReportRow): DriverReportDetailView {
     title: formatSubmissionType(row.submission_type),
     type: formatSubmissionType(row.submission_type).replace(" / Return", ""),
   };
+}
+
+function getDetailSections(row: DriverReportRow, reservation: ReservationRow | null) {
+  const payload = row.form_payload ?? {};
+  const type = row.submission_type;
+  const form = driverForms[type];
+  const sections: DriverReportDetailView["detailSections"] = [
+    {
+      title: form.sections.guest.title,
+      fields: fieldsFromTuples(payload, `${type}-guest`, form.sections.guest.fields, {
+        [`${type}-guest-guest-first-name`]: reservation?.guest_first_name,
+        [`${type}-guest-guest-last-name`]: reservation?.guest_last_name,
+        [`${type}-guest-member-number`]: reservation?.member_number,
+        [`${type}-guest-reservation-number`]: reservation?.reservation_number,
+      }),
+    },
+    {
+      title: form.sections.vehicle.title,
+      fields: fieldsFromTuples(payload, `${type}-vehicle`, form.sections.vehicle.fields, {
+        [`${type}-vehicle-color-plate`]: [
+          reservation?.vehicle_color,
+          reservation?.vehicle_plate,
+        ].filter(Boolean).join(" - "),
+        [`${type}-vehicle-make-model`]: reservation?.vehicle_make_model,
+        [`${type}-vehicle-mileage-fuel-level`]: getMileageFuelDisplay(row),
+      }),
+    },
+  ];
+
+  if (type === "delivery") {
+    const deliveryForm = driverForms.delivery;
+
+    sections.push({
+      title: deliveryForm.sections.payment.title,
+      fields: [
+        [
+          deliveryForm.sections.payment.label,
+          getPayloadString(payload, "payment-status") || formatPaymentStatus(row.payment_status),
+        ],
+      ],
+    });
+  } else {
+    const pickupForm = driverForms.pickup;
+
+    sections.push({
+      title: pickupForm.sections.checklist.title,
+      fields: [
+        ...fieldsFromTuples(payload, "pickup-checklist", pickupForm.sections.checklist.fields),
+        ...pickupForm.sections.checklist.toggles.map((label) => [
+          label,
+          getPayloadString(payload, `pickup-${slugify(label)}`) || "Not provided",
+        ] as [string, string]),
+        [
+          pickupForm.sections.checklist.notesLabel,
+          getPayloadString(payload, "pickup-notes") || "Not provided",
+        ],
+      ],
+    });
+  }
+
+  sections.push({
+    title: form.sections.driver.title,
+    fields: [
+      [
+        form.sections.signature.title,
+        payload[`${type}-guest-confirmation`] === "on" ? "Confirmed" : "Not confirmed",
+      ],
+      [
+        form.sections.driver.title,
+        payload[`${type}-driver-confirmation`] === "on" ? "Confirmed" : "Not confirmed",
+      ],
+    ],
+  });
+
+  return sections;
+}
+
+function fieldsFromTuples(
+  payload: Record<string, unknown>,
+  prefix: string,
+  fields: readonly (readonly [string, string])[],
+  fallbacks: Record<string, string | null | undefined> = {},
+) {
+  return fields.map(([label]) => {
+    const key = `${prefix}-${slugify(label)}`;
+    return [label, getPayloadString(payload, key) || fallbacks[key] || "Not provided"] as [
+      string,
+      string,
+    ];
+  });
+}
+
+function getSignatureDataUrl(row: DriverReportRow) {
+  const key = `${row.submission_type}-guest-signature`;
+  const value = row.form_payload?.[key];
+
+  if (typeof value !== "string" || !value.startsWith("data:image/")) {
+    return null;
+  }
+
+  return value;
+}
+
+async function toMediaView(
+  item: NonNullable<DriverReportRow["submission_media"]>[number],
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+): Promise<DriverReportMediaView> {
+  const bucket = item.storage_bucket || SUPABASE_BUCKETS.submissionMedia;
+  const url = item.storage_path
+    ? await createSignedMediaUrl({ bucket, path: item.storage_path, supabase })
+    : null;
+
+  return {
+    kind: item.media_kind,
+    label: item.label,
+    mimeType: item.mime_type,
+    sizeLabel: formatFileSize(item.size_bytes),
+    url,
+  };
+}
+
+async function createSignedMediaUrl({
+  bucket,
+  path,
+  supabase,
+}: {
+  bucket: string;
+  path: string;
+  supabase: ReturnType<typeof createSupabaseAdminClient>;
+}) {
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 60 * 60);
+
+  if (error) {
+    return null;
+  }
+
+  return data.signedUrl;
 }
 
 function one<T>(value: Relation<T> | undefined): T | null {
@@ -189,6 +375,17 @@ function formatStatus(status: SubmissionStatus) {
   };
 
   return statusMap[status];
+}
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function formatPaymentStatus(status: DriverReportRow["payment_status"]) {
+  return status === "verified" ? "Verified" : "Not verified";
 }
 
 function formatVehicle(reservation: ReservationRow | null) {
@@ -235,6 +432,23 @@ function formatMileageFuel(mileage: number | null, fuelLevel: number | null) {
   ]
     .filter(Boolean)
     .join(" - ");
+}
+
+function formatFileSize(sizeBytes: number | null) {
+  if (!sizeBytes) {
+    return null;
+  }
+
+  if (sizeBytes < 1024) {
+    return `${sizeBytes} B`;
+  }
+
+  const isMegabyte = sizeBytes >= 1024 * 1024;
+  const divisor = isMegabyte ? 1024 * 1024 : 1024;
+
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: isMegabyte ? 1 : 0,
+  }).format(sizeBytes / divisor).concat(isMegabyte ? " MB" : " KB");
 }
 
 function formatDateTime(value: string) {

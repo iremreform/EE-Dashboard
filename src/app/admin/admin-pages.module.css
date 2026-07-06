@@ -61,6 +61,47 @@
   gap: var(--card-gap);
 }
 
+.formCard {
+  margin: 0 auto;
+  max-width: 36rem;
+}
+
+.inlineForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.modalOverlay {
+  align-items: center;
+  background-color: rgb(0 0 0 / 72%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: var(--page-padding-x);
+  position: fixed;
+  z-index: 1000;
+}
+
+.modalBackdrop {
+  cursor: default;
+  inset: 0;
+  position: absolute;
+}
+
+.modalCard {
+  box-sizing: border-box;
+  max-width: 34rem;
+  position: relative;
+  text-align: center;
+  width: min(100%, 34rem);
+  z-index: 1;
+}
+
+.modalCard .actions {
+  justify-content: center;
+}
+
 .editForm {
   display: flex;
   flex-direction: column;

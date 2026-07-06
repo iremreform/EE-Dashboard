@@ -34,13 +34,19 @@
 
 .lookupButton {
   flex-shrink: 0;
+  white-space: nowrap;
+  width: 10.5rem;
 }
 
 .lookupMessage {
   color: var(--text-secondary);
   font-size: var(--text-small);
   line-height: var(--line-height-body);
-  margin: 0;
+  margin: var(--space-3) 0 0;
+}
+
+.lookupMessageError {
+  color: var(--color-error);
 }
 
 .lookupRow {
@@ -55,6 +61,13 @@
   display: grid;
   gap: var(--space-3);
   grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.readOnlyInput {
+  background-color: var(--background-primary);
+  border-color: var(--border-secondary);
+  color: var(--text-secondary);
+  cursor: default;
 }
 
 .gridTwo,
