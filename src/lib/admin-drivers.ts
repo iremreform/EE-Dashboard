@@ -5,6 +5,7 @@ type DriverStatus = "active" | "disabled";
 
 type DriverRow = {
   auth_user_id: string | null;
+  created_at?: string | null;
   disabled_at: string | null;
   email: string;
   first_name: string;
@@ -49,9 +50,17 @@ type AdminUserRow = {
   last_name: string | null;
 };
 
+type DriverAuditFallbackRow = {
+  created_at: string | null;
+  email: string;
+  first_name: string;
+  id: string;
+  last_name: string;
+};
+
 export type AdminDriverAuditEvent = {
   action: string;
-  actor: string;
+  actor: string | null;
   driver: string;
   id: string;
   meta: string;
@@ -142,15 +151,43 @@ export async function createAdminDriver(input: CreateAdminDriverInput) {
     throw new Error(`Unable to link driver auth user: ${updateError.message}`);
   }
 
-  await supabase.from("audit_events").insert({
+  await logDriverAuditEvent({
     action: "driver_created",
+    actorAdminId: input.actorAdminId,
+    driverId: driver.id,
+    email: input.email,
+    name: [input.firstName, input.lastName].filter(Boolean).join(" "),
+    supabase,
+  });
+}
+
+async function logDriverAuditEvent({
+  action,
+  actorAdminId,
+  driverId,
+  email,
+  name,
+  status,
+  supabase,
+}: {
+  action: "driver_created" | "driver_disabled" | "driver_password_reset" | "driver_reenabled";
+  actorAdminId: string;
+  driverId: string;
+  email: string;
+  name?: string;
+  status?: DriverStatus;
+  supabase: ReturnType<typeof createSupabaseAdminClient>;
+}) {
+  await supabase.from("audit_events").insert({
+    action,
     actor_type: "admin",
-    entity_id: driver.id,
+    entity_id: driverId,
     entity_type: "driver",
     metadata: {
-      admin_id: input.actorAdminId,
-      email: input.email,
-      name: [input.firstName, input.lastName].filter(Boolean).join(" "),
+      admin_id: actorAdminId,
+      email,
+      name,
+      status,
     },
   });
 }
@@ -169,6 +206,11 @@ export async function getAdminDriverAuditEvents(limit = 8) {
   }
 
   const events = (data ?? []) as AuditEventRow[];
+
+  if (!events.length) {
+    return getDriverCreationFallbackAuditEvents(limit);
+  }
+
   const actorIds = Array.from(
     new Set(events.map((event) => getMetadataString(event.metadata, "admin_id")).filter(Boolean)),
   );
@@ -203,16 +245,13 @@ export async function setAdminDriverStatus({
     throw new Error(`Unable to update driver status: ${driverError.message}`);
   }
 
-  await supabase.from("audit_events").insert({
+  await logDriverAuditEvent({
     action: status === "disabled" ? "driver_disabled" : "driver_reenabled",
-    actor_type: "admin",
-    entity_id: driver.id,
-    entity_type: "driver",
-    metadata: {
-      admin_id: actorAdminId,
-      email: driver.email,
-      status: driver.status,
-    },
+    actorAdminId,
+    driverId: driver.id,
+    email: driver.email,
+    status: driver.status,
+    supabase,
   });
 }
 
@@ -254,15 +293,12 @@ export async function resetAdminDriverPassword({
     throw new Error(`Unable to reset driver password: ${authError.message}`);
   }
 
-  await supabase.from("audit_events").insert({
+  await logDriverAuditEvent({
     action: "driver_password_reset",
-    actor_type: "admin",
-    entity_id: driver.id,
-    entity_type: "driver",
-    metadata: {
-      admin_id: actorAdminId,
-      email: driver.email,
-    },
+    actorAdminId,
+    driverId: driver.id,
+    email: driver.email,
+    supabase,
   });
 }
 
@@ -305,6 +341,36 @@ async function getAdminUserMap(actorIds: string[]) {
       }) || admin.email || "Admin",
     ]),
   );
+}
+
+async function getDriverCreationFallbackAuditEvents(limit: number) {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("drivers")
+    .select("id, first_name, last_name, email, created_at")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    return [];
+  }
+
+  return ((data ?? []) as DriverAuditFallbackRow[]).map((driver) => {
+    const timestamp = driver.created_at ?? "";
+    const name = fullName({
+      first_name: driver.first_name,
+      last_name: driver.last_name,
+    });
+
+    return {
+      action: "Driver created",
+      actor: null,
+      driver: name || driver.email || "Driver account",
+      id: `driver-created-${driver.id}`,
+      meta: [driver.email, timestamp ? formatDateTime(timestamp) : null].filter(Boolean).join(" - "),
+      timestamp: timestamp ? formatDateTime(timestamp) : "",
+    } satisfies AdminDriverAuditEvent;
+  });
 }
 
 function toDriverAuditEvent(

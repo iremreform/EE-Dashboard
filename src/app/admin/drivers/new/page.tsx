@@ -1,6 +1,6 @@
 import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
-import { Button, Card, Field, Input, PasswordInput } from "@/components/ui";
+import { Button, Card, Field, FormDraftManager, Input, PasswordInput } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
 import { requireActiveAdmin } from "@/lib/admin-auth";
 import { getAdminAlertSummary } from "@/lib/admin-submissions";
@@ -59,6 +59,7 @@ export default async function AdminCreateDriverPage({
       ) : null}
 
       <form action={createDriverAction} className={styles.formStack} noValidate>
+        <FormDraftManager restore={Boolean(error)} storageKey="ee-admin-create-driver-draft" />
         <Card
           title={createDriver.sections.account.title}
           titleVariant="subheading"

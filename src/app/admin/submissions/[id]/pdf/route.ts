@@ -31,7 +31,7 @@ async function createSubmissionPdfResponse(params: AdminSubmissionPdfRouteProps[
     notFound();
   }
 
-  const pdf = createAdminSubmissionPdf(detail);
+  const pdf = await createAdminSubmissionPdf(detail);
   const filename = getSubmissionPdfFilename(detail);
 
   return new Response(pdf, {

@@ -1,7 +1,17 @@
 import { notFound } from "next/navigation";
 import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
-import { Button, Card, ClickZoomImage, Field, Input, Select, Tag, Textarea } from "@/components/ui";
+import {
+  Button,
+  Card,
+  ClickZoomImage,
+  Field,
+  FormDraftManager,
+  Input,
+  Select,
+  Tag,
+  Textarea,
+} from "@/components/ui";
 import { PageIntro } from "@/components/layout";
 import { requireActiveAdmin } from "@/lib/admin-auth";
 import {
@@ -11,6 +21,7 @@ import {
 } from "@/lib/admin-submissions";
 import styles from "../../admin-pages.module.css";
 import { adminLogoutAction } from "../../actions";
+import { DownloadPdfButton } from "./DownloadPdfButton";
 import { updateAdminSubmissionAction } from "./actions";
 
 type AdminSubmissionDetailPageProps = {
@@ -80,9 +91,10 @@ export default async function AdminSubmissionDetailPage({
           >
             {isEditing ? "Cancel edit" : "Edit report"}
           </Button>
-          <Button href={`/admin/submissions/${detail.edit.publicId}/pdf`}>
-            {detail.downloadAction}
-          </Button>
+          <DownloadPdfButton
+            href={`/admin/submissions/${detail.edit.publicId}/pdf`}
+            label={detail.downloadAction}
+          />
         </div>
       </div>
 
@@ -97,6 +109,10 @@ export default async function AdminSubmissionDetailPage({
         {isEditing ? (
           <Card title="Admin edit" titleVariant="subheading" surface="transparent">
             <form action={updateAdminSubmissionAction} className={styles.editForm}>
+              <FormDraftManager
+                restore={Boolean(notices?.error)}
+                storageKey={`ee-admin-submission-edit-${detail.edit.publicId}`}
+              />
               <input type="hidden" name="public_id" value={detail.edit.publicId} />
 
               <div className={styles.editSection}>

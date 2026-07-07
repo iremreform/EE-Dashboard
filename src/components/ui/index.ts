@@ -7,6 +7,7 @@ export { ChoiceCard } from "./ChoiceCard";
 export { ClickZoomImage } from "./ClickZoomImage";
 export { DotLottieAnimation } from "./DotLottieAnimation";
 export { Field } from "./Field";
+export { FormDraftManager } from "./FormDraftManager";
 export { Heading } from "./Heading";
 export { Input } from "./Input";
 export type { InputProps } from "./Input";

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { FormHTMLAttributes, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { adminPortal } from "@/content/portal";
@@ -21,6 +21,8 @@ type AdminShellProps = {
   children: ReactNode;
 };
 
+type AlertItem = AdminAlertSummary["items"][number];
+
 export function AdminShell({
   alertSummary,
   logoutAction,
@@ -29,6 +31,7 @@ export function AdminShell({
   children,
 }: AdminShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
   const [activeAlertMenuId, setActiveAlertMenuId] = useState<string | null>(null);
@@ -36,9 +39,26 @@ export function AdminShell({
     right: number;
     top: number;
   } | null>(null);
-  const alertItems = alertSummary?.items ?? [];
+  const [deletedAlertIds, setDeletedAlertIds] = useState<Set<string>>(() => new Set());
+  const [unreadAlertIds, setUnreadAlertIds] = useState<Set<string>>(() => new Set());
+  const sourceAlertItems = alertSummary?.items ?? [];
+  const alertItems = sourceAlertItems
+    .filter((alert) => !deletedAlertIds.has(alert.id))
+    .map((alert) =>
+      unreadAlertIds.has(alert.id)
+        ? {
+            ...alert,
+            href: `/admin/alerts/${alert.id}`,
+            status: "open" as const,
+          }
+        : alert,
+    );
   const activeAlert = alertItems.find((alert) => alert.id === activeAlertMenuId);
-  const alertCount = alertSummary?.count ?? 0;
+  const optimisticUnreadCount = sourceAlertItems.filter(
+    (alert) =>
+      unreadAlertIds.has(alert.id) && alert.status !== "open" && !deletedAlertIds.has(alert.id),
+  ).length;
+  const alertCount = (alertSummary?.count ?? 0) + optimisticUnreadCount;
 
   useEffect(() => {
     if (!isSidebarOpen && !isAlertsOpen) {
@@ -64,6 +84,48 @@ export function AdminShell({
       document.body.style.overflow = "";
     };
   }, [isSidebarOpen, isAlertsOpen]);
+
+  async function postAlertAction(href: string, rollback: () => void) {
+    try {
+      const response = await fetch(href, { method: "POST" });
+
+      if (!response.ok) {
+        throw new Error(`Alert action failed with ${response.status}`);
+      }
+
+      router.refresh();
+    } catch {
+      rollback();
+    }
+  }
+
+  function deleteAlert(alert: AlertItem) {
+    setDeletedAlertIds((currentIds) => new Set(currentIds).add(alert.id));
+    setActiveAlertMenuId(null);
+    setActiveAlertMenuPosition(null);
+
+    void postAlertAction(alert.deleteHref, () => {
+      setDeletedAlertIds((currentIds) => {
+        const nextIds = new Set(currentIds);
+        nextIds.delete(alert.id);
+        return nextIds;
+      });
+    });
+  }
+
+  function markAlertUnread(alert: AlertItem) {
+    setUnreadAlertIds((currentIds) => new Set(currentIds).add(alert.id));
+    setActiveAlertMenuId(null);
+    setActiveAlertMenuPosition(null);
+
+    void postAlertAction(alert.markUnreadHref, () => {
+      setUnreadAlertIds((currentIds) => {
+        const nextIds = new Set(currentIds);
+        nextIds.delete(alert.id);
+        return nextIds;
+      });
+    });
+  }
 
   return (
     <div className={styles.shell}>
@@ -222,9 +284,7 @@ export function AdminShell({
                     <p className={styles.alertDropdownTitle}>Notifications</p>
                     {alertItems.length ? (
                       <div
-                        className={cn(
-                          styles.alertList,
-                        )}
+                        className={styles.alertList}
                         onScroll={() => {
                           setActiveAlertMenuId(null);
                           setActiveAlertMenuPosition(null);
@@ -314,12 +374,12 @@ export function AdminShell({
                           top: activeAlertMenuPosition.top,
                         }}
                       >
-                        <form action={activeAlert.markUnreadHref} method="post">
-                          <button type="submit">Mark as unread</button>
-                        </form>
-                        <form action={activeAlert.deleteHref} method="post">
-                          <button type="submit">Delete</button>
-                        </form>
+                        <button type="button" onClick={() => markAlertUnread(activeAlert)}>
+                          Mark as unread
+                        </button>
+                        <button type="button" onClick={() => deleteAlert(activeAlert)}>
+                          Delete
+                        </button>
                       </div>
                     ) : null}
                   </div>

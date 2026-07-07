@@ -42,6 +42,7 @@ export default async function DriverDeliveryPage({ searchParams }: DriverDeliver
 
       <DriverReportForm
         type="delivery"
+        hasError={Boolean(error)}
         submitAction={createDeliverySubmissionAction}
         submitLabel={form.submitLabel}
         sections={form.sections}

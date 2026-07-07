@@ -74,12 +74,14 @@ type PickupSections = SharedSections & {
 type DriverReportFormProps =
   | {
       type: "delivery";
+      hasError?: boolean;
       submitLabel: string;
       sections: DeliverySections;
       submitAction?: FormHTMLAttributes<HTMLFormElement>["action"];
     }
   | {
       type: "pickup";
+      hasError?: boolean;
       submitLabel: string;
       sections: PickupSections;
       submitAction?: FormHTMLAttributes<HTMLFormElement>["action"];
@@ -116,18 +118,79 @@ type SignedUploadResponse = {
 };
 
 export function DriverReportForm({
+  hasError = false,
   type,
   submitLabel,
   sections,
   submitAction,
 }: DriverReportFormProps) {
-  const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
+  const draftKey = `ee-driver-${type}-form-draft`;
+  const [fieldValues, setFieldValues] = useState<Record<string, string>>(() =>
+    readStoredDraft(draftKey, hasError),
+  );
   const [lookupMessage, setLookupMessage] = useState("");
   const [isLookupLoading, setIsLookupLoading] = useState(false);
-  const [matchedReservationNumber, setMatchedReservationNumber] = useState("");
+  const [matchedReservationNumber, setMatchedReservationNumber] = useState(() => {
+    const values = readStoredDraft(draftKey, hasError);
+
+    if (type !== "pickup") {
+      return "";
+    }
+
+    return values[`${type}-guest-reservation-number`] ?? values["pickup-search"] ?? "";
+  });
+  const [clientError, setClientError] = useState("");
+  const errorRef = useRef<HTMLParagraphElement>(null);
 
   const updateFieldValue = (name: string, value: string) => {
     setFieldValues((current) => ({ ...current, [name]: value }));
+  };
+
+  useEffect(() => {
+    if (!hasError) {
+      window.sessionStorage.removeItem(draftKey);
+    }
+  }, [draftKey, hasError]);
+
+  const saveDraft = (form: HTMLFormElement) => {
+    const formData = new FormData(form);
+    const draft: Record<string, string> = {};
+
+    for (const [name, value] of formData.entries()) {
+      if (
+        typeof value !== "string" ||
+        name === "uploaded-media" ||
+        name.endsWith("-guest-signature")
+      ) {
+        continue;
+      }
+
+      draft[name] = value;
+    }
+
+    window.sessionStorage.setItem(draftKey, JSON.stringify(draft));
+  };
+
+  const handleSubmit = (form: HTMLFormElement) => {
+    const validationError = getValidationError({
+      form,
+      mediaLabels: getRequiredMediaLabels(type, sections),
+      sections,
+      type,
+    });
+
+    if (validationError) {
+      setClientError(validationError);
+      window.requestAnimationFrame(() => {
+        errorRef.current?.focus({ preventScroll: true });
+        errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      return false;
+    }
+
+    setClientError("");
+    saveDraft(form);
+    return true;
   };
 
   const clearPickupLookup = () => {
@@ -195,7 +258,22 @@ export function DriverReportForm({
   };
 
   return (
-    <form action={submitAction} className={styles.formStack} noValidate>
+    <form
+      action={submitAction}
+      className={styles.formStack}
+      noValidate
+      onSubmit={(event) => {
+        if (!handleSubmit(event.currentTarget)) {
+          event.preventDefault();
+        }
+      }}
+    >
+      {clientError ? (
+        <p className={styles.errorNotice} ref={errorRef} role="alert" tabIndex={-1}>
+          {clientError}
+        </p>
+      ) : null}
+
       {type === "pickup" ? (
         <SearchSection
           canClearLookup={Boolean(matchedReservationNumber)}
@@ -256,12 +334,19 @@ export function DriverReportForm({
         />
       )}
 
-      <SignatureSection section={sections.signature} type={type} />
+      <SignatureSection
+        onFieldChange={updateFieldValue}
+        section={sections.signature}
+        type={type}
+        values={fieldValues}
+      />
       <DriverConfirmationSection
+        onFieldChange={updateFieldValue}
         section={sections.driver}
         submitAction={submitAction}
         submitLabel={submitLabel}
         type={type}
+        values={fieldValues}
       />
     </form>
   );
@@ -504,9 +589,19 @@ function ChecklistSection({
       </div>
 
       <div className={styles.toggleStack}>
-        {section.toggles.map((label) => (
-          <YesNoToggle key={label} label={label} name={`pickup-${slugify(label)}`} />
-        ))}
+        {section.toggles.map((label) => {
+          const name = `pickup-${slugify(label)}`;
+
+          return (
+            <YesNoToggle
+              key={label}
+              label={label}
+              name={name}
+              onChange={onFieldChange}
+              value={values[name] ?? ""}
+            />
+          );
+        })}
       </div>
 
       <Field label={section.notesLabel} htmlFor="pickup-notes">
@@ -517,6 +612,8 @@ function ChecklistSection({
             placeholder={section.notesPlaceholder}
             aria-describedby={describedBy}
             hasError={hasError}
+            onChange={(event) => onFieldChange("pickup-notes", event.target.value)}
+            value={values["pickup-notes"] ?? ""}
           />
         )}
       </Field>
@@ -525,15 +622,20 @@ function ChecklistSection({
 }
 
 function SignatureSection({
+  onFieldChange,
   section,
   type,
+  values,
 }: {
+  onFieldChange: (name: string, value: string) => void;
   section: SharedSections["signature"];
   type: ReportType;
+  values: Record<string, string>;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawingRef = useRef(false);
   const [signatureValue, setSignatureValue] = useState("");
+  const confirmationName = `${type}-guest-confirmation`;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -642,7 +744,14 @@ function SignatureSection({
         </Button>
         {signatureValue ? <p className={styles.signatureStatus}>Signature captured</p> : null}
       </div>
-      <Checkbox className={styles.checkboxRow} name={`${type}-guest-confirmation`}>
+      <Checkbox
+        checked={values[confirmationName] === "on"}
+        className={styles.checkboxRow}
+        name={confirmationName}
+        onChange={(event) =>
+          onFieldChange(confirmationName, event.target.checked ? "on" : "")
+        }
+      >
         {section.confirmation}
       </Checkbox>
     </Card>
@@ -650,19 +759,32 @@ function SignatureSection({
 }
 
 function DriverConfirmationSection({
+  onFieldChange,
   section,
   submitAction,
   submitLabel,
   type,
+  values,
 }: {
+  onFieldChange: (name: string, value: string) => void;
   section: SharedSections["driver"];
   submitAction?: FormHTMLAttributes<HTMLFormElement>["action"];
   submitLabel: string;
   type: ReportType;
+  values: Record<string, string>;
 }) {
+  const confirmationName = `${type}-driver-confirmation`;
+
   return (
     <Card title={section.title} titleVariant="subheading" surface="transparent">
-      <Checkbox className={styles.checkboxRow} name={`${type}-driver-confirmation`}>
+      <Checkbox
+        checked={values[confirmationName] === "on"}
+        className={styles.checkboxRow}
+        name={confirmationName}
+        onChange={(event) =>
+          onFieldChange(confirmationName, event.target.checked ? "on" : "")
+        }
+      >
         {section.confirmation}
       </Checkbox>
       <div className={styles.actions}>
@@ -876,14 +998,31 @@ function UploadTile({
   );
 }
 
-function YesNoToggle({ label, name }: { label: string; name: string }) {
+function YesNoToggle({
+  label,
+  name,
+  onChange,
+  value,
+}: {
+  label: string;
+  name: string;
+  onChange: (name: string, value: string) => void;
+  value: string;
+}) {
   return (
     <fieldset className={styles.toggleGroup}>
       <legend className={styles.toggleLegend}>{label}</legend>
       <div className={styles.toggleOptions}>
         {["Yes", "No"].map((option) => (
           <label key={option} className={styles.toggleOption}>
-            <input className={styles.radioInput} type="radio" name={name} value={option} />
+            <input
+              checked={value === option}
+              className={styles.radioInput}
+              type="radio"
+              name={name}
+              onChange={() => onChange(name, option)}
+              value={option}
+            />
             <span className={styles.radioControl} aria-hidden="true" />
             <span>{option}</span>
           </label>
@@ -942,6 +1081,116 @@ function formatMileageFuel(mileage: number | null, fuelLevel: number | null) {
   ]
     .filter(Boolean)
     .join(" - ");
+}
+
+function readStoredDraft(storageKey: string, restore: boolean) {
+  if (!restore || typeof window === "undefined") {
+    return {};
+  }
+
+  const storedDraft = window.sessionStorage.getItem(storageKey);
+
+  if (!storedDraft) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(storedDraft) as Record<string, string>;
+  } catch {
+    window.sessionStorage.removeItem(storageKey);
+    return {};
+  }
+}
+
+function getValidationError({
+  form,
+  mediaLabels,
+  sections,
+  type,
+}: {
+  form: HTMLFormElement;
+  mediaLabels: string[];
+  sections: DeliverySections | PickupSections;
+  type: ReportType;
+}) {
+  const formData = new FormData(form);
+  const missingField = getRequiredFieldNames(type, sections).some(
+    (name) => !getFormDataValue(formData, name),
+  );
+  const missingConfirmation =
+    formData.get(`${type}-guest-confirmation`) !== "on" ||
+    formData.get(`${type}-driver-confirmation`) !== "on";
+  const missingSignature = !getFormDataValue(formData, `${type}-guest-signature`);
+  const missingMedia = getMissingMediaLabels(formData, mediaLabels).length > 0;
+
+  if (missingField || missingConfirmation || missingSignature || missingMedia) {
+    return "Please complete all required fields, photos, signature, and confirmations before submitting.";
+  }
+
+  return "";
+}
+
+function getRequiredFieldNames(type: ReportType, sections: DeliverySections | PickupSections) {
+  const fields = [
+    ...sections.guest.fields.map(([label]) => `${type}-guest-${slugify(label)}`),
+    ...sections.vehicle.fields.map(([label]) => `${type}-vehicle-${slugify(label)}`),
+  ];
+
+  if (type === "delivery") {
+    return [...fields, "payment-status"];
+  }
+
+  const pickupSections = sections as PickupSections;
+
+  return [
+    "pickup-search",
+    ...fields,
+    ...pickupSections.checklist.fields.map(([label]) => `pickup-checklist-${slugify(label)}`),
+    ...pickupSections.checklist.toggles.map((label) => `pickup-${slugify(label)}`),
+  ];
+}
+
+function getRequiredMediaLabels(type: ReportType, sections: DeliverySections | PickupSections) {
+  const optionalLabels = new Set(["Existing damage", "Damage photos"]);
+  const labels = [
+    ...sections.media.uploads
+      .map(([label]) => label)
+      .filter((label) => !optionalLabels.has(label)),
+    sections.media.videoLabel,
+  ];
+
+  if (type === "delivery") {
+    labels.push(...(sections as DeliverySections).verification.uploads);
+  }
+
+  return labels;
+}
+
+function getMissingMediaLabels(formData: FormData, requiredLabels: string[]) {
+  const uploadedLabels = new Set<string>();
+
+  formData.getAll("uploaded-media").forEach((value) => {
+    if (typeof value !== "string") {
+      return;
+    }
+
+    try {
+      const media = JSON.parse(value) as Partial<UploadedMediaRef>;
+
+      if (media.label) {
+        uploadedLabels.add(media.label);
+      }
+    } catch {
+      // Invalid upload metadata should be treated as missing.
+    }
+  });
+
+  return requiredLabels.filter((label) => !uploadedLabels.has(label));
+}
+
+function getFormDataValue(formData: FormData, name: string) {
+  const value = formData.get(name);
+  return typeof value === "string" ? value.trim() : "";
 }
 
 function getCanvasPoint(

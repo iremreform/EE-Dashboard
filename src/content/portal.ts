@@ -248,6 +248,7 @@ export const adminPortal = {
   nav: [
     { label: "Dashboard", href: "/admin/dashboard" },
     { label: "Manage drivers", href: "/admin/drivers" },
+    { label: "Reservations", href: "/admin/reservations" },
     { label: "Submissions", href: "/admin/submissions" },
     { label: "Logout", href: "/admin/login", muted: true },
   ],
@@ -312,6 +313,14 @@ export const adminPortal = {
     },
     saveAction: "Save driver",
     cancelAction: "Cancel",
+  },
+  reservations: {
+    title: "Reservations",
+    lead: "Review reservation records, payment status, vehicles, and scheduled dates.",
+    filterTitle: "Filter reservations",
+    applyAction: "Apply filters",
+    clearAction: "Clear",
+    listTitle: "Reservations",
   },
   submissions: {
     title: "View Submissions",

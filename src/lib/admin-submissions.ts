@@ -285,7 +285,7 @@ export async function getAdminAlertSummary(): Promise<AdminAlertSummary> {
       }
     >;
     title: string;
-      }>;
+  }>;
 
   return {
     count: countResult.count ?? 0,
@@ -304,7 +304,9 @@ export async function getAdminAlertSummary(): Promise<AdminAlertSummary> {
         markUnreadHref: `/admin/alerts/${alert.id}/mark-unread`,
         meta: [
           fullName(driver),
-          submission?.submitted_at ? formatRelativeTime(submission.submitted_at) : null,
+          submission?.submitted_at
+            ? formatRelativeTime(submission.submitted_at, { includeYear: false })
+            : null,
         ]
           .filter(Boolean)
           .join(" - "),
@@ -699,22 +701,24 @@ function formatFileSize(sizeBytes: number | null) {
   }).format(sizeBytes / divisor).concat(isMegabyte ? " MB" : " KB");
 }
 
-function formatDateTime(value: string) {
+function formatDateTime(value: string, options: { includeYear?: boolean } = {}) {
+  const includeYear = options.includeYear ?? true;
+
   return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    month: "short",
     timeZone: "America/New_York",
+    ...(includeYear ? { year: "numeric" as const } : {}),
   }).format(new Date(value));
 }
 
-function formatRelativeTime(value: string) {
+function formatRelativeTime(value: string, options: { includeYear?: boolean } = {}) {
   const date = new Date(value);
   const now = new Date();
   const today = dateKey(now);
   const submittedDay = dateKey(date);
-  const yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
-
   const time = new Intl.DateTimeFormat("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -725,11 +729,7 @@ function formatRelativeTime(value: string) {
     return `Today ${time}`;
   }
 
-  if (submittedDay === dateKey(yesterday)) {
-    return `Yesterday ${time}`;
-  }
-
-  return formatDateTime(value);
+  return formatDateTime(value, options);
 }
 
 function dateKey(value: Date) {

@@ -42,6 +42,7 @@ export default async function DriverPickupPage({ searchParams }: DriverPickupPag
 
       <DriverReportForm
         type="pickup"
+        hasError={Boolean(error)}
         submitAction={createPickupSubmissionAction}
         submitLabel={form.submitLabel}
         sections={form.sections}

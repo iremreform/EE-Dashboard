@@ -250,11 +250,11 @@ export default async function AdminDriversPage({ searchParams }: AdminDriversPag
           <div className={styles.list}>
             {auditEvents.map((event) => (
               <div key={event.id} className={`${styles.listRow} ${styles.staticListRow}`}>
-                <div>
-                  <div className={styles.listHeading}>
-                    <strong className={styles.listTitle}>{event.action}</strong>
-                    <Tag>{event.actor}</Tag>
-                  </div>
+                  <div>
+                    <div className={styles.listHeading}>
+                      <strong className={styles.listTitle}>{event.action}</strong>
+                      {event.actor ? <Tag>{event.actor}</Tag> : null}
+                    </div>
                   <p className={styles.listMeta}>
                     {event.driver} - {event.meta}
                   </p>
