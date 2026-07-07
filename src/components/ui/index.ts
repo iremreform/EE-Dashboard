@@ -11,6 +11,7 @@ export { Heading } from "./Heading";
 export { Input } from "./Input";
 export type { InputProps } from "./Input";
 export { Logo } from "./Logo";
+export { PasswordInput } from "./PasswordInput";
 export { Select } from "./Select";
 export type { SelectProps } from "./Select";
 export { Tag } from "./Tag";

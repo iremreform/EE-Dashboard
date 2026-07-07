@@ -1,6 +1,6 @@
 import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
-import { Button, Card, Field, Input } from "@/components/ui";
+import { Button, Card, Field, Input, PasswordInput } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
 import { requireActiveAdmin } from "@/lib/admin-auth";
 import { getAdminAlertSummary } from "@/lib/admin-submissions";
@@ -105,10 +105,9 @@ export default async function AdminCreateDriverPage({
 
             <Field label={createDriver.sections.access.passwordLabel} htmlFor="driver-password">
               {({ describedBy, hasError }) => (
-                <Input
+                <PasswordInput
                   id="driver-password"
                   name="driver-password"
-                  type="password"
                   placeholder={createDriver.sections.access.passwordPlaceholder}
                   aria-describedby={describedBy}
                   hasError={hasError}

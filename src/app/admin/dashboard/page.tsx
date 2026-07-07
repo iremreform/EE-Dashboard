@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
-import { Card, ChoiceCard } from "@/components/ui";
+import { Card, ChoiceCard, Tag } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
 import { requireActiveAdmin } from "@/lib/admin-auth";
 import { getAdminAlertSummary, getRecentAdminSubmissions } from "@/lib/admin-submissions";
@@ -57,9 +57,7 @@ export default async function AdminDashboardPage() {
                   <strong className={styles.listTitle}>{submission.title}</strong>
                   <p className={styles.listMeta}>{submission.meta}</p>
                 </div>
-                <span className={styles.rowButton}>
-                  {submission.status}
-                </span>
+                <Tag className={styles.rowTag}>{submission.status}</Tag>
               </Link>
             ))}
           </div>

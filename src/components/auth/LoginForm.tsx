@@ -5,7 +5,7 @@ import type { FormHTMLAttributes } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button, Card, Field, Input } from "@/components/ui";
+import { Button, Card, Field, Input, PasswordInput } from "@/components/ui";
 import { PageIntro, PageShell } from "@/components/layout";
 import styles from "@/components/layout/PageContent.module.css";
 
@@ -75,10 +75,9 @@ export function LoginForm({
 
           <Field label="Password" htmlFor="password">
             {({ describedBy, hasError }) => (
-              <Input
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
                 autoComplete="current-password"
                 placeholder="Enter your password"
                 aria-describedby={describedBy}

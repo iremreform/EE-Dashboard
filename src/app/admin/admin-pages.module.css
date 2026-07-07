@@ -28,10 +28,50 @@
   gap: var(--button-group-gap);
 }
 
+.searchControl {
+  position: relative;
+}
+
+.searchInputWithClear {
+  padding-right: var(--space-10);
+}
+
+.searchClearButton {
+  align-items: center;
+  color: var(--text-subheading);
+  display: inline-flex;
+  height: 2rem;
+  justify-content: center;
+  position: absolute;
+  right: var(--space-2);
+  text-decoration: none;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: color var(--transition-fast);
+  width: 2rem;
+}
+
+.searchClearButton:hover {
+  color: var(--color-leather-darker);
+}
+
+.searchClearButton:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
 .filters {
   display: grid;
   gap: var(--grid-gap);
   margin-bottom: var(--space-6);
+}
+
+.filterForm {
+  margin: 0;
+}
+
+.filterActions {
+  justify-content: flex-end;
 }
 
 .filterCard {
@@ -40,6 +80,29 @@
 
 .listCard {
   margin-top: var(--card-gap);
+}
+
+.listCard.bleedListCard {
+  overflow: hidden;
+  padding: var(--card-padding) 0 0;
+}
+
+.listCard.bleedListCard > :first-child {
+  margin-left: var(--card-padding);
+  margin-right: var(--card-padding);
+}
+
+.listCard.bleedListCard .listRow {
+  margin: 0;
+  padding: var(--space-4) var(--card-padding);
+}
+
+.listCard.bleedListCard .staticListRow:last-child {
+  margin-bottom: var(--space-3);
+}
+
+.listCard.bleedListCard > .emptyText {
+  padding: 0 var(--card-padding) var(--card-padding);
 }
 
 .gridTwo,
@@ -153,12 +216,6 @@
   background-color: var(--opacity-white-5);
 }
 
-.interactiveListRow:hover .rowButton {
-  background-color: var(--button-secondary-bg-hover);
-  border-color: var(--button-secondary-border-hover);
-  color: var(--button-secondary-text-hover);
-}
-
 .staticListRow {
   cursor: default;
 }
@@ -225,22 +282,11 @@
   gap: var(--space-2);
 }
 
-.rowButton {
-  align-items: center;
-  background-color: var(--button-secondary-bg);
-  border: var(--stroke-width) solid var(--button-secondary-border);
-  border-radius: var(--button-radius);
-  box-sizing: border-box;
-  color: var(--button-secondary-text);
-  display: inline-flex;
+.rowTag {
+  align-self: center;
   flex: 0 0 auto;
-  font-size: var(--text-small);
-  font-weight: var(--button-font-weight);
-  justify-content: center;
-  line-height: 1;
-  min-height: 2.25rem;
-  padding: var(--space-2) var(--space-4);
-  transition: var(--transition-button);
+  justify-self: start;
+  width: max-content;
 }
 
 .backLink {

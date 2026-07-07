@@ -1,6 +1,6 @@
 import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
-import { Button, Card, Field, Input, Tag } from "@/components/ui";
+import { Button, Card, Field, Input, PasswordInput, Tag } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
 import { requireActiveAdmin } from "@/lib/admin-auth";
 import { getAdminDriverAuditEvents, getAdminDrivers } from "@/lib/admin-drivers";
@@ -57,28 +57,46 @@ export default async function AdminDriversPage({ searchParams }: AdminDriversPag
         leadSize="large"
       />
 
-      <form action="/admin/drivers" className={styles.toolbar}>
+      <form action="/admin/drivers" className={styles.toolbar} method="get">
         <Field label={drivers.searchLabel} htmlFor="driver-search" className={styles.toolbarField}>
           {({ describedBy, hasError }) => (
-            <Input
-              id="driver-search"
-              name="q"
-              placeholder={drivers.searchPlaceholder}
-              defaultValue={searchQuery}
-              aria-describedby={describedBy}
-              hasError={hasError}
-            />
+            <div className={styles.searchControl}>
+              <Input
+                id="driver-search"
+                name="q"
+                placeholder={drivers.searchPlaceholder}
+                defaultValue={searchQuery}
+                aria-describedby={describedBy}
+                hasError={hasError}
+                className={searchQuery ? styles.searchInputWithClear : undefined}
+              />
+              {searchQuery ? (
+                <a className={styles.searchClearButton} href="/admin/drivers" aria-label="Clear search">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M18 6 6 18M6 6l12 12"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                </a>
+              ) : null}
+            </div>
           )}
         </Field>
         <div className={styles.toolbarActions}>
           <Button type="submit" variant="secondary">
             Search
           </Button>
-          {searchQuery ? (
-            <Button href="/admin/drivers" variant="secondary">
-              Clear
-            </Button>
-          ) : null}
           <Button href="/admin/drivers/new">{drivers.createAction}</Button>
         </div>
       </form>
@@ -106,10 +124,9 @@ export default async function AdminDriversPage({ searchParams }: AdminDriversPag
           >
             <form action={resetDriverPasswordAction} className={styles.inlineForm}>
               <input type="hidden" name="driver_id" value={resetDriver.id} />
-              <Input
+              <PasswordInput
                 id="temporary_password"
                 name="temporary_password"
-                type="password"
                 autoComplete="new-password"
                 placeholder="Enter temporary password"
                 aria-label="New temporary password"
@@ -163,7 +180,11 @@ export default async function AdminDriversPage({ searchParams }: AdminDriversPag
         </div>
       ) : null}
 
-      <Card title={drivers.accountsTitle} titleVariant="subheading">
+      <Card
+        title={drivers.accountsTitle}
+        titleVariant="subheading"
+        className={`${styles.listCard} ${styles.bleedListCard}`}
+      >
         {rows.length ? (
           <div className={styles.list}>
             {rows.map((driver) => (
@@ -220,7 +241,11 @@ export default async function AdminDriversPage({ searchParams }: AdminDriversPag
         )}
       </Card>
 
-      <Card title="Driver audit history" titleVariant="subheading" className={styles.listCard}>
+      <Card
+        title="Driver audit history"
+        titleVariant="subheading"
+        className={`${styles.listCard} ${styles.bleedListCard}`}
+      >
         {auditEvents.length ? (
           <div className={styles.list}>
             {auditEvents.map((event) => (

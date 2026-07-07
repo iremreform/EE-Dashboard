@@ -1,5 +1,5 @@
 import { areas } from "@/content/portal";
-import { Button, Card, Field, Input } from "@/components/ui";
+import { Button, Card, Field, PasswordInput } from "@/components/ui";
 import { PageIntro, PageShell } from "@/components/layout";
 import { requireActiveAdmin } from "@/lib/admin-auth";
 import styles from "@/components/layout/PageContent.module.css";
@@ -41,10 +41,9 @@ export default async function AdminChangePasswordPage({
 
           <Field label="Current password" htmlFor="current_password">
             {({ describedBy, hasError }) => (
-              <Input
+              <PasswordInput
                 id="current_password"
                 name="current_password"
-                type="password"
                 autoComplete="current-password"
                 placeholder="Current password"
                 aria-describedby={describedBy}
@@ -56,10 +55,9 @@ export default async function AdminChangePasswordPage({
 
           <Field label="New password" htmlFor="new_password">
             {({ describedBy, hasError }) => (
-              <Input
+              <PasswordInput
                 id="new_password"
                 name="new_password"
-                type="password"
                 autoComplete="new-password"
                 placeholder="New password"
                 aria-describedby={describedBy}
@@ -71,10 +69,9 @@ export default async function AdminChangePasswordPage({
 
           <Field label="Confirm new password" htmlFor="confirm_password">
             {({ describedBy, hasError }) => (
-              <Input
+              <PasswordInput
                 id="confirm_password"
                 name="confirm_password"
-                type="password"
                 autoComplete="new-password"
                 placeholder="Confirm new password"
                 aria-describedby={describedBy}

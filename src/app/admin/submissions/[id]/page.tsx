@@ -80,7 +80,9 @@ export default async function AdminSubmissionDetailPage({
           >
             {isEditing ? "Cancel edit" : "Edit report"}
           </Button>
-          <Button href="#">{detail.downloadAction}</Button>
+          <Button href={`/admin/submissions/${detail.edit.publicId}/pdf`}>
+            {detail.downloadAction}
+          </Button>
         </div>
       </div>
 

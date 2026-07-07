@@ -31,8 +31,14 @@ export function AdminShell({
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
-  const dashboardAlert = alertSummary?.item ?? adminPortal.dashboard.notification;
-  const alertCount = alertSummary?.count ?? adminPortal.alertCount;
+  const [activeAlertMenuId, setActiveAlertMenuId] = useState<string | null>(null);
+  const [activeAlertMenuPosition, setActiveAlertMenuPosition] = useState<{
+    right: number;
+    top: number;
+  } | null>(null);
+  const alertItems = alertSummary?.items ?? [];
+  const activeAlert = alertItems.find((alert) => alert.id === activeAlertMenuId);
+  const alertCount = alertSummary?.count ?? 0;
 
   useEffect(() => {
     if (!isSidebarOpen && !isAlertsOpen) {
@@ -43,6 +49,8 @@ export function AdminShell({
       if (event.key === "Escape") {
         setIsSidebarOpen(false);
         setIsAlertsOpen(false);
+        setActiveAlertMenuId(null);
+        setActiveAlertMenuPosition(null);
       }
     }
 
@@ -169,44 +177,17 @@ export function AdminShell({
             </div>
             <Logo href="/admin/dashboard" className={styles.mobileLogo} />
             <div className={styles.topbarActions}>
-              {logoutAction ? (
-                <form action={logoutAction}>
-                  <button type="submit" className={styles.logoutButton} aria-label="Logout">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="22"
-                      height="22"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="1.8"
-                      />
-                      <path
-                        d="M16 17l5-5-5-5M21 12H9"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="1.8"
-                      />
-                    </svg>
-                  </button>
-                </form>
-              ) : null}
-
               <div className={styles.alertMenu}>
                 <button
                   type="button"
                   className={styles.alertButton}
                   aria-expanded={isAlertsOpen}
                   aria-label={`${alertCount} alert${alertCount === 1 ? "" : "s"}`}
-                  onClick={() => setIsAlertsOpen((isOpen) => !isOpen)}
+                  onClick={() => {
+                    setIsAlertsOpen((isOpen) => !isOpen);
+                    setActiveAlertMenuId(null);
+                    setActiveAlertMenuPosition(null);
+                  }}
                 >
                   <svg
                     className={styles.alertIcon}
@@ -238,22 +219,143 @@ export function AdminShell({
 
                 {isAlertsOpen ? (
                   <div className={styles.alertDropdown}>
-                    <p className={styles.alertDropdownTitle}>Alerts</p>
-                    {dashboardAlert ? (
-                      <Link
-                        className={styles.alertItem}
-                        href={dashboardAlert.href}
-                        onClick={() => setIsAlertsOpen(false)}
+                    <p className={styles.alertDropdownTitle}>Notifications</p>
+                    {alertItems.length ? (
+                      <div
+                        className={cn(
+                          styles.alertList,
+                        )}
+                        onScroll={() => {
+                          setActiveAlertMenuId(null);
+                          setActiveAlertMenuPosition(null);
+                        }}
                       >
-                        <strong>{dashboardAlert.title}</strong>
-                        <span>{dashboardAlert.meta}</span>
-                      </Link>
+                        {alertItems.map((alert) => (
+                          <div
+                            key={alert.id}
+                            className={cn(
+                              styles.alertRow,
+                              alert.status === "resolved" && styles.alertRowResolved,
+                            )}
+                          >
+                            <Link
+                              className={styles.alertItem}
+                              href={alert.href}
+                              onClick={() => {
+                                setIsAlertsOpen(false);
+                                setActiveAlertMenuId(null);
+                                setActiveAlertMenuPosition(null);
+                              }}
+                            >
+                              <strong>{alert.title}</strong>
+                              <span>{alert.meta}</span>
+                            </Link>
+
+                            {alert.status === "resolved" ? (
+                              <div className={styles.alertActionsMenu}>
+                                <button
+                                  type="button"
+                                  className={styles.alertMoreButton}
+                                  aria-expanded={activeAlertMenuId === alert.id}
+                                  aria-label={`More actions for ${alert.title}`}
+                                  onClick={(event) => {
+                                    const dropdown =
+                                      event.currentTarget.closest<HTMLElement>(
+                                        `.${styles.alertDropdown}`,
+                                      );
+                                    const dropdownRect = dropdown?.getBoundingClientRect();
+                                    const buttonRect =
+                                      event.currentTarget.getBoundingClientRect();
+
+                                    setActiveAlertMenuId((currentId) => {
+                                      if (currentId === alert.id) {
+                                        setActiveAlertMenuPosition(null);
+                                        return null;
+                                      }
+
+                                      if (dropdownRect) {
+                                        setActiveAlertMenuPosition({
+                                          right: dropdownRect.right - buttonRect.right,
+                                          top: buttonRect.bottom - dropdownRect.top + 4,
+                                        });
+                                      }
+
+                                      return alert.id;
+                                    });
+                                  }}
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                  >
+                                    <path
+                                      d="M12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM19 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM5 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+                                      fill="currentColor"
+                                    />
+                                  </svg>
+                                </button>
+                              </div>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
                     ) : (
-                      <p className={styles.alertEmpty}>No open alerts.</p>
+                      <p className={styles.alertEmpty}>No alerts.</p>
                     )}
+
+                    {activeAlert?.status === "resolved" && activeAlertMenuPosition ? (
+                      <div
+                        className={styles.alertActionsPopover}
+                        style={{
+                          right: activeAlertMenuPosition.right,
+                          top: activeAlertMenuPosition.top,
+                        }}
+                      >
+                        <form action={activeAlert.markUnreadHref} method="post">
+                          <button type="submit">Mark as unread</button>
+                        </form>
+                        <form action={activeAlert.deleteHref} method="post">
+                          <button type="submit">Delete</button>
+                        </form>
+                      </div>
+                    ) : null}
                   </div>
                 ) : null}
               </div>
+
+              {logoutAction ? (
+                <form action="/admin/logout" method="post">
+                  <button type="submit" className={styles.logoutButton} aria-label="Logout">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="1.8"
+                      />
+                      <path
+                        d="M16 17l5-5-5-5M21 12H9"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="1.8"
+                      />
+                    </svg>
+                  </button>
+                </form>
+              ) : null}
             </div>
           </header>
 

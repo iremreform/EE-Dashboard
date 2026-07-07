@@ -12,9 +12,16 @@
   text-align: center;
 }
 
-.recentCard {
+.recentCard.recentCard {
   margin: var(--card-gap) auto 0;
   max-width: 64rem;
+  overflow: hidden;
+  padding: var(--card-padding) 0 0;
+}
+
+.recentCard.recentCard > :first-child {
+  margin-left: var(--card-padding);
+  margin-right: var(--card-padding);
 }
 
 .list {
@@ -30,8 +37,8 @@
   display: flex;
   gap: var(--space-4);
   justify-content: space-between;
-  margin: 0 calc(var(--space-3) * -1);
-  padding: var(--space-4) var(--space-3);
+  margin: 0;
+  padding: var(--space-4) var(--card-padding);
   text-decoration: none;
 }
 
@@ -41,12 +48,6 @@
 
 .listRow:hover {
   background-color: var(--opacity-white-5);
-}
-
-.listRow:hover .rowButton {
-  background-color: var(--button-secondary-bg-hover);
-  border-color: var(--button-secondary-border-hover);
-  color: var(--button-secondary-text-hover);
 }
 
 .listTitle {
@@ -68,24 +69,12 @@
   font-size: var(--text-regular);
   line-height: var(--line-height-body);
   margin: 0;
+  padding: 0 var(--card-padding) var(--card-padding);
 }
 
-.rowButton {
-  align-items: center;
-  background-color: var(--button-secondary-bg);
-  border: var(--stroke-width) solid var(--button-secondary-border);
-  border-radius: var(--button-radius);
-  box-sizing: border-box;
-  color: var(--button-secondary-text);
-  display: inline-flex;
+.rowTag {
   flex: 0 0 auto;
-  font-size: var(--text-small);
-  font-weight: var(--button-font-weight);
-  justify-content: center;
-  line-height: 1;
-  min-height: 2.25rem;
-  padding: var(--space-2) var(--space-4);
-  transition: var(--transition-button);
+  width: max-content;
 }
 
 @media (min-width: 64rem) {

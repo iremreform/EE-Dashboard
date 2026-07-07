@@ -28,7 +28,7 @@ export default async function DriverReportsPage() {
         taglineRule
       />
 
-      <Card title="Reports" titleVariant="subheading" surface="transparent">
+      <Card title="Reports" titleVariant="subheading" className={styles.listCard}>
         {reports.length ? (
           <div className={styles.list}>
             {reports.map((report) => (
@@ -37,7 +37,7 @@ export default async function DriverReportsPage() {
                   <strong className={styles.listTitle}>{report.title}</strong>
                   <p className={styles.listMeta}>{report.meta}</p>
                 </div>
-                <Tag>{report.status}</Tag>
+                <Tag className={styles.rowTag}>{report.status}</Tag>
               </Link>
             ))}
           </div>

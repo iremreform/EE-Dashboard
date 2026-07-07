@@ -6,6 +6,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 type Relation<T> = T | T[] | null;
 type SubmissionStatus = "submitted" | "completed" | "archived";
 type PaymentStatus = "verified" | "not_verified";
+type SubmissionType = "delivery" | "pickup";
+type SubmissionDatePreset = "24h" | "7d" | "30d" | "all";
 
 type DriverRow = {
   first_name: string | null;
@@ -26,7 +28,7 @@ type ReservationRow = {
 type SubmissionRow = {
   form_payload: Record<string, unknown> | null;
   public_id: string;
-  submission_type: "delivery" | "pickup";
+  submission_type: SubmissionType;
   status: SubmissionStatus;
   submitted_at: string;
   mileage: number | null;
@@ -48,6 +50,13 @@ type SubmissionRow = {
   }> | null;
 };
 
+export type AdminSubmissionFilters = {
+  driverId?: string;
+  reportType?: SubmissionType | "all";
+  search?: string;
+  submitted?: SubmissionDatePreset;
+};
+
 export type AdminSubmissionListItem = {
   href: string;
   meta: string;
@@ -57,11 +66,15 @@ export type AdminSubmissionListItem = {
 
 export type AdminAlertSummary = {
   count: number;
-  item: {
+  items: Array<{
+    deleteHref: string;
     href: string;
+    id: string;
+    markUnreadHref: string;
     meta: string;
+    status: "open" | "resolved";
     title: string;
-  } | null;
+  }>;
 };
 
 export type AdminSubmissionMediaView = {
@@ -139,18 +152,38 @@ const SUBMISSION_SELECT = `
   )
 `;
 
-export async function getAdminSubmissions() {
+export async function getAdminSubmissions(filters: AdminSubmissionFilters = {}) {
   const supabase = createSupabaseAdminClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("submissions")
     .select(SUBMISSION_SELECT)
-    .order("submitted_at", { ascending: false });
+    .order("submitted_at", { ascending: false })
+    .order("public_id", { ascending: false });
+
+  if (filters.driverId && filters.driverId !== "all") {
+    query = query.eq("driver_id", filters.driverId);
+  }
+
+  if (filters.reportType && filters.reportType !== "all") {
+    query = query.eq("submission_type", filters.reportType);
+  }
+
+  const submittedAfter = getSubmittedAfter(filters.submitted);
+
+  if (submittedAfter) {
+    query = query.gte("submitted_at", submittedAfter);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw new Error(`Unable to load submissions: ${error.message}`);
   }
 
-  return (data ?? []).map((row) => toListItem(row as unknown as SubmissionRow, "full"));
+  return (data ?? [])
+    .map((row) => row as unknown as SubmissionRow)
+    .filter((row) => matchesSubmissionSearch(row, filters.search))
+    .map((row) => toListItem(row, "full"));
 }
 
 export async function getRecentAdminSubmissions(limit = 3) {
@@ -159,6 +192,7 @@ export async function getRecentAdminSubmissions(limit = 3) {
     .from("submissions")
     .select(SUBMISSION_SELECT)
     .order("submitted_at", { ascending: false })
+    .order("public_id", { ascending: false })
     .limit(limit);
 
   if (error) {
@@ -203,7 +237,7 @@ export async function getAdminSubmissionDetail(publicId: string) {
 
 export async function getAdminAlertSummary(): Promise<AdminAlertSummary> {
   const supabase = createSupabaseAdminClient();
-  const [countResult, latestResult] = await Promise.all([
+  const [countResult, alertsResult] = await Promise.all([
     supabase
       .from("alerts")
       .select("id", { count: "exact", head: true })
@@ -211,6 +245,8 @@ export async function getAdminAlertSummary(): Promise<AdminAlertSummary> {
     supabase
       .from("alerts")
       .select(`
+        id,
+        status,
         title,
         message,
         submissions (
@@ -226,55 +262,56 @@ export async function getAdminAlertSummary(): Promise<AdminAlertSummary> {
           )
         )
       `)
-      .eq("status", "open")
       .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
+      .limit(8),
   ]);
 
   if (countResult.error) {
     throw new Error(`Unable to load alert count: ${countResult.error.message}`);
   }
 
-  if (latestResult.error) {
-    throw new Error(`Unable to load alert summary: ${latestResult.error.message}`);
+  if (alertsResult.error) {
+    throw new Error(`Unable to load alert summary: ${alertsResult.error.message}`);
   }
 
-  const latest = latestResult.data as
-    | {
-        title: string;
-        message: string | null;
-        submissions: Relation<
-          Pick<SubmissionRow, "public_id" | "submitted_at"> & {
-            reservations: Relation<Pick<ReservationRow, "reservation_number" | "vehicle_make_model">>;
-            drivers: Relation<DriverRow>;
-          }
-        >;
+  const alerts = (alertsResult.data ?? []) as Array<{
+    id: string;
+    message: string | null;
+    status: "open" | "resolved" | string | null;
+    submissions: Relation<
+      Pick<SubmissionRow, "public_id" | "submitted_at"> & {
+        reservations: Relation<Pick<ReservationRow, "reservation_number" | "vehicle_make_model">>;
+        drivers: Relation<DriverRow>;
       }
-    | null;
-
-  const submission = one(latest?.submissions);
-  const reservation = one(submission?.reservations);
-  const driver = one(submission?.drivers);
+    >;
+    title: string;
+      }>;
 
   return {
     count: countResult.count ?? 0,
-    item: latest
-      ? {
-          href: submission?.public_id
-            ? `/admin/submissions/${submission.public_id}`
-            : "/admin/submissions",
-          meta: [
-            fullName(driver),
-            reservation?.reservation_number ? `Res #${reservation.reservation_number}` : null,
-            reservation?.vehicle_make_model,
-            submission?.submitted_at ? formatRelativeTime(submission.submitted_at) : null,
-          ]
-            .filter(Boolean)
-            .join(" - "),
-          title: latest.title,
-        }
-      : null,
+    items: alerts.map((alert) => {
+      const submission = one(alert.submissions);
+      const driver = one(submission?.drivers);
+      const submissionHref = submission?.public_id
+        ? `/admin/submissions/${submission.public_id}`
+        : "/admin/submissions";
+      const status = alert.status === "resolved" ? "resolved" : "open";
+
+      return {
+        deleteHref: `/admin/alerts/${alert.id}/delete`,
+        href: status === "open" ? `/admin/alerts/${alert.id}` : submissionHref,
+        id: alert.id,
+        markUnreadHref: `/admin/alerts/${alert.id}/mark-unread`,
+        meta: [
+          fullName(driver),
+          submission?.submitted_at ? formatRelativeTime(submission.submitted_at) : null,
+        ]
+          .filter(Boolean)
+          .join(" - "),
+        status,
+        title: alert.title,
+      };
+    }),
   };
 }
 
@@ -307,6 +344,52 @@ function toListItem(row: SubmissionRow, variant: "compact" | "full"): AdminSubmi
     status,
     title: `${reportType} - Res #${reservationNumber}`,
   };
+}
+
+function getSubmittedAfter(preset: SubmissionDatePreset | undefined) {
+  if (!preset || preset === "all") {
+    return null;
+  }
+
+  const hoursByPreset: Record<Exclude<SubmissionDatePreset, "all">, number> = {
+    "24h": 24,
+    "7d": 24 * 7,
+    "30d": 24 * 30,
+  };
+  const date = new Date();
+  date.setHours(date.getHours() - hoursByPreset[preset]);
+
+  return date.toISOString();
+}
+
+function matchesSubmissionSearch(row: SubmissionRow, search: string | undefined) {
+  const term = search?.trim().toLowerCase();
+
+  if (!term) {
+    return true;
+  }
+
+  const reservation = one(row.reservations);
+  const driver = one(row.drivers);
+  const searchableText = [
+    row.public_id,
+    row.submission_type,
+    row.status,
+    reservation?.reservation_number,
+    reservation?.guest_first_name,
+    reservation?.guest_last_name,
+    reservation?.member_number,
+    reservation?.vehicle_make_model,
+    reservation?.vehicle_color,
+    reservation?.vehicle_plate,
+    driver?.first_name,
+    driver?.last_name,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return searchableText.includes(term);
 }
 
 async function toDetailView(

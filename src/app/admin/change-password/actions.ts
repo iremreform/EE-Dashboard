@@ -9,6 +9,7 @@ const ERROR_MESSAGES = {
   mismatch: "New password and confirmation do not match.",
   password: "New password must be at least 6 characters.",
   required: "Current password, new password, and confirmation are required.",
+  same: "New password must be different from your current password.",
   unknown: "Password could not be changed. Please try again.",
 } as const;
 
@@ -28,6 +29,10 @@ export async function changeAdminPasswordAction(formData: FormData) {
 
   if (newPassword !== confirmPassword) {
     redirectWithError(ERROR_MESSAGES.mismatch);
+  }
+
+  if (newPassword === currentPassword) {
+    redirectWithError(ERROR_MESSAGES.same);
   }
 
   const supabase = await createSupabaseServerClient();

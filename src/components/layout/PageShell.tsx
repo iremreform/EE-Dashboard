@@ -52,7 +52,7 @@ export function PageShell({
 
         <div className={styles.topBarEnd}>
           {logoutAction ? (
-            <form action={logoutAction}>
+            <form action="/driver/logout" method="post">
               <button type="submit" className={styles.logoutButton} aria-label={logoutLabel}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

@@ -76,6 +76,8 @@
 .topbarBackLink:focus-visible,
 .logoutButton:focus-visible,
 .alertButton:focus-visible,
+.alertMoreButton:focus-visible,
+.alertActionsPopover button:focus-visible,
 .alertItem:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
@@ -288,8 +290,9 @@
   border: var(--stroke-width) solid var(--border-secondary);
   border-radius: var(--radius-sm);
   box-sizing: border-box;
-  min-width: min(20rem, calc(100vw - var(--space-8)));
-  padding: var(--space-4);
+  min-width: min(23rem, calc(100vw - var(--space-8)));
+  overflow: visible;
+  padding: var(--space-4) 0 0;
   position: absolute;
   right: 0;
   top: calc(100% + var(--space-2));
@@ -302,8 +305,41 @@
   font-size: var(--text-tiny);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-heading);
-  margin: 0 0 var(--space-3);
+  margin: 0 var(--space-4) var(--space-3);
   text-transform: uppercase;
+}
+
+.alertList {
+  display: flex;
+  flex-direction: column;
+  max-height: min(24rem, calc(100vh - var(--navbar-height) - var(--space-10)));
+  overflow-y: auto;
+}
+
+.alertRow {
+  align-items: center;
+  border-top: var(--stroke-divider);
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+}
+
+.alertRow:first-child {
+  border-top: 0;
+}
+
+.alertRow:hover {
+  background-color: var(--opacity-white-5);
+}
+
+.alertRowResolved {
+  opacity: 0.62;
+}
+
+.alertRowResolved:hover {
+  opacity: 1;
 }
 
 .alertItem {
@@ -311,6 +347,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+  min-width: 0;
   text-decoration: none;
 }
 
@@ -325,11 +362,68 @@
   line-height: var(--line-height-body);
 }
 
+.alertActionsMenu {
+  position: relative;
+}
+
+.alertMoreButton {
+  align-items: center;
+  background-color: transparent;
+  border: 0;
+  color: var(--text-subheading);
+  cursor: pointer;
+  display: inline-flex;
+  height: 2rem;
+  justify-content: center;
+  padding: 0;
+  transition: color var(--transition-fast);
+  width: 2rem;
+}
+
+.alertMoreButton:hover {
+  color: var(--color-leather-darker);
+}
+
+.alertActionsPopover {
+  background-color: var(--background-primary);
+  border: var(--stroke-width) solid var(--border-secondary);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-overlay);
+  min-width: 10rem;
+  padding: var(--space-2);
+  position: absolute;
+  z-index: calc(var(--z-topbar) + 2);
+}
+
+.alertActionsPopover form {
+  margin: 0;
+}
+
+.alertActionsPopover button {
+  background-color: transparent;
+  border: 0;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: block;
+  font: inherit;
+  font-size: var(--text-small);
+  line-height: var(--line-height-body);
+  padding: var(--space-2);
+  text-align: left;
+  transition: var(--transition-button);
+  width: 100%;
+}
+
+.alertActionsPopover button:hover {
+  color: var(--text-subheading);
+}
+
 .alertEmpty {
   color: var(--text-secondary);
   font-size: var(--text-small);
   line-height: var(--line-height-body);
   margin: 0;
+  padding: 0 var(--space-4) var(--space-4);
 }
 
 .alertItem:hover strong {

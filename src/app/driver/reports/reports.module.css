@@ -25,14 +25,25 @@
   flex-direction: column;
 }
 
+.listCard.listCard {
+  margin-top: var(--card-gap);
+  overflow: hidden;
+  padding: var(--card-padding) 0 0;
+}
+
+.listCard.listCard > :first-child {
+  margin-left: var(--card-padding);
+  margin-right: var(--card-padding);
+}
+
 .listRow {
   align-items: flex-start;
   border-top: var(--stroke-divider);
   color: inherit;
   display: grid;
   gap: var(--space-4);
-  margin: 0 calc(var(--space-3) * -1);
-  padding: var(--space-4) var(--space-3);
+  margin: 0;
+  padding: var(--space-4) var(--card-padding);
   text-decoration: none;
 }
 
@@ -42,6 +53,13 @@
 
 .listRow:hover {
   background-color: var(--opacity-white-5);
+}
+
+.rowTag {
+  align-self: center;
+  flex: 0 0 auto;
+  justify-self: start;
+  width: max-content;
 }
 
 .listTitle {
@@ -64,6 +82,10 @@
   font-size: var(--text-regular);
   line-height: var(--line-height-body);
   margin: 0;
+}
+
+.listCard.listCard > .emptyText {
+  padding: 0 var(--card-padding) var(--card-padding);
 }
 
 .successNotice,

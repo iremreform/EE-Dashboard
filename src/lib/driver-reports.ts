@@ -105,7 +105,8 @@ export async function getDriverReports(driverId: string) {
     .from("submissions")
     .select(DRIVER_REPORT_SELECT)
     .eq("driver_id", driverId)
-    .order("submitted_at", { ascending: false });
+    .order("submitted_at", { ascending: false })
+    .order("public_id", { ascending: false });
 
   if (error) {
     throw new Error(`Unable to load driver reports: ${error.message}`);
