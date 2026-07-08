@@ -57,8 +57,10 @@ type PdfVisualImage = {
 };
 
 type PdfAssets = {
+  licenses: PdfVisualImage[];
   logo: PdfLogo | null;
-  resources: PdfVisualImage[];
+  media: PdfVisualImage[];
+  signature: PdfVisualImage | null;
 };
 
 const PAGE_WIDTH = 612;
@@ -80,8 +82,8 @@ const COLORS = {
 
 export async function createAdminSubmissionPdf(detail: AdminSubmissionDetailView) {
   const logo = loadLogo();
-  const mediaImages = await loadSubmissionImages(detail);
-  const pages = drawReport(detail, { logo, resources: mediaImages });
+  const images = await loadSubmissionImages(detail);
+  const pages = drawReport(detail, { logo, ...images });
   const objects: string[] = [
     "<< /Type /Catalog /Pages 2 0 R >>",
     "",
@@ -103,8 +105,13 @@ export async function createAdminSubmissionPdf(detail: AdminSubmissionDetailView
   const imageMaskObjectId =
     logo?.kind === "image" && logo.image.format === "png" ? nextObjectId++ : null;
   const imageResources: PdfImageResource[] = [];
+  const visualImages = [
+    ...images.media,
+    ...images.licenses,
+    ...(images.signature ? [images.signature] : []),
+  ];
 
-  mediaImages.forEach((item) => {
+  visualImages.forEach((item) => {
     imageResources.push({
       image: item.image,
       maskObjectId: item.image.format === "png" ? nextObjectId++ : undefined,
@@ -188,6 +195,10 @@ function drawReport(detail: AdminSubmissionDetailView, assets: PdfAssets) {
 
   detail.detailSections.forEach((section) => {
     page = drawSection(ensureSpace, section);
+
+    if (section.title.toLowerCase() === "driver confirmation" && assets.signature) {
+      page = drawSignatureBlock(ensureSpace, assets.signature);
+    }
   });
 
   page = drawSection(ensureSpace, {
@@ -195,23 +206,26 @@ function drawReport(detail: AdminSubmissionDetailView, assets: PdfAssets) {
     title: detail.mediaTitle,
   });
 
+  if (assets.media.length) {
+    page = drawImageGridSection(ensureSpace, null, assets.media);
+  }
+
   page = drawSection(ensureSpace, {
     fields: [
       ...mediaFields(detail.licenses, "No license photos uploaded."),
       detail.payment,
-      ["Guest signature", detail.signature.url ? "Captured" : "Not provided"],
     ],
     title: detail.verificationTitle,
   });
+
+  if (assets.licenses.length) {
+    page = drawImageGridSection(ensureSpace, null, assets.licenses);
+  }
 
   page = drawSection(ensureSpace, {
     fields: notesFields(detail),
     title: detail.notesTitle,
   });
-
-  if (assets.resources.length) {
-    page = drawImageGridSection(ensureSpace, "Photo appendix", assets.resources);
-  }
 
   return pages;
 }
@@ -294,26 +308,28 @@ function drawSection(ensureSpace: (height: number) => PdfPage, section: PdfSecti
 
 function drawImageGridSection(
   ensureSpace: (height: number) => PdfPage,
-  title: string,
+  title: string | null,
   images: PdfVisualImage[],
 ) {
   const imageGap = 18;
   const imageWidth = (CONTENT_WIDTH - imageGap) / 2;
   const imageHeight = 150;
   const captionHeight = 18;
-  let page = ensureSpace(42);
+  let page = ensureSpace(title ? 42 : imageHeight + captionHeight + 28);
 
-  page.commands.push(drawText({
-    color: "leather",
-    font: "bold",
-    size: 12,
-    text: title.toUpperCase(),
-    x: MARGIN_X,
-    y: page.y,
-  }));
-  page.y -= 12;
-  page.commands.push(drawRule(page.y, "border"));
-  page.y -= 20;
+  if (title) {
+    page.commands.push(drawText({
+      color: "leather",
+      font: "bold",
+      size: 12,
+      text: title.toUpperCase(),
+      x: MARGIN_X,
+      y: page.y,
+    }));
+    page.y -= 12;
+    page.commands.push(drawRule(page.y, "border"));
+    page.y -= 20;
+  }
 
   images.forEach((item, index) => {
     const column = index % 2;
@@ -344,6 +360,38 @@ function drawImageGridSection(
     }
   });
 
+  return page;
+}
+
+function drawSignatureBlock(
+  ensureSpace: (height: number) => PdfPage,
+  signature: PdfVisualImage,
+) {
+  const blockHeight = 96;
+  const captionHeight = 18;
+  const innerPadding = 10;
+  const page = ensureSpace(blockHeight + captionHeight + 16);
+  const imageBoxY = page.y - blockHeight;
+  const drawSize = fitImage(
+    signature.image,
+    CONTENT_WIDTH - innerPadding * 2,
+    blockHeight - innerPadding * 2,
+  );
+  const imageX = MARGIN_X + (CONTENT_WIDTH - drawSize.width) / 2;
+  const imageY = imageBoxY + (blockHeight - drawSize.height) / 2;
+
+  page.commands.push(drawImageFrame(MARGIN_X, imageBoxY, CONTENT_WIDTH, blockHeight));
+  page.commands.push(drawImage(signature.name, imageX, imageY, drawSize.width, drawSize.height));
+  page.commands.push(drawText({
+    color: "muted",
+    font: "bold",
+    size: 8,
+    text: signature.label,
+    x: MARGIN_X,
+    y: imageBoxY - 12,
+  }));
+
+  page.y -= blockHeight + captionHeight + 14;
   return page;
 }
 
@@ -398,36 +446,50 @@ function notesFields(detail: AdminSubmissionDetailView) {
 }
 
 async function loadSubmissionImages(detail: AdminSubmissionDetailView) {
-  const imageItems = [
-    ...detail.media.filter((item) => item.kind === "photo"),
-    ...detail.licenses,
-    ...(detail.signature.url
-      ? [{
-          kind: "signature" as const,
-          label: detail.signature.label,
-          mimeType: "image/png",
-          sizeLabel: null,
-          url: detail.signature.url,
-        }]
-      : []),
-  ];
+  const media = await loadVisualImageItems(
+    detail.media.filter((item) => item.kind === "photo"),
+    "Media",
+  );
+  const licenses = await loadVisualImageItems(detail.licenses, "License");
+  const signature = detail.signature.url
+    ? await loadVisualImageItem({
+        kind: "signature",
+        label: detail.signature.label,
+        url: detail.signature.url,
+      }, "Signature1")
+    : null;
+
+  return { licenses, media, signature };
+}
+
+async function loadVisualImageItems(
+  imageItems: Array<Pick<AdminSubmissionMediaView, "kind" | "label" | "url">>,
+  namePrefix: string,
+) {
   const loadedImages = await Promise.all(
     imageItems.map(async (item, index) => {
-      const image = await loadVisualImage(item.url, item.kind === "signature");
-
-      if (!image) {
-        return null;
-      }
-
-      return {
-        image,
-        label: item.label,
-        name: `Image${index + 1}`,
-      } satisfies PdfVisualImage;
+      return loadVisualImageItem(item, `${namePrefix}${index + 1}`);
     }),
   );
 
   return loadedImages.filter((item): item is PdfVisualImage => Boolean(item));
+}
+
+async function loadVisualImageItem(
+  item: Pick<AdminSubmissionMediaView, "kind" | "label" | "url">,
+  name: string,
+) {
+  const image = await loadVisualImage(item.url, item.kind === "signature");
+
+  if (!image) {
+    return null;
+  }
+
+  return {
+    image,
+    label: item.label,
+    name,
+  } satisfies PdfVisualImage;
 }
 
 async function loadVisualImage(url: string | null, isSignature: boolean) {
@@ -437,22 +499,71 @@ async function loadVisualImage(url: string | null, isSignature: boolean) {
 
   try {
     const buffer = url.startsWith("data:") ? bufferFromDataUrl(url) : await fetchImageBuffer(url);
-    const normalizedBuffer = await sharp(buffer, { limitInputPixels: 32_000_000 })
-      .rotate()
-      .resize({
-        fit: "inside",
-        height: isSignature ? 600 : 1400,
-        withoutEnlargement: true,
-        width: isSignature ? 1200 : 1400,
-      })
-      .flatten({ background: isSignature ? "#111111" : "#ffffff" })
-      .jpeg({ mozjpeg: true, quality: isSignature ? 92 : 82 })
-      .toBuffer();
+    const normalizedBuffer = isSignature
+      ? await normalizeSignatureImage(buffer)
+      : await sharp(buffer, { limitInputPixels: 32_000_000 })
+          .rotate()
+          .resize({
+            fit: "inside",
+            height: 1400,
+            withoutEnlargement: true,
+            width: 1400,
+          })
+          .flatten({ background: "#ffffff" })
+          .jpeg({ mozjpeg: true, quality: 82 })
+          .toBuffer();
 
     return parseJpeg(normalizedBuffer);
   } catch {
     return null;
   }
+}
+
+async function normalizeSignatureImage(buffer: Buffer) {
+  const resized = sharp(buffer, { limitInputPixels: 32_000_000 })
+    .rotate()
+    .resize({
+      fit: "inside",
+      height: 600,
+      withoutEnlargement: true,
+      width: 1200,
+    })
+    .ensureAlpha();
+  const { data: alpha, info } = await resized
+    .clone()
+    .extractChannel("alpha")
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const ink = await sharp({
+    create: {
+      background: "#000000",
+      channels: 3,
+      height: info.height,
+      width: info.width,
+    },
+  })
+    .joinChannel(alpha, {
+      raw: {
+        channels: 1,
+        height: info.height,
+        width: info.width,
+      },
+    })
+    .png()
+    .toBuffer();
+
+  return sharp({
+    create: {
+      background: "#ffffff",
+      channels: 3,
+      height: info.height,
+      width: info.width,
+    },
+  })
+    .composite([{ input: ink }])
+    .jpeg({ mozjpeg: true, quality: 92 })
+    .toBuffer();
 }
 
 async function fetchImageBuffer(url: string) {
