@@ -1,14 +1,18 @@
 import "server-only";
 import { SUPABASE_BUCKETS } from "@/lib/supabase/constants";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-
-export type MediaKind = "photo" | "video" | "license";
+import {
+  getMediaUploadLimitLabel,
+  isWithinMediaUploadLimit,
+  type MediaKind,
+} from "@/lib/media-limits";
 
 type SignedMediaUploadInput = {
   contentType: string;
   driverId: string;
   fileName: string;
   mediaKind: MediaKind;
+  sizeBytes: number;
 };
 
 type UploadedMediaRef = {
@@ -33,7 +37,14 @@ export async function createSignedMediaUpload({
   driverId,
   fileName,
   mediaKind,
+  sizeBytes,
 }: SignedMediaUploadInput) {
+  if (!isWithinMediaUploadLimit(mediaKind, sizeBytes)) {
+    throw new Error(
+      `${formatMediaKind(mediaKind)} uploads must be ${getMediaUploadLimitLabel(mediaKind)} or smaller.`,
+    );
+  }
+
   const supabase = createSupabaseAdminClient();
   const path = buildPendingStoragePath({ driverId, fileName, mediaKind });
   const { data, error } = await supabase.storage
@@ -200,6 +211,10 @@ function getFileExtension(fileName: string) {
 
 function isMediaKind(value: string): value is MediaKind {
   return value === "photo" || value === "video" || value === "license";
+}
+
+function formatMediaKind(mediaKind: MediaKind) {
+  return mediaKind === "license" ? "License image" : mediaKind;
 }
 
 function isPendingStoragePath(path: string) {

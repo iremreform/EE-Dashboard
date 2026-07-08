@@ -10,6 +10,7 @@ import { ChangePasswordSubmitButton } from "./ChangePasswordSubmitButton";
 type DriverChangePasswordPageProps = {
   searchParams?: Promise<{
     error?: string;
+    recovery?: string;
     required?: string;
     saved?: string;
   }>;
@@ -22,6 +23,7 @@ export default async function DriverChangePasswordPage({
 }: DriverChangePasswordPageProps) {
   await requireActiveDriver({ allowPasswordChangeRequired: true });
   const notices = await searchParams;
+  const isRecovery = notices?.recovery === "1";
 
   return (
     <PageShell
@@ -34,13 +36,15 @@ export default async function DriverChangePasswordPage({
       <PageIntro
         tagline={`${areas.driver} Portal`}
         title="Change Password"
-        lead={notices?.required ? "Create a new password before continuing." : undefined}
+        lead={isRecovery || notices?.required ? "Create a new password before continuing." : undefined}
         headingLevel={2}
         centered
       />
 
       <Card className={styles.formCard}>
         <form action={changeDriverPasswordAction} className={styles.formStack} noValidate>
+          {isRecovery ? <input type="hidden" name="recovery" value="1" /> : null}
+
           {notices?.saved ? (
             <p className={styles.successNotice} role="status">
               Password updated.
@@ -52,19 +56,21 @@ export default async function DriverChangePasswordPage({
             </p>
           ) : null}
 
-          <Field label="Current password" htmlFor="current_password">
-            {({ describedBy, hasError }) => (
-              <PasswordInput
-                id="current_password"
-                name="current_password"
-                autoComplete="current-password"
-                placeholder="Current password"
-                aria-describedby={describedBy}
-                hasError={hasError}
-                required
-              />
-            )}
-          </Field>
+          {isRecovery ? null : (
+            <Field label="Current password" htmlFor="current_password">
+              {({ describedBy, hasError }) => (
+                <PasswordInput
+                  id="current_password"
+                  name="current_password"
+                  autoComplete="current-password"
+                  placeholder="Current password"
+                  aria-describedby={describedBy}
+                  hasError={hasError}
+                  required
+                />
+              )}
+            </Field>
+          )}
 
           <Field label="New password" htmlFor="new_password">
             {({ describedBy, hasError }) => (
@@ -96,7 +102,7 @@ export default async function DriverChangePasswordPage({
 
           <div className={styles.loginActions}>
             <ChangePasswordSubmitButton />
-            {notices?.required ? null : (
+            {isRecovery || notices?.required ? null : (
               <Button href="/driver/dashboard" variant="secondary">
                 Cancel
               </Button>

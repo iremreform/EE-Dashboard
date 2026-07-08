@@ -8,12 +8,16 @@ import type {
 import { useEffect, useId, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Button, Card, Checkbox, Field, Input, Select, Textarea } from "@/components/ui";
+import {
+  getMediaUploadLimitLabel,
+  isWithinMediaUploadLimit,
+  type MediaKind,
+} from "@/lib/media-limits";
 import { SUPABASE_BUCKETS } from "@/lib/supabase/constants";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import styles from "./DriverReportForm.module.css";
 
 type ReportType = "delivery" | "pickup";
-type MediaKind = "photo" | "video" | "license";
 type FieldTuple = readonly [label: string, placeholder: string];
 type UploadTuple = readonly [label: string, meta: string];
 
@@ -854,6 +858,17 @@ function UploadTile({
       return;
     }
 
+    if (!isWithinMediaUploadLimit(mediaKind, file.size)) {
+      event.target.value = "";
+      setPreview(null);
+      setUploadedMedia(null);
+      setUploadStatus("error");
+      setUploadError(
+        `${formatMediaKindLabel(mediaKind)} must be ${getMediaUploadLimitLabel(mediaKind)} or smaller.`,
+      );
+      return;
+    }
+
     setPreview({
       name: file.name,
       type: file.type,
@@ -885,10 +900,10 @@ function UploadTile({
         sizeBytes: file.size,
       });
       setUploadStatus("uploaded");
-    } catch {
+    } catch (error) {
       setUploadedMedia(null);
       setUploadStatus("error");
-      setUploadError("Upload failed. Please try again.");
+      setUploadError(error instanceof Error ? error.message : "Upload failed. Please try again.");
     }
   };
 
@@ -1211,14 +1226,25 @@ async function createSignedUpload(file: File, mediaKind: MediaKind) {
       contentType: file.type,
       fileName: file.name,
       mediaKind,
+      sizeBytes: file.size,
     }),
     headers: { "Content-Type": "application/json" },
     method: "POST",
   });
 
   if (!response.ok) {
-    throw new Error("Unable to create upload URL.");
+    const body = await response.json().catch(() => null) as { error?: string } | null;
+
+    throw new Error(body?.error ?? "Unable to create upload URL.");
   }
 
   return (await response.json()) as SignedUploadResponse;
+}
+
+function formatMediaKindLabel(mediaKind: MediaKind) {
+  if (mediaKind === "license") {
+    return "License image";
+  }
+
+  return mediaKind === "photo" ? "Photo" : "Video";
 }

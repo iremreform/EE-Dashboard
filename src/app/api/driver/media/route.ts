@@ -3,8 +3,8 @@ import { getDriverAccessByAuthUserId } from "@/lib/admin-drivers";
 import {
   createSignedMediaUpload,
   removePendingMediaUpload,
-  type MediaKind,
 } from "@/lib/driver-media";
+import { getMediaUploadLimitLabel, type MediaKind } from "@/lib/media-limits";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type MediaRequestBody = {
@@ -12,6 +12,7 @@ type MediaRequestBody = {
   fileName?: string;
   mediaKind?: string;
   path?: string;
+  sizeBytes?: number;
 };
 
 export async function POST(request: Request) {
@@ -23,18 +24,32 @@ export async function POST(request: Request) {
 
   const body = (await request.json()) as MediaRequestBody;
 
-  if (!body.fileName || !body.mediaKind || !isMediaKind(body.mediaKind)) {
+  if (
+    !body.fileName ||
+    !body.mediaKind ||
+    !isMediaKind(body.mediaKind) ||
+    typeof body.sizeBytes !== "number"
+  ) {
     return NextResponse.json({ error: "Invalid media upload request" }, { status: 400 });
   }
 
-  const upload = await createSignedMediaUpload({
-    contentType: body.contentType ?? "",
-    driverId: driver.id,
-    fileName: body.fileName,
-    mediaKind: body.mediaKind,
-  });
+  try {
+    const upload = await createSignedMediaUpload({
+      contentType: body.contentType ?? "",
+      driverId: driver.id,
+      fileName: body.fileName,
+      mediaKind: body.mediaKind,
+      sizeBytes: body.sizeBytes,
+    });
 
-  return NextResponse.json(upload);
+    return NextResponse.json(upload);
+  } catch (error) {
+    const message = error instanceof Error
+      ? error.message
+      : `File must be ${getMediaUploadLimitLabel(body.mediaKind)} or smaller.`;
+
+    return NextResponse.json({ error: message }, { status: 413 });
+  }
 }
 
 export async function DELETE(request: Request) {

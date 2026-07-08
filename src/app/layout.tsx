@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { AuthRecoveryRedirect } from "@/components/auth/AuthRecoveryRedirect";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <AuthRecoveryRedirect />
         {children}
         <Script id="marker-io" strategy="afterInteractive">
           {`

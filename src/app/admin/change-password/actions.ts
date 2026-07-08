@@ -16,33 +16,37 @@ const ERROR_MESSAGES = {
 export async function changeAdminPasswordAction(formData: FormData) {
   const { user } = await requireActiveAdmin({ allowPasswordChangeRequired: true });
   const currentPassword = getFormValue(formData, "current_password");
+  const isRecovery = formData.get("recovery") === "1";
   const newPassword = getFormValue(formData, "new_password");
   const confirmPassword = getFormValue(formData, "confirm_password");
 
-  if (!user.email || !currentPassword || !newPassword || !confirmPassword) {
-    redirectWithError(ERROR_MESSAGES.required);
+  if (!user.email || (!isRecovery && !currentPassword) || !newPassword || !confirmPassword) {
+    redirectWithError(ERROR_MESSAGES.required, isRecovery);
   }
 
   if (newPassword.length < 6) {
-    redirectWithError(ERROR_MESSAGES.password);
+    redirectWithError(ERROR_MESSAGES.password, isRecovery);
   }
 
   if (newPassword !== confirmPassword) {
-    redirectWithError(ERROR_MESSAGES.mismatch);
+    redirectWithError(ERROR_MESSAGES.mismatch, isRecovery);
   }
 
-  if (newPassword === currentPassword) {
-    redirectWithError(ERROR_MESSAGES.same);
+  if (!isRecovery && newPassword === currentPassword) {
+    redirectWithError(ERROR_MESSAGES.same, isRecovery);
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error: signInError } = await supabase.auth.signInWithPassword({
-    email: user.email,
-    password: currentPassword,
-  });
 
-  if (signInError) {
-    redirectWithError(ERROR_MESSAGES.current);
+  if (!isRecovery) {
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: currentPassword,
+    });
+
+    if (signInError) {
+      redirectWithError(ERROR_MESSAGES.current, isRecovery);
+    }
   }
 
   const { error: updateError } = await supabase.auth.updateUser({
@@ -54,7 +58,7 @@ export async function changeAdminPasswordAction(formData: FormData) {
   });
 
   if (updateError) {
-    redirectWithError(ERROR_MESSAGES.unknown);
+    redirectWithError(ERROR_MESSAGES.unknown, isRecovery);
   }
 
   redirect("/admin/dashboard?passwordChanged=1");
@@ -65,6 +69,7 @@ function getFormValue(formData: FormData, name: string) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function redirectWithError(message: string): never {
-  redirect(`/admin/change-password?error=${encodeURIComponent(message)}`);
+function redirectWithError(message: string, isRecovery = false): never {
+  const recovery = isRecovery ? "&recovery=1" : "";
+  redirect(`/admin/change-password?error=${encodeURIComponent(message)}${recovery}`);
 }
