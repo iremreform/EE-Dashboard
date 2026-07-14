@@ -1,120 +1,143 @@
 # External Sources & Services
 
-This document captures external systems needed for the production backend.
+Current as of July 2026. This document distinguishes active services from recommended or optional integrations.
 
-## Google Calendar
+## Google Sheets
 
-**Purpose:** Reservation source of truth.
+**Status:** Planned reservation source; waiting for the client to create/share the Sheet or approve a prepared template.
 
-**Client answer:** Reservations are kept on Google Calendar, and forms should auto-fill reservation details.
+The client confirmed there is no existing reservation spreadsheet, so the workflow starts from scratch. The portal should regularly synchronize the client-maintained Sheet into Supabase `reservations`; driver forms should continue reading normalized Supabase rows rather than relying directly on mutable Sheet data.
 
-**Data needed by portal:**
+Expected data:
 
 - reservation number
-- date(s)
-- guest name
-- guest phone number
-- drop-off location
-- pickup location
-- vehicle details if available
+- reservation dates
+- guest first/last name
+- guest phone number (the client's requested "Number" field)
+- drop-off and pickup locations
+- vehicle make/model, color/plate, VIN or fleet ID
+- payment verified status where available
 
-**Implementation notes:**
+Still to confirm:
 
-- Confirm calendar account/owner, calendar IDs, permissions, event format, and whether service account access is acceptable.
-- Decide whether to sync reservations into Postgres on a schedule or fetch on demand.
-- Store normalized reservation records locally so delivery/pickup reports remain stable even if calendar events change later.
+- final columns and validation rules
+- Sheet owner and sharing model
+- service account versus OAuth access
+- synchronization frequency
+- correction, duplicate, cancellation, and deletion behavior
+
+## Cloudflare R2
+
+**Status:** Recommended production media storage; awaiting client approval and account/bucket setup.
+
+The sample 4K walk-around video is approximately 701 MB for 50 seconds. Expected 1–2 minute files can be approximately 0.8–1.7 GB, so Supabase Free storage and the current 450 MB application video limit are not production-suitable.
+
+Planned use:
+
+- private bucket for original photos and walk-around videos
+- direct multipart/resumable browser uploads for unreliable mobile connections
+- short-lived signed read URLs for portal previews/downloads
+- Supabase `submission_media` remains the metadata and ownership source
+- indefinite retention plus storage-capacity alerts
+
+Existing Supabase Storage test files may remain during migration, but the final adapter must be able to resolve both old Supabase paths and new R2 objects until staging data is removed or migrated.
 
 ## Google Drive
 
-**Purpose:** Secondary copy/export location for reports, photos, videos, and signatures.
+**Status:** Optional secondary archive; final client confirmation is still needed.
 
-**Client answer:** Files should also be saved to Google Drive.
-
-**Implementation notes:**
-
-- Confirm Drive folder structure and naming convention.
-- Confirm whether PDFs, raw media, or both should be copied.
-- Confirm whether copy happens immediately on submission, after admin review, or on archive.
-- Use least-privilege OAuth/service account access and avoid public links unless explicitly requested.
+R2 does not prevent admins from viewing or downloading files in the portal. Use Google Drive only if the client wants a second operational/archive copy outside the portal. If approved, confirm folder structure, naming, permissions, file types, and whether copy occurs on submission, completion, or archive.
 
 ## Supabase
 
-**Purpose:** Active app backend for Postgres database, storage, and auth.
+**Status:** Active, client-owned database and authentication backend; Supabase Storage is the current staging media implementation.
 
-**Recommended use:**
+Active responsibilities:
 
-- Postgres for drivers, admins, reservations, submissions, media metadata, alerts, audit events, and payment verification.
-- Supabase Storage for original photos, walkaround videos, signatures, and generated PDFs.
-- Initial schema and seed data were applied in the Supabase dashboard on June 27, 2026. The one-time SQL files were removed from the repo after successful execution.
-- Admin dashboard/submissions/drivers reads are wired through server-side Supabase helpers.
-- Driver creation creates both a `drivers` row and a Supabase Auth user.
-- Driver login uses Supabase Auth and checks the linked active `drivers` row.
-- Driver dashboard, delivery, pickup, and completion routes require an active driver session.
-- Driver logout signs out through Supabase.
-- Delivery report creation persists text/checklist/payment/signature fields, finalizes directly uploaded Supabase Storage media, creates media metadata rows, creates a new-submission alert, updates driver last-active, and records an audit event.
-- Pickup report creation persists text/checklist/signature fields, links to the same reservation, compares mileage/fuel against the latest delivery report where present, finalizes directly uploaded Supabase Storage media, creates media metadata rows, creates a new-submission alert, updates driver last-active, and records an audit event.
-- Driver completion and locked report detail can append notes to driver-owned submitted reports and record audit events.
-- Driver reservation lookup/autofill reads from the Supabase `reservations` table. Google Calendar should sync or import into that table later.
-- Admin login uses Supabase Auth and checks the linked active `admin_users` row.
-- Admin dashboard, drivers, create-driver, submissions, and submission detail routes require an active admin session.
-- Admin submission detail renders uploaded photos/videos using signed read URLs from the private `submission-media` bucket.
-- Admin submission detail can edit submitted report fields/statuses, append admin notes, and record edit/status/note audit events.
-- Admin logout signs out through Supabase.
-- Keep report and media files indefinitely; do not automatically delete them.
-- Add storage usage monitoring and alert admins before storage is close to full.
-- Row-level security and service-role access where appropriate.
+- Postgres records for admins, drivers, reservations, submissions, media metadata, notes, alerts, audit events, and payment verification
+- Supabase Auth sessions for drivers/admins
+- active-account and role checks behind Next.js server routes/actions
+- current private `submission-media` storage and signed upload/read URLs
+- server-side admin operations through `SUPABASE_SECRET_KEY`
 
-**Auth status:** Supabase Auth is the active username/password direction. Driver/admin login, route protection, and logout are implemented.
+Implemented workflows include login/logout, required password change, driver management, report persistence, reservation lookup, media finalization, notes, alerts, audit history, admin edits, and PDF export.
+
+Production hardening still requires a versioned schema/migration, an RLS/service-key review, credential rotation, and final provider URL/domain configuration.
+
+### Admin password recovery
+
+- Drivers continue to contact an administrator for password resets.
+- Admins request recovery from `/admin/forgot-password`.
+- Reset emails link to `/admin/reset-password?token_hash=...&type=recovery`.
+- The GET page only displays a Continue action so email security scanners cannot consume the token.
+- Continue verifies the recovery OTP, confirms an active `admin_users` record, and redirects to `/admin/change-password?recovery=1`.
+- The recovery response remains generic so it does not reveal whether an email address belongs to an admin.
+
+Current Reset password template:
+
+```html
+<h2>Reset your password</h2>
+<p>We received a request to reset your password.</p>
+<p><a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=recovery">Reset password</a></p>
+<p>If you did not request this, you can safely ignore this email.</p>
+```
+
+Allowed staging recovery URLs:
+
+- `https://ee-dashboard-three.vercel.app/admin/reset-password`
+- `http://localhost:3000/admin/reset-password`
+
+Replace the production URL when the final portal domain is connected.
+
+## Resend
+
+**Status:** Temporary staging SMTP is configured with `onboarding@resend.dev`; client-owned account/domain handoff is pending.
+
+Current staging verifies the password-reset flow but the shared sender may wrap links with a tracking domain that content blockers intercept. The scanner-safe confirmation page prevents prefetch from consuming recovery tokens.
+
+Production requirements:
+
+- client-owned Resend account
+- verified transactional subdomain such as `auth.energeticexotics.com`
+- SPF, DKIM, and DMARC records
+- sender such as `portal@auth.energeticexotics.com`
+- click/open tracking disabled for auth emails
+- new API key entered only in Supabase SMTP settings
+- temporary/test/exposed keys revoked
+
+Resend SMTP values:
+
+- Host: `smtp.resend.com`
+- Port: `465`
+- Username: `resend`
+- Password: Resend API key (never store in the repository)
 
 ## Square
 
-**Purpose:** Payment verification context.
+**Status:** No API integration planned for v1.
 
-**Client answer:** Payments are handled through Square invoice links sent to customers by email/text.
-
-**Portal behavior for now:**
-
-- Show only `Payment verified: Yes / No`.
-- Do not store card data or PCI-sensitive payment details.
-- Do not integrate with the Square API in the first backend pass unless the client later asks for live invoice status.
+Payments are handled through Square invoice links sent to customers by email/text. The portal stores only `Payment verified: Yes / No`; do not store card data, Square links, or PCI-sensitive fields.
 
 ## Vercel
 
-**Purpose:** Expected hosting for the Next.js app unless the deployment target changes.
+**Status:** Active staging deployment at `https://ee-dashboard-three.vercel.app`; transfer to the client's Vercel account is planned before launch.
 
-**Implementation notes:**
-
-- Store production environment variables in Vercel project settings.
-- Use Vercel preview deployments for client review.
-- Media uses signed direct-to-Supabase browser uploads so large videos do not pass through the Next.js server action body.
+- Keep production secrets in Vercel project settings.
+- Update Supabase Site URL/redirect allowlists after the final portal domain is connected.
+- Use preview deployments for client QA without treating preview domains as permanent auth URLs.
+- Large production media must upload directly to R2 rather than passing through Vercel server-action request bodies.
 
 ## Marker.io
 
-**Purpose:** Client QA feedback/reporting on preview deployments.
+**Status:** Loaded globally for staging/client QA from `src/app/layout.tsx`.
 
-**Implementation:**
-
-- Loaded globally from `src/app/layout.tsx` using Next.js `<Script>`.
-- Project ID: `6a20413903d28bc4520d2e1d`.
-- Source: `snippet`.
-
-**Notes:**
-
-- Keep enabled for staging/client preview while frontend polish is active.
-- Revisit before production launch if the portal contains real customer/reservation data.
+- Project ID: `6a20413903d28bc4520d2e1d`
+- Source: `snippet`
+- Network/content blockers may prevent the Marker.io widget even when its script loads.
+- Decide whether to disable it before the portal contains live guest data.
 
 ## Notifications
 
-**Purpose:** Admin notifications for every submission.
+**Status:** In-app admin notifications are implemented.
 
-**Client answer:** Admins should receive notifications for all submissions.
-
-**Provider options:**
-
-- Email via Resend, SendGrid, or Supabase email integrations.
-- Slack later if the client wants operational alerts in a channel.
-
-**Implementation notes:**
-
-- Notification settings card was removed from the UI; do not add configurable notification channels in v1 unless requested.
-- Keep alert records in the database even if email/Slack delivery fails.
+Every new submission creates an alert record. The admin bell supports unread count, opening the related submission, mark-unread, and delete. External email/Slack submission notifications and user-configurable notification settings are deferred unless the client requests them.

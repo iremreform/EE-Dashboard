@@ -165,11 +165,11 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 
 ---
 
-### D14 — Password help, not forgot-password flow
+### D14 — Driver password help; admin self-service recovery is separate
 
-**Conflict:** Standard SaaS pattern is email-based password reset. Client workflow has admins reset passwords manually.
+**Conflict:** Standard SaaS pattern is email-based password reset. Client workflow has admins reset driver passwords manually, while admins still need a safe way to recover their own accounts.
 
-**Decision:** `/driver/forgot-password` is a **Password Help** page with contact-admin copy. No email input form.
+**Decision:** `/driver/forgot-password` is a **Password Help** page with contact-admin copy and no email form. Admins use `/admin/forgot-password` with Resend/Supabase token-hash recovery.
 
 ---
 
@@ -252,11 +252,11 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 
 ---
 
-### D22 — Reservation source: Google Calendar
+### D22 — Reservation source: Google Sheet (supersedes the earlier Calendar assumption)
 
-**Client answer:** Reservation information is kept on **Google Calendar**.
+**Latest client answer:** There is no existing Google Sheet; the reservation data source is starting from scratch. The client can create/share a Sheet, or the project team can prepare a template for them to maintain.
 
-**Decision:** Treat Google Calendar as the reservation source for v1. The backend should normalize reservation data into the app database so submitted reports remain stable even if calendar events are edited later.
+**Decision:** Treat a client-maintained **Google Sheet** as the planned reservation source. Synchronize normalized rows into Supabase so submitted reports remain stable when the Sheet changes. Driver forms continue querying Supabase rather than reading the Sheet directly.
 
 **Required form data:** reservation number, date(s), guest name, guest phone number, drop-off location, pickup location.
 
@@ -278,7 +278,7 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 
 **Implementation status:** `/driver/login` and `/admin/login` use Supabase Auth and verify linked active `drivers` / `admin_users` rows. Driver and admin dashboard/workflow routes are protected, and logout is real for both portals.
 
-**Impact:** `/driver/forgot-password` remains a password help page for now; no self-serve email reset flow is required unless requested later.
+**Impact:** `/driver/forgot-password` remains administrator-contact password help. Admins have a separate self-service Resend/Supabase recovery flow through `/admin/forgot-password` and `/admin/reset-password`.
 
 ---
 
@@ -318,9 +318,9 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 
 ### D29 — Media capture and retention
 
-**Client answer:** Live photo capture is preferred; gallery upload should be available as backup. Files should also be saved to Google Drive. Retention is now decided as keep indefinitely, with a storage-capacity alert before storage is close to full.
+**Client answer:** Live photo capture is preferred; gallery upload should be available as backup. Retention is keep indefinitely, with a storage-capacity alert before storage is close to full. Google Drive was discussed as a possible secondary copy.
 
-**Decision:** Implement live capture where browser support allows it, with upload fallback. Store originals securely in app storage, copy files to Google Drive, do not automatically delete reports/media/signatures, and alert admins before storage is close to full.
+**Decision:** Live capture plus gallery fallback is implemented. Supabase Storage is the current staging media layer; Cloudflare R2 is the recommended production store because the sample 50-second 4K video is about 701 MB. Keep media private and available through signed portal URLs. Google Drive is optional archive storage pending final client confirmation, not a requirement for portal viewing.
 
 ---
 
@@ -337,12 +337,10 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 | # | Question | Impact |
 |---|----------|--------|
 | Q1 | Are PP Monument Extended and Editor's Note licensed for self-hosting in the dashboard? | Font implementation |
-| Q2 | Should admin dashboard show real-time metrics or static greeting (as wireframed)? | Admin dashboard scope |
-| Q3 | What is the Google Calendar event format, and which calendar(s) should the portal read from? | Reservation integration |
-| Q4 | What Google Drive folder structure and file naming convention should be used for report copies? | File export workflow |
-| Q5 | PDF download on submission detail — what template/data should generate the PDF? | Backend integration |
-| Q6 | Should the portal selector (`/`) remain public, or redirect authenticated users to their dashboard? | Routing/auth |
-| Q7 | Light theme toggle for admin users? | Theme system scope |
+| Q2 | What are the final Google Sheet columns, ownership, permissions, and synchronization frequency? | Reservation integration |
+| Q3 | Does the client approve Cloudflare R2 as production media storage? | Large photo/video uploads |
+| Q4 | Is a Google Drive archive copy still required after R2 is adopted? | Optional archive workflow |
+| Q5 | What final portal and authentication-email subdomains will the client provide? | Vercel, Supabase redirects, Resend |
 
 ---
 
@@ -362,28 +360,32 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 
 ---
 
-## Implementation status (June 2026)
+## Implementation status (July 2026)
 
 ### Done
 - Brand tokens in `src/styles/tokens.css`
 - Phase 1 UI: `Button`, `Input`, `Select`, `Textarea`, `Field`, `Card`, `Tag`, `Tagline`, `Heading`, `Logo`, `ChoiceCard`, `ArrowIcon`, `Checkbox`, `DotLottieAnimation`
 - Layout: `PageShell`, `PageIntro`, `PageContent` styles, `SiteFooter`, `DashboardPlaceholder`, `LoginForm`, `AdminShell`
-- Pages: portal selector, driver/admin login, password help, driver dashboard, delivery form, pickup form, completion screen, admin dashboard, manage drivers, create driver, submissions list, submission detail
+- Pages: portal selector; complete driver login/password/dashboard/delivery/pickup/completion/reports flows; complete admin login/recovery/dashboard/drivers/reservations/submissions flows
 - Copy centralized in `src/content/portal.ts`
 - Global CSS reset (post-Tailwind removal)
 - Supabase foundation: schema/seed applied in dashboard, server helpers added, admin dashboard/submissions/drivers reads wired
 - Driver creation: `/admin/drivers/new` creates `drivers` records and Supabase Auth users
 - Driver/admin login/protection/logout: `/driver/login` and `/admin/login` validate with Supabase Auth and active account status; driver/admin workflow routes are protected
-- Driver report persistence: `/driver/delivery` and `/driver/pickup` create first-pass Supabase submission records and alerts
+- Driver report persistence: `/driver/delivery` and `/driver/pickup` create Supabase submission records, media metadata, alerts, and audit events
 - Reservation lookup/autofill: `/api/driver/reservations` fills delivery/pickup forms from Supabase `reservations`
 - Submission edit rules: drivers can append post-submit notes from completion and locked report detail; admins can edit report fields and Submitted/Completed/Archived status from submission detail
+- Driver management: create, search, temporary-password reset, disable, re-enable, confirmation modal, and loading states
+- Media and documents: private upload/preview, image zoom, video playback, signatures, and branded PDF export with photos/signature
+- Admin operations: reservation/submission filters, alerts/read-state/delete, admin edits, notes, and audit-history views
+- Admin self-service recovery: temporary Resend SMTP, token-hash email template, scanner-safe confirmation, and recovery password update
 
-### Not started / backend-functional
-- Admin media download controls from private Supabase Storage paths
-- Google Calendar reservation sync/import
-- Google Drive media copy
-- Driver disable/reset actions and admin-visible audit trail
-- PDF export, notifications, modals, toasts, loading/error states
+### Remaining production integrations
+- Google Sheet reservation synchronization
+- Cloudflare R2 media adapter with multipart/resumable 4K uploads
+- Storage-capacity monitoring and optional Google Drive archive decision
+- Client-owned Resend/domain handoff and final Supabase/Vercel URL configuration
+- Versioned production schema, security review, automated tests, and final device/accessibility QA
 
 ---
 
@@ -395,5 +397,6 @@ Wireframes intentionally use a grayscale prototype aesthetic. They must **not** 
 4. ~~Rebuild stub pages (`/`, `/driver/login`, `/admin/login`) with branded components~~ ✅
 5. ~~Build driver dashboard delivery/pickup choice cards~~ ✅
 6. ~~Implement remaining planned wireframe frontend screens~~ ✅
-7. Connect reservation auto-fill, media, notifications, admin audit trail views, and PDF export
-9. Visual QA against energeticexotics.com side-by-side
+7. ~~Connect reservation auto-fill, media, notifications, admin audit trail views, and PDF export~~ ✅
+8. Connect Google Sheet synchronization and production R2 media storage
+9. Complete production account/domain handoff and final QA using `launch-checklist.md`

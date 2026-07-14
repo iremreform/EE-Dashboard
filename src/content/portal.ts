@@ -26,6 +26,22 @@ export const homeChoices = {
   },
 } as const;
 
+export const adminPasswordRecovery = {
+  title: "Reset Password",
+  lead: "Enter your admin email and we will send you a secure reset link.",
+  verifyLead: "Continue to verify this request and choose a new password.",
+  action: "Send reset link",
+  pendingAction: "Sending...",
+  success:
+    "If an active admin account exists for that email, a password reset link has been sent. Check your inbox and spam folder.",
+  errors: {
+    required: "Enter your admin email address.",
+    invalid: "This password reset link is invalid or incomplete.",
+    rateLimit: "Too many reset requests. Please wait a few minutes and try again.",
+    unknown: "The reset email could not be sent. Please try again.",
+  },
+} as const;
+
 export const driverWorkflows = {
   delivery: {
     title: "Vehicle Delivery",
@@ -387,11 +403,6 @@ export const passwordHelp = {
   bodyBeforeEmail: "For security, password resets are handled by your administrator. Email",
   email: "support@energeticexotics.com",
   bodyAfterEmail: "or contact your fleet manager directly.",
-} as const;
-
-export const notices = {
-  driverSignIn: "Authorized drivers only",
-  adminSignIn: "Authorized staff only",
 } as const;
 
 export const nav = {

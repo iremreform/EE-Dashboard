@@ -8,7 +8,7 @@ type RecoveryTargetResponse = {
 };
 
 const EXPIRED_RECOVERY_MESSAGE =
-  "Password reset link is invalid or expired. Please ask an administrator to send a new reset link.";
+  "Password reset link is invalid or expired. Please request a new link.";
 
 export function AuthRecoveryRedirect() {
   useEffect(() => {
@@ -30,7 +30,7 @@ export function AuthRecoveryRedirect() {
         : params.get("error_description") || "Password reset link could not be used.";
 
       window.history.replaceState(null, "", window.location.pathname);
-      window.location.assign(`/admin/login?error=${encodeURIComponent(message)}`);
+      window.location.assign(`/admin/forgot-password?error=${encodeURIComponent(message)}`);
       return;
     }
 
@@ -59,7 +59,9 @@ export function AuthRecoveryRedirect() {
       window.history.replaceState(null, "", window.location.pathname);
 
       if (sessionError || !isMounted) {
-        window.location.assign(`/admin/login?error=${encodeURIComponent(EXPIRED_RECOVERY_MESSAGE)}`);
+        window.location.assign(
+          `/admin/forgot-password?error=${encodeURIComponent(EXPIRED_RECOVERY_MESSAGE)}`,
+        );
         return;
       }
 

@@ -1,4 +1,4 @@
-import { areas, notices, pages } from "@/content/portal";
+import { areas, pages } from "@/content/portal";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { adminLoginAction } from "./actions";
 
@@ -20,7 +20,8 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
       error={error}
       formAction={adminLoginAction}
       submitHref="/admin/dashboard"
-      secureNotice={notices.adminSignIn}
+      helpHref="/admin/forgot-password"
+      helpLabel="Forgot password?"
     />
   );
 }

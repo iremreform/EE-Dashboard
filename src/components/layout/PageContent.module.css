@@ -15,14 +15,6 @@
   margin-top: var(--space-6);
 }
 
-.secureNotice {
-  align-self: stretch;
-  color: var(--text-secondary);
-  font-size: var(--text-small);
-  margin: var(--space-4) 0 0;
-  text-align: center;
-}
-
 .loginActions {
   display: flex;
   flex-wrap: wrap;

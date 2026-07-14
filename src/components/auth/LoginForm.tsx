@@ -17,7 +17,6 @@ type LoginFormProps = {
   error?: string;
   formAction?: FormHTMLAttributes<HTMLFormElement>["action"];
   submitHref: string;
-  secureNotice: string;
   helpHref?: string;
   helpLabel?: string;
 };
@@ -30,7 +29,6 @@ export function LoginForm({
   error,
   formAction,
   submitHref,
-  secureNotice,
   helpHref,
   helpLabel,
 }: LoginFormProps) {
@@ -101,7 +99,6 @@ export function LoginForm({
         </form>
       </Card>
 
-      <p className={styles.secureNotice}>{secureNotice}</p>
     </PageShell>
   );
 }

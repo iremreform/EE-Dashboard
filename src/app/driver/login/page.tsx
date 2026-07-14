@@ -1,4 +1,4 @@
-import { areas, notices, pages } from "@/content/portal";
+import { areas, pages } from "@/content/portal";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { driverLoginAction } from "./actions";
 
@@ -20,7 +20,6 @@ export default async function DriverLoginPage({ searchParams }: DriverLoginPageP
       error={error}
       formAction={driverLoginAction}
       submitHref="/driver/dashboard"
-      secureNotice={notices.driverSignIn}
       helpHref="/driver/forgot-password"
       helpLabel="Need help signing in?"
     />

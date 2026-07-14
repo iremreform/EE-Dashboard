@@ -1,104 +1,77 @@
 # Tasks & Backend Plan
 
-This task list reflects client answers received in `Driver Admin Portal Responses.docx` and the current frontend state.
+Current as of July 2026. This task list reflects the implemented application, the latest client answers, and the production decisions still waiting on external setup.
 
-## Confirm before backend implementation
+## Completed application foundation
 
-- Google Calendar data shape: confirm which calendar(s), event title format, event description fields, and whether reservation numbers already exist in events.
-- Google Drive organization: confirm folder structure, naming convention, permissions, and whether files should be copied immediately on submission or after admin review.
+- [x] Next.js App Router frontend using TypeScript, CSS modules, and shared design tokens.
+- [x] Supabase Postgres schema for admins, drivers, reservations, submissions, media metadata, notes, alerts, audit events, and payment verification.
+- [x] Separate active-account authorization for driver and admin routes.
+- [x] Driver/admin email-and-password login, logout, required first-password change, and voluntary password change.
+- [x] Admin self-service password recovery request, token-hash confirmation, recovery-mode password update, and expired-link handling.
+- [x] Admin driver create, search, temporary-password reset, disable, re-enable, confirmation modal, and loading states.
+- [x] Delivery and pickup forms with required validation, reservation lookup/autofill, signatures, media selection, upload progress, and submission loading states.
+- [x] Delivery/pickup persistence, statuses (`Submitted`, `Completed`, `Archived`), payment verified state, driver ownership, and timestamps.
+- [x] Pickup-to-delivery matching plus first-pass mileage/fuel and condition alerts.
+- [x] Driver reports list/detail with locked report fields and append-only driver notes.
+- [x] Admin dashboard, reservations list/detail, submissions list/detail, search/filters, report editing, status changes, and internal notes.
+- [x] In-app admin notification menu with read, unread, delete, badge, overflow menu, and scroll behavior.
+- [x] Admin-visible driver/submission audit history.
+- [x] Private media previews, image click-to-zoom, video playback, signature rendering, and branded PDF export with photos/signature.
+- [x] Marker.io staging integration.
 
-## Resolved backend assumptions
+## Active production work
 
-- Reservation "Number" means the guest phone number.
-- Payment display is `Payment verified: Yes / No` only for now.
-- Reports, photos, videos, and signatures should not be deleted automatically. Keep them indefinitely and alert admins when storage is close to full.
+### Reservation synchronization
 
-## Backend phase 1: foundation
+- [ ] Receive or prepare the client-owned Google Sheet.
+- [ ] Agree final columns, validation, ownership, and sharing permissions.
+- [ ] Include at minimum: reservation number, dates, guest name, guest phone number, locations, vehicle details, and payment verified status where available.
+- [ ] Choose scheduled synchronization versus on-demand refresh.
+- [ ] Normalize Sheet rows into Supabase `reservations` so submitted reports remain stable if the Sheet changes later.
+- [ ] Define duplicate, correction, cancellation, and deleted-row behavior.
+- [ ] Test driver lookup/autofill against representative live-format data.
 
-- Choose and document the final backend stack. ✅ Supabase + Next.js server routes/actions is the current direction.
-- Add environment variable documentation for Supabase, Google, Square, auth secrets, and app URLs. ✅ Supabase env vars are documented in `.env.example` and `README.md`.
-- Create database schema/migrations for: ✅ Initial Supabase schema was applied in the dashboard on June 27, 2026.
-  - admin users
-  - drivers
-  - reservations
-  - submissions
-  - submission media
-  - submission notes
-  - alerts
-  - audit events
-  - payment verification
-- Add seed/sample data that matches current frontend examples. ✅ Seed data was applied in the dashboard on June 27, 2026.
-- Add server-side data access helpers with a clear boundary between UI components and backend calls. ✅ Supabase helpers live in `src/lib/supabase/`.
+### Production media storage
 
-## Backend phase 2: auth and access
+- [ ] Obtain client approval for Cloudflare R2.
+- [ ] Create a private client-owned R2 bucket and least-privilege credentials.
+- [ ] Replace the current Supabase Storage media adapter with R2 signed reads and direct multipart/resumable uploads.
+- [ ] Raise the current 450 MB video limit to support the client's approximately 0.8–1.7 GB 4K walk-around videos.
+- [ ] Keep `submission_media` metadata in Supabase.
+- [ ] Add explicit admin media download controls against signed R2 URLs if the client requires downloads beyond browser preview/playback.
+- [ ] Decide whether existing staging media should be migrated or removed.
+- [ ] Add storage-capacity monitoring and an admin alert; retain reports/media indefinitely.
+- [ ] Confirm whether Google Drive is still required as a secondary archive. It is not required for portal viewing when R2 is used.
 
-- Implement username/password login for drivers and admins. ✅ Driver/admin login are wired to Supabase Auth and verify active `drivers` / `admin_users` rows.
-- Separate driver and admin sessions/authorization. ✅ Driver/admin routes require active matching account rows.
-- Support exactly the current admin operations:
-  - admins can disable drivers immediately
-  - admins can reset/change driver access later
-  - only admins can edit submitted reports
-- Keep `/driver/forgot-password` as password help unless the client changes the login approach.
-- Add route protection for all dashboard/form/admin pages. ✅ Driver dashboard/delivery/pickup/complete and admin dashboard/drivers/create-driver/submissions/detail are protected.
+### Production authentication email
 
-## Backend phase 3: reservations and auto-fill
+- [x] Configure temporary Resend SMTP in staging using `onboarding@resend.dev`.
+- [x] Configure the token-hash Reset password template and scanner-safe Continue step.
+- [ ] Client creates/takes ownership of the production Resend account.
+- [ ] Verify a client-owned sending subdomain such as `auth.energeticexotics.com` with SPF, DKIM, and DMARC.
+- [ ] Replace the temporary sender/API key in Supabase SMTP settings.
+- [ ] Disable click/open tracking for authentication emails.
+- [ ] Update Supabase Site URL and recovery redirect allowlist to the final portal domain.
+- [ ] Revoke temporary/test/exposed API keys and test recovery from another browser/device.
 
-- Connect Google Calendar as the reservation source.
-- Import or fetch reservations with:
-  - reservation number
-  - date(s)
-  - guest name
-  - guest phone number
-  - drop-off location
-  - pickup location
-  - vehicle details if present in calendar data
-- Build reservation search/lookup API for driver forms. ✅ First pass reads existing Supabase `reservations` rows.
-- Auto-fill delivery and pickup fields from matched reservation data. ✅ First pass fills visible guest, reservation, vehicle, payment status, and pickup delivery-baseline fields from Supabase.
-- If pickup cannot match a reservation/delivery report, flag the record as needs review.
+## Launch hardening
 
-## Backend phase 4: delivery and pickup submissions
+- [ ] Preserve a versioned production schema/migration in the repository; keep demo seed data separate and non-production.
+- [ ] Review Supabase RLS, service-key boundaries, storage policies, and signed URL expiry.
+- [ ] Complete audit coverage for admin report views, PDF exports, and explicit archive events; current history already covers submission creation, notes, report edits/status changes, and driver account actions.
+- [ ] Add focused automated coverage for authorization, form persistence, reservation matching, driver ownership, and status/audit behavior.
+- [ ] Test 4K uploads, retries, interrupted connections, and mobile camera/gallery behavior on real phones and iPads.
+- [ ] Complete desktop/tablet/mobile visual and accessibility QA.
+- [ ] Remove or identify demo data and rotate development credentials.
+- [ ] Decide whether Marker.io remains enabled when the portal contains live guest data.
+- [ ] Transfer the Vercel project to the client's account and complete `launch-checklist.md`.
 
-- Persist delivery reports. ✅ First pass wired for text/checklist/payment/signature fields and selected media upload.
-- Persist pickup/return reports. ✅ First pass wired for text/checklist/signature fields and selected media upload.
-- Lock submitted driver reports except for driver notes. ✅ Completion screen supports immediate notes, and `/driver/reports/[id]` supports later follow-up notes on locked reports.
-- Allow admins to edit submitted reports. ✅ Submission detail supports admin edits for status, guest/reservation/vehicle fields, mileage/fuel, payment status, and notes.
-- Link every pickup report to the earlier delivery report for the same reservation. ✅ Stored in the pickup checklist payload when a delivery match exists.
-- Compare pickup mileage and fuel against delivery mileage and fuel. ✅ First-pass comparison creates review alerts.
-- Trigger alerts for new damage, smoking/vaping evidence, late return, missing keys, low fuel, different pickup/drop-off location, and unmatched pickup. ✅ First pass covers damage, smoking/vaping, late return, missing keys, low fuel, and missing delivery match; pickup/drop-off location comparison is pending reservation auto-fill.
-- Implement statuses: `Submitted`, `Completed`, `Archived`. ✅ Admin submission detail can update these statuses.
+## Deferred unless requested
 
-## Backend phase 5: media and documents
-
-- Implement live photo/video capture where browser support allows it.
-- Keep gallery upload as fallback.
-- Store files in Supabase Storage with database metadata. ✅ First pass uses signed browser uploads and finalizes metadata during delivery/pickup submit.
-- Move captured signatures from form payload into Supabase Storage metadata flow.
-- Copy submitted report media to Google Drive.
-- Add admin media preview links from private Storage paths. ✅ Submission detail renders signed private Storage previews for uploaded photos/videos.
-- Add explicit admin media download controls.
-- Prepare PDF export from submission detail.
-- Keep report/media files indefinitely.
-- Add storage capacity alerts before storage becomes full.
-
-## Backend phase 6: notifications and audit
-
-- Notify admins for every submission.
-- Record audit events with date/time stamps for:
-  - submission created
-  - driver note added
-  - admin viewed report
-  - admin edited report
-  - status changed
-  - PDF exported
-  - report archived
-- Add admin-visible history/audit trail on submission detail.
-
-## Frontend follow-up tasks
-
-- Replace static data in `src/content/portal.ts` with server data where appropriate. ✅ Admin dashboard recent submissions, admin submissions list, submission detail, alert summary, and drivers list now read from Supabase.
-- Add loading, empty, error, and success states for all dynamic pages.
-- Add real form validation and required checklist enforcement.
-- Add media previews/progress states. ✅ Admin submission detail previews finalized media; driver upload progress polish is still pending.
-- Add admin edit flows for submitted reports. ✅ First pass lives on submission detail.
-- Add disabled-driver states and confirmation flows. Create-driver is wired to Supabase database + Auth, but reset/disable/re-enable actions are still pending.
-- Add PDF export button behavior.
+- Google OAuth or SSO; username/password remains the current direction.
+- Square API integration; the portal currently stores only `Payment verified: Yes / No` and no PCI-sensitive data.
+- External email/Slack submission notifications; v1 notifications are stored and managed in the in-app alert menu.
+- Google Drive archive copy, pending a final client decision.
+- Light theme and admin analytics/metric cards.
+- Automatic deletion of reports or media; retention is indefinite.

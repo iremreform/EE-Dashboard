@@ -10,7 +10,8 @@ Start here when working on the Energetic Exotics dashboard. These docs describe 
 4. **[`component-inventory.md`](./component-inventory.md)** — Component map, wireframe → code mapping, implementation status
 5. **[`skills.md`](./skills.md)** — Agent operating guide and project-specific implementation rules
 6. **[`tasks.md`](./tasks.md)** — Current backend plan, task breakdown, and client-answer follow-ups
-7. **[`external-sources.md`](./external-sources.md)** — Google Calendar, Drive, Supabase, Square, Vercel, notifications
+7. **[`external-sources.md`](./external-sources.md)** — Google Sheets, R2, Resend, Supabase, Square, Vercel, notifications
+8. **[`launch-checklist.md`](./launch-checklist.md)** — Client account ownership, domains, production configuration, QA, and handoff
 
 ## Quick reference
 
@@ -23,7 +24,8 @@ Start here when working on the Energetic Exotics dashboard. These docs describe 
 | Logo assets | `public/company-logo.svg`, `public/ee logo small.png` |
 | Backend plan | `docs/tasks.md` |
 | External services | `docs/external-sources.md` |
-| Supabase backend | Schema/seed applied; admin reads, driver creation, driver/admin login/protection/logout, first-pass delivery/pickup report persistence, and reservation lookup/autofill are wired |
+| Production launch | `docs/launch-checklist.md` |
+| Backend status | Supabase database/auth and current staging media are wired; Google Sheet sync and production R2 media are next |
 | Figma file | [Internal UI Style Guide](https://www.figma.com/design/vjj9rDRMUTzSM9v3Twa49m/Energetic-Exotics--Internal-UI-?node-id=2368-52) |
 
 ## Rules of thumb
@@ -31,5 +33,5 @@ Start here when working on the Energetic Exotics dashboard. These docs describe 
 - **Visual styling:** website + Figma + `design-system.md` — not wireframe grayscale CSS
 - **Layout & flows:** wireframes in `reference/` — not served by the app
 - **Styling in code:** CSS modules + tokens — no Tailwind
-- **Auth:** driver/admin login, protected routes, and logout use Supabase Auth
+- **Auth:** driver/admin login, protected routes, logout, required password changes, and admin self-service recovery use Supabase Auth
 - **Footer:** minimal `SiteFooter` on all `PageShell` pages (see D19 in `ui-decisions.md`)

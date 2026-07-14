@@ -29,8 +29,8 @@
 | Icon Button | Web, Figma | Icon left, icon right, icon only (circle) | `.button.is-icon` |
 | Button Group | Web | Horizontal, wrapping | `gap: 1rem` |
 | Ghost Button | Wire | Back nav, secondary actions | Maps to Secondary/Tertiary in production |
-| Pill Toggle | Wire | Yes / No active states | Form boolean fields — use segmented control styling |
-| Menu Button | Wire | Admin sidebar toggle | Secondary button style, hamburger label |
+| Radio Group | Wire, Dash | Yes / No active states | Custom 18px leather/white radio styling for condition fields |
+| Menu Button | Wire, Dash | Admin sidebar toggle | White hamburger icon on mobile/tablet |
 
 ---
 
@@ -46,13 +46,12 @@
 | Text Input — URL Prefix | Figma | `http://` + field | Split control |
 | Select | Web, Figma | Default, error, disabled | Matches input styling |
 | Textarea | Web, Wire | Default, error | Multi-line notes fields |
-| Checkbox | Web | Default, checked, disabled | Terms acceptance |
-| Radio | Web | Default, selected | |
+| Checkbox | Web, Dash | Default, checked, disabled | Custom 18px checklist/confirmation control |
+| Radio | Web, Dash | Default, selected | Custom circular yes/no control |
 | Label | Web, Wire | Default, required | Small caps / uppercase |
 | Field Group | Wire | 1-col, 2-col, 3-col grid | Responsive collapse |
-| Signature Pad | Wire, Dash | Empty, captured | Canvas guest signature on delivery/pickup; storage upload pending |
-| File Upload | Wire, Dash | Default, uploading, preview | Photo/video capture areas; live capture preferred with gallery upload fallback, local previews implemented, Supabase upload wired |
-| Yes/No Toggle | Wire | Active pill state | Condition assessment fields |
+| Signature Pad | Wire, Dash | Empty, captured, clear | Canvas guest signature persists in the submission payload and renders in admin detail/PDF |
+| File Upload | Wire, Dash | Default, uploading, preview, remove, error | Live capture + gallery fallback, direct staging upload, progress/limits; production R2 migration pending |
 
 ---
 
@@ -69,7 +68,7 @@
 | Data Table | Figma, Dash | Header, row, empty | Desktop admin views |
 | Status Badge | Wire, Dash | Delivery, Pickup, Active, Disabled | Color-coded tags |
 | Media Thumbnail | Wire | Placeholder, image, video | Vehicle photos; admin image thumbnails use click-to-zoom preview |
-| Empty State | Figma, Dash | Icon, heading, CTA | No submissions, no drivers |
+| Empty State | Figma, Dash | Heading, copy, CTA | Dynamic lists use inline empty states; no standalone shared primitive yet |
 | Stat Card | Dash | Number + label | Admin dashboard metrics |
 
 ---
@@ -83,7 +82,7 @@
 | Page Back Link | Wire | `← Parent` | `Button variant="link" arrow="left"` in top bar |
 | Content Layout | Wire | Default, wide, login | `PageShell` width props; shared form/page styles in `PageContent.module.css` |
 | Site Footer | Dash | Copyright + credit | `SiteFooter` — see `ui-decisions.md` D19 |
-| Dashboard Placeholder | Dash | Stub greeting | Legacy scaffold component; current dashboard routes use real branded layouts |
+| Dashboard Placeholder | Dash | Legacy | Unused scaffold retained for now; current dashboard routes use real data/layouts |
 | Card | Web, Wire | Default, success, spaced | Primary content container |
 | Choice Card | Wire | Delivery, Pickup | Dashboard hub options |
 | Toolbar | Wire | Filters + actions | Above lists/forms |
@@ -103,7 +102,7 @@
 | Driver Top Bar | Wire | Logo + actions | Simple header |
 | Admin Sidebar | Wire, Figma | Expanded, mobile drawer | 288px desktop, drawer mobile, compact mobile logo |
 | Admin Top Bar | Wire | Menu, alerts, mobile logo | Sticky header, alert dropdown |
-| Admin Nav Link | Wire | Default, active, muted | Dashboard, drivers, submissions, logout |
+| Admin Nav Link | Wire | Default, active, muted | Dashboard, drivers, reservations, submissions, logout |
 | Sidebar Close Button | Wire | `×` | Mobile drawer |
 | Sidebar Overlay | Wire | Scrim | Mobile only |
 | Portal Selector | Wire, Dash | Driver / Admin cards | Entry point (`/`) |
@@ -116,16 +115,16 @@
 | Component | Source | Variants | Notes |
 |-----------|--------|----------|-------|
 | Notification Banner | Wire | Info, dismissible | Removed from dashboard; alerts live in topbar bell |
-| Alert Badge | Wire | Count indicator | Bell badge in admin topbar |
+| Alert Badge | Wire | Count indicator | Bell badge appears only when unread alerts exist |
 | Click Zoom Image | Dash | Trigger, lightbox, Escape/backdrop/scroll close | `ClickZoomImage`; used by admin submission photo/license previews |
 | Toast | Figma, Dash | Success, error, info | Form submission feedback |
-| Modal | Figma | Info, filters, sorting | Confirmations, filter panels |
+| Modal | Figma, Dash | Driver reset/disable confirmation | Implemented for driver account actions |
 | Modal Footer | Figma | Action buttons | |
-| Loading Spinner | Dash | Inline, page-level | |
+| Loading Spinner | Dash | Inline, page-level | Buttons use descriptive loading labels; no shared spinner is required yet |
 | Skeleton | Dash | List, card, form | |
 | Error Banner | Dash | Login errors, form errors | |
 | Success Screen | Wire | Checkmark + meta | Submission complete |
-| Secure Notice | Wire | Login footer | PCI / security copy |
+| Secure Notice | Wire | Removed | “Authorized staff/drivers only” copy was intentionally removed from login pages |
 
 ---
 
@@ -147,6 +146,7 @@
 |-----------|--------|--------|-------|
 | Login Card | Wire | Driver, admin login | Centered card form |
 | Password Help | Wire | Driver login | Admin-reset copy, no email form |
+| Password Recovery | Dash | Admin login | Resend email request, token confirmation, recovery password update |
 | Dashboard Greeting | Wire | Driver, admin | "Hello, {name}" + lead |
 | Hub List | Wire | Portal index | Numbered page links (reference only) |
 | Delivery Form | Wire | Driver | Multi-section vehicle check-in |
@@ -159,7 +159,7 @@
 | Create Driver Form | Wire | Admin | Name, email, phone, status |
 | Manage Drivers List | Wire | Admin | Active/disabled drivers |
 | Submissions List | Wire | Admin | Filterable delivery/pickup records |
-| Download PDF | Wire | Admin detail | Action button (stub) |
+| Download PDF | Wire, Dash | Admin detail | Branded server PDF with report data, photos, and guest signature |
 | Notification Settings | Wire | Admin (removed) | Email/Zapier/Slack — **removed per client** |
 
 ---
@@ -201,7 +201,7 @@ These exist in the Figma file but are primarily for the marketing site. Include 
 10. Admin Sidebar + Top Bar + Overlay ✅
 11. Content layout (`PageContent.module.css`)
 
-### Phase 3 — Dashboard screens ✅ (partially Supabase-backed)
+### Phase 3 — Dashboard screens ✅ (Supabase-backed where dynamic)
 12. Login Card (`LoginForm`) ✅
 13. Choice Card (`ChoiceCard` on `/`) ✅
 14. Data List Row ✅
@@ -210,16 +210,17 @@ These exist in the Figma file but are primarily for the marketing site. Include 
 17. File Upload / Media Thumbnail ✅ (live capture + gallery fallback with local previews; Supabase upload wired)
 18. Notification Bell / Alert Menu ✅
 19. Success Screen ✅
-20. Empty State — **not started**
+20. Empty states in dynamic list pages ✅ (inline implementations)
 21. Driver dashboard hub (delivery/pickup cards) ✅
 
 ### Phase 4 — Backend/functionality polish
-21. Modal
-22. Toast
-23. Loading Spinner / Skeleton
-24. Error Banner
-25. Signature Pad ✅ (canvas capture; Storage persistence pending)
-26. Real validation, persistence, auth, file upload, notifications, export. Supabase reads, driver creation, and driver login are partially implemented.
+21. Driver action modal ✅
+22. Form/login success and error feedback ✅
+23. Descriptive button loading states ✅; shared skeletons are not currently needed
+24. Error banners and field errors ✅
+25. Signature Pad ✅ (submission payload + admin/PDF rendering)
+26. Validation, persistence, auth, file upload, alerts, audit history, and PDF export ✅
+27. Production Google Sheet sync, R2 media storage, storage monitoring, and launch hardening — pending
 
 ---
 
