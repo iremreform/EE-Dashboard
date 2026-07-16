@@ -1,6 +1,14 @@
 import { adminPortal } from "@/content/portal";
 import { AdminShell } from "@/components/admin";
-import { Button, Card, Field, Input, PasswordInput, Tag } from "@/components/ui";
+import {
+  Button,
+  Card,
+  DotLottieAnimation,
+  Field,
+  Input,
+  PasswordInput,
+  Tag,
+} from "@/components/ui";
 import { PageIntro } from "@/components/layout";
 import { requireActiveAdmin } from "@/lib/admin-auth";
 import { MIN_PASSWORD_LENGTH } from "@/lib/password-policy";
@@ -40,6 +48,7 @@ export default async function AdminDriversPage({ searchParams }: AdminDriversPag
   const resetDriver = notices?.reset
     ? rows.find((driver) => driver.id === notices.reset)
     : null;
+  const resetSucceeded = Boolean(resetDriver && notices?.saved === "password-reset");
   const disableDriver = notices?.disable
     ? rows.find((driver) => driver.id === notices.disable)
     : null;
@@ -102,10 +111,10 @@ export default async function AdminDriversPage({ searchParams }: AdminDriversPag
         </div>
       </form>
 
-      {notices?.saved ? (
+      {notices?.saved && notices.saved !== "password-reset" ? (
         <p className={styles.successNotice}>{getSavedMessage(notices.saved)}</p>
       ) : null}
-      {notices?.error ? (
+      {notices?.error && !resetDriver ? (
         <p className={styles.errorNotice}>{notices.error}</p>
       ) : null}
 
@@ -119,31 +128,55 @@ export default async function AdminDriversPage({ searchParams }: AdminDriversPag
           <a href={baseDriversHref} className={styles.modalBackdrop} aria-label="Cancel reset" />
           <Card
             className={styles.modalCard}
-            title={`Reset password for ${resetDriver.name}`}
+            title={
+              resetSucceeded
+                ? drivers.resetPassword.successTitle
+                : `Reset password for ${resetDriver.name}`
+            }
             titleId="reset-driver-title"
             titleVariant="subheading"
           >
-            <form action={resetDriverPasswordAction} className={styles.inlineForm}>
-              <input type="hidden" name="driver_id" value={resetDriver.id} />
-              <PasswordInput
-                id="temporary_password"
-                name="temporary_password"
-                autoComplete="new-password"
-                placeholder="Enter temporary password"
-                aria-label="New temporary password"
-                minLength={MIN_PASSWORD_LENGTH}
-                required
-              />
-              <div className={styles.actions}>
-                <PendingDriverActionButton
-                  label="Reset password"
-                  pendingLabel="Resetting..."
+            {resetSucceeded ? (
+              <div className={styles.modalSuccess}>
+                <DotLottieAnimation
+                  className={styles.modalSuccessAnimation}
+                  src="/icons/Tick%20success.lottie"
+                  label={drivers.resetPassword.successTitle}
                 />
-                <Button href={baseDriversHref} variant="secondary">
-                  Cancel
-                </Button>
+                <p className={styles.emptyText}>{drivers.resetPassword.successMessage}</p>
+                <div className={styles.actions}>
+                  <Button href={baseDriversHref}>{drivers.resetPassword.closeAction}</Button>
+                </div>
               </div>
-            </form>
+            ) : (
+              <form action={resetDriverPasswordAction} className={styles.inlineForm}>
+                <input type="hidden" name="driver_id" value={resetDriver.id} />
+                <input type="hidden" name="q" value={searchQuery} />
+                {notices?.error ? (
+                  <p className={styles.errorNotice} role="alert">
+                    {notices.error}
+                  </p>
+                ) : null}
+                <PasswordInput
+                  id="temporary_password"
+                  name="temporary_password"
+                  autoComplete="new-password"
+                  placeholder="Enter temporary password"
+                  aria-label="New temporary password"
+                  minLength={MIN_PASSWORD_LENGTH}
+                  required
+                />
+                <div className={styles.actions}>
+                  <PendingDriverActionButton
+                    label="Reset password"
+                    pendingLabel="Resetting..."
+                  />
+                  <Button href={baseDriversHref} variant="secondary">
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            )}
           </Card>
         </div>
       ) : null}

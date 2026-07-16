@@ -169,6 +169,22 @@
   justify-content: center;
 }
 
+.modalSuccess {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.modalSuccessAnimation {
+  height: 5rem;
+  width: 5rem;
+}
+
+.inlineForm > .errorNotice {
+  margin-bottom: 0;
+}
+
 .editForm {
   display: flex;
   flex-direction: column;

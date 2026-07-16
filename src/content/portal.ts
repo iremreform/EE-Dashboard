@@ -275,6 +275,11 @@ export const adminPortal = {
     searchPlaceholder: "Search by name or email...",
     createAction: "Create driver",
     accountsTitle: "Driver accounts",
+    resetPassword: {
+      successTitle: "Password reset",
+      successMessage: "The temporary password has been updated successfully.",
+      closeAction: "Close",
+    },
     rows: [
       {
         name: "John Davis",

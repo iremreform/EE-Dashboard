@@ -27,14 +27,19 @@ export async function reenableDriverAction(formData: FormData) {
 export async function resetDriverPasswordAction(formData: FormData) {
   const { admin } = await requireActiveAdmin();
   const driverId = getFormValue(formData, "driver_id");
+  const searchQuery = getFormValue(formData, "q");
   const temporaryPassword = getFormValue(formData, "temporary_password");
+  const resetParams = {
+    reset: driverId,
+    ...(searchQuery ? { q: searchQuery } : {}),
+  };
 
   if (!driverId) {
     redirectWithError(ERROR_MESSAGES.missingDriver);
   }
 
   if (temporaryPassword.length < MIN_PASSWORD_LENGTH) {
-    redirectWithError(ERROR_MESSAGES.password, { reset: driverId });
+    redirectWithError(ERROR_MESSAGES.password, resetParams);
   }
 
   try {
@@ -45,11 +50,15 @@ export async function resetDriverPasswordAction(formData: FormData) {
     });
   } catch (error) {
     console.error("Unable to reset driver password", error);
-    redirectWithError(ERROR_MESSAGES.reset, { reset: driverId });
+    redirectWithError(ERROR_MESSAGES.reset, resetParams);
   }
 
   revalidatePath("/admin/drivers");
-  redirect("/admin/drivers?saved=password-reset");
+  const successQuery = new URLSearchParams({
+    saved: "password-reset",
+    ...resetParams,
+  });
+  redirect(`/admin/drivers?${successQuery.toString()}`);
 }
 
 async function updateDriverStatus(formData: FormData, status: "active" | "disabled") {
