@@ -49,6 +49,12 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+Run the automated unit suite with:
+
+```bash
+npm test
+```
+
 ## Environment
 
 Copy `.env.example` to `.env.local` and fill in the Supabase values:
@@ -63,7 +69,7 @@ SUPABASE_SECRET_KEY=
 
 ## Backend setup
 
-Supabase is configured for the current staging project. The initial schema and seed data were applied in the Supabase dashboard on June 27, 2026, then the one-time SQL files were removed from the repo.
+Supabase is configured for the current staging project. The initial schema and seed data were applied in the Supabase dashboard on June 27, 2026. A seed-free, security-hardened baseline is now versioned at `supabase/migrations/20260716090000_portal_baseline.sql`; see `supabase/README.md` before applying it to an existing project.
 
 Current backend state:
 
@@ -87,7 +93,7 @@ Current backend state:
 - `/admin/submissions/[id]/pdf` generates a private, non-cacheable branded PDF with report fields, uploaded photos, and the guest signature, and records the export in `audit_events`.
 - `/driver/complete?report=...` lets the submitting active driver append notes immediately after submit; `/driver/reports` and `/driver/reports/[id]` let active drivers revisit their own locked reports and append follow-up notes.
 - `/api/driver/reservations` lets active drivers look up Supabase reservations for delivery/pickup auto-fill.
-- Broad client-side RLS policies are intentionally not used; application data access stays behind protected Next.js server routes/actions using `SUPABASE_SECRET_KEY`. The application boundary has been audited, but live Supabase RLS/database grants and Storage policies must still be reviewed in the Supabase dashboard before production launch.
+- Broad client-side RLS policies are intentionally not used; application data access stays behind protected Next.js server routes/actions using `SUPABASE_SECRET_KEY`. The application boundary and live Supabase configuration were reviewed on July 16, 2026: all app tables have RLS enabled with no public policies, `anon`/`authenticated` object privileges were revoked, future `postgres` defaults were hardened, private Storage buckets have no broad object policies, Postgres SSL is enforced, and external direct database access is blocked by network restrictions.
 
 ## Routes (implemented)
 
@@ -135,4 +141,4 @@ Static prototypes live in `reference/` for flow and layout context (agents, deve
 
 - Agree the Google Sheet columns/access model and synchronize it into the existing Supabase reservation lookup flow.
 - After client approval, create a private Cloudflare R2 bucket and replace the current Supabase Storage upload/read layer with production-grade multipart uploads for 1–2 minute 4K videos.
-- Complete the production Resend/domain handoff, Vercel account transfer, security review, device QA, and remaining items in `docs/launch-checklist.md`.
+- Complete the production Resend/domain handoff, Vercel account transfer, device QA, provider credential handoff, and remaining items in `docs/launch-checklist.md`.

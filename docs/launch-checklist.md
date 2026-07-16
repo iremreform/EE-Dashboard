@@ -60,8 +60,9 @@ Use this as the final handoff checklist before the Energetic Exotics portal hand
 
 ## Data and security
 
-- [ ] Preserve a versioned production database schema/migration in the repository.
-- [ ] Review Supabase RLS, service-key boundaries, and storage access policies.
+- [x] Preserve a seed-free, versioned production database baseline in `supabase/migrations`.
+- [x] Review Supabase RLS, service-key boundaries, database/default privileges, and Storage access policies.
+- [x] Enable Postgres SSL enforcement and block external direct database/pooler access.
 - [ ] Rotate any credentials that were shared during development.
 - [ ] Confirm production secrets exist only in approved provider settings and local ignored files.
 - [ ] Remove or clearly identify all demo/test users, reservations, reports, and media.

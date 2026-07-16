@@ -62,7 +62,7 @@ Active responsibilities:
 
 Implemented workflows include login/logout, required password change, driver management, report persistence, reservation lookup, media finalization, notes, alerts, audit history, admin edits, and PDF export.
 
-The Next.js application boundary review is complete: privileged clients remain server-only, protected routes require an active role, pending media is scoped to its driver, and private API responses are not cached. Production hardening still requires a versioned schema/migration, a live Supabase RLS/grants and Storage-policy review, credential rotation, and final provider URL/domain configuration.
+The Next.js application boundary review is complete: privileged clients remain server-only, protected routes require an active role, pending media is scoped to its driver, and private API responses are not cached. The live Supabase review was completed on July 16, 2026: app tables use default-deny RLS, browser roles have no app-table/function privileges, future `postgres` defaults are hardened, Storage buckets are private with no broad object policies, Postgres SSL is enforced, and direct database/pooler access is network-blocked. A seed-free baseline is versioned under `supabase/migrations`. Remaining production hardening covers provider credential rotation/handoff and final provider URL/domain configuration.
 
 ### Admin password recovery
 
