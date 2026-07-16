@@ -2,12 +2,17 @@
 
 import { redirect } from "next/navigation";
 import { requireActiveAdmin } from "@/lib/admin-auth";
+import {
+  clearAdminRecoveryProof,
+  hasAdminRecoveryProof,
+} from "@/lib/admin-recovery";
+import { MIN_PASSWORD_LENGTH } from "@/lib/password-policy";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const ERROR_MESSAGES = {
   current: "Current password is incorrect.",
   mismatch: "New password and confirmation do not match.",
-  password: "New password must be at least 6 characters.",
+  password: `New password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
   required: "Current password, new password, and confirmation are required.",
   same: "New password must be different from your current password.",
   unknown: "Password could not be changed. Please try again.",
@@ -16,7 +21,7 @@ const ERROR_MESSAGES = {
 export async function changeAdminPasswordAction(formData: FormData) {
   const { user } = await requireActiveAdmin({ allowPasswordChangeRequired: true });
   const currentPassword = getFormValue(formData, "current_password");
-  const isRecovery = formData.get("recovery") === "1";
+  const isRecovery = await hasAdminRecoveryProof(user.id);
   const newPassword = getFormValue(formData, "new_password");
   const confirmPassword = getFormValue(formData, "confirm_password");
 
@@ -24,7 +29,7 @@ export async function changeAdminPasswordAction(formData: FormData) {
     redirectWithError(ERROR_MESSAGES.required, isRecovery);
   }
 
-  if (newPassword.length < 6) {
+  if (newPassword.length < MIN_PASSWORD_LENGTH) {
     redirectWithError(ERROR_MESSAGES.password, isRecovery);
   }
 
@@ -61,6 +66,7 @@ export async function changeAdminPasswordAction(formData: FormData) {
     redirectWithError(ERROR_MESSAGES.unknown, isRecovery);
   }
 
+  await clearAdminRecoveryProof();
   redirect("/admin/dashboard?passwordChanged=1");
 }
 

@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import {
   formDataToPayload,
+  getDriverReportValidationError,
   getFormValue,
   parseFuelLevel,
   parseMileage,
@@ -21,7 +22,18 @@ const ERROR_MESSAGES = {
 export async function createDeliverySubmissionAction(formData: FormData) {
   const { driver } = await requireActiveDriver();
   const reservationNumber = getFormValue(formData, "delivery-guest-reservation-number");
+  const uploadedMedia = parseUploadedMediaRefs(formData);
   let completedPublicId = "";
+
+  const validationError = getDriverReportValidationError({
+    formData,
+    media: uploadedMedia,
+    type: "delivery",
+  });
+
+  if (validationError) {
+    redirectWithError(validationError);
+  }
 
   if (!reservationNumber) {
     redirectWithError(ERROR_MESSAGES.reservation);
@@ -50,7 +62,8 @@ export async function createDeliverySubmissionAction(formData: FormData) {
     });
     completedPublicId = submission.publicId;
     await finalizeSubmissionMedia({
-      media: parseUploadedMediaRefs(formData),
+      driverId: driver.id,
+      media: uploadedMedia,
       publicId: submission.publicId,
       submissionId: submission.submissionId,
     });

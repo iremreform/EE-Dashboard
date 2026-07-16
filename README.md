@@ -82,12 +82,12 @@ Current backend state:
 - Admin sidebar logout signs out through Supabase.
 - `/driver/delivery` persists the delivery report payload, payment verified status, new-submission alert, driver last-active timestamp, and audit event.
 - `/driver/pickup` persists the pickup report payload, links to the same reservation, stores checklist state, compares mileage/fuel to the latest delivery report where present, creates an alert, updates driver last-active, and records an audit event.
-- Delivery/pickup selected photos and videos upload directly from the browser to private Supabase Storage bucket `submission-media` via signed upload URLs; report submission finalizes `submission_media` metadata rows.
+- Delivery/pickup selected photos and videos upload directly from the browser to private Supabase Storage bucket `submission-media` via signed upload URLs. The signing/finalization boundary validates same-origin requests, driver-owned pending paths, MIME type, size, stored object metadata, and descriptor limits before finalizing `submission_media` rows.
 - `/admin/submissions/[id]` lets active admins edit lifecycle status, reservation/guest/vehicle details, mileage/fuel, payment verified status, and admin notes.
-- `/admin/submissions/[id]/pdf` generates a branded PDF with report fields, uploaded photos, and the guest signature.
+- `/admin/submissions/[id]/pdf` generates a private, non-cacheable branded PDF with report fields, uploaded photos, and the guest signature, and records the export in `audit_events`.
 - `/driver/complete?report=...` lets the submitting active driver append notes immediately after submit; `/driver/reports` and `/driver/reports/[id]` let active drivers revisit their own locked reports and append follow-up notes.
 - `/api/driver/reservations` lets active drivers look up Supabase reservations for delivery/pickup auto-fill.
-- Broad client-side RLS policies are intentionally not used; application data access stays behind protected Next.js server routes/actions using `SUPABASE_SECRET_KEY`. Review RLS, service-key boundaries, and storage policies again before production launch.
+- Broad client-side RLS policies are intentionally not used; application data access stays behind protected Next.js server routes/actions using `SUPABASE_SECRET_KEY`. The application boundary has been audited, but live Supabase RLS/database grants and Storage policies must still be reviewed in the Supabase dashboard before production launch.
 
 ## Routes (implemented)
 

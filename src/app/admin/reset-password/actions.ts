@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { getAdminAccessByAuthUserId } from "@/lib/admin-auth";
+import { setAdminRecoveryProof } from "@/lib/admin-recovery";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const INVALID_LINK_MESSAGE =
@@ -34,6 +35,7 @@ export async function verifyAdminRecoveryAction(formData: FormData) {
     redirectToRecovery(INACTIVE_ACCOUNT_MESSAGE);
   }
 
+  await setAdminRecoveryProof(data.user.id);
   redirect("/admin/change-password?recovery=1");
 }
 

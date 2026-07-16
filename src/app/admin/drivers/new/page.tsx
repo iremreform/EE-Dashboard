@@ -3,6 +3,7 @@ import { AdminShell } from "@/components/admin";
 import { Button, Card, Field, FormDraftManager, Input, PasswordInput } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
 import { requireActiveAdmin } from "@/lib/admin-auth";
+import { MIN_PASSWORD_LENGTH } from "@/lib/password-policy";
 import { getAdminAlertSummary } from "@/lib/admin-submissions";
 import styles from "../../admin-pages.module.css";
 import { adminLogoutAction } from "../../actions";
@@ -112,6 +113,8 @@ export default async function AdminCreateDriverPage({
                   placeholder={createDriver.sections.access.passwordPlaceholder}
                   aria-describedby={describedBy}
                   hasError={hasError}
+                  minLength={MIN_PASSWORD_LENGTH}
+                  required
                 />
               )}
             </Field>

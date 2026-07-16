@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminAccessByAuthUserId } from "@/lib/admin-auth";
+import { setAdminRecoveryProof } from "@/lib/admin-recovery";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const INVALID_LINK_MESSAGE =
@@ -12,23 +13,18 @@ export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   const callbackUrl = new URL(request.url);
   const errorCode = callbackUrl.searchParams.get("error_code");
-  const authCode = callbackUrl.searchParams.get("code");
   const tokenHash = callbackUrl.searchParams.get("token_hash");
   const recoveryType = callbackUrl.searchParams.get("type");
 
-  if (errorCode || (!authCode && !tokenHash)) {
+  if (errorCode || !tokenHash || recoveryType !== "recovery") {
     return redirectToRecovery(request, INVALID_LINK_MESSAGE);
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error: exchangeError } = tokenHash && recoveryType === "recovery"
-    ? await supabase.auth.verifyOtp({
-        token_hash: tokenHash,
-        type: "recovery",
-      })
-    : authCode
-      ? await supabase.auth.exchangeCodeForSession(authCode)
-      : { error: new Error("Invalid recovery type.") };
+  const { error: exchangeError } = await supabase.auth.verifyOtp({
+    token_hash: tokenHash,
+    type: "recovery",
+  });
 
   if (exchangeError) {
     return redirectToRecovery(request, INVALID_LINK_MESSAGE);
@@ -48,6 +44,7 @@ export async function GET(request: NextRequest) {
     return redirectToRecovery(request, INACTIVE_ACCOUNT_MESSAGE);
   }
 
+  await setAdminRecoveryProof(data.user.id);
   const destination = new URL("/admin/change-password", request.url);
   destination.searchParams.set("recovery", "1");
 

@@ -99,6 +99,31 @@ export function AdminShell({
     }
   }
 
+  async function openAlert(alert: AlertItem) {
+    setIsAlertsOpen(false);
+    setActiveAlertMenuId(null);
+    setActiveAlertMenuPosition(null);
+
+    if (alert.status === "resolved") {
+      router.push(alert.href);
+      return;
+    }
+
+    try {
+      const response = await fetch(alert.href, { method: "POST" });
+      const body = await response.json().catch(() => null) as { destination?: string } | null;
+
+      if (!response.ok || !body?.destination) {
+        throw new Error(`Alert action failed with ${response.status}`);
+      }
+
+      router.push(body.destination);
+      router.refresh();
+    } catch {
+      router.push(alert.href);
+    }
+  }
+
   function deleteAlert(alert: AlertItem) {
     setDeletedAlertIds((currentIds) => new Set(currentIds).add(alert.id));
     setActiveAlertMenuId(null);
@@ -301,10 +326,9 @@ export function AdminShell({
                             <Link
                               className={styles.alertItem}
                               href={alert.href}
-                              onClick={() => {
-                                setIsAlertsOpen(false);
-                                setActiveAlertMenuId(null);
-                                setActiveAlertMenuPosition(null);
+                              onClick={(event) => {
+                                event.preventDefault();
+                                void openAlert(alert);
                               }}
                             >
                               <strong>{alert.title}</strong>

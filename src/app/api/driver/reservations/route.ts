@@ -8,27 +8,34 @@ export async function GET(request: Request) {
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonResponse({ error: "Unauthorized" }, 401);
   }
 
   const driver = await getDriverAccessByAuthUserId(data.user.id);
 
   if (!driver || driver.status !== "active") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return jsonResponse({ error: "Forbidden" }, 403);
   }
 
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("query")?.trim();
 
   if (!query) {
-    return NextResponse.json({ error: "Missing reservation query" }, { status: 400 });
+    return jsonResponse({ error: "Missing reservation query" }, 400);
   }
 
   const reservation = await lookupDriverReservation(query);
 
   if (!reservation) {
-    return NextResponse.json({ error: "Reservation not found" }, { status: 404 });
+    return jsonResponse({ error: "Reservation not found" }, 404);
   }
 
-  return NextResponse.json({ reservation });
+  return jsonResponse({ reservation });
+}
+
+function jsonResponse(body: unknown, status = 200) {
+  return NextResponse.json(body, {
+    headers: { "Cache-Control": "private, no-store" },
+    status,
+  });
 }

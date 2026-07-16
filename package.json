@@ -2,6 +2,9 @@
   "name": "energetic-exotics-dashboard",
   "version": "0.1.0",
   "private": true,
+  "overrides": {
+    "postcss": "^8.5.10"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -12,7 +15,7 @@
     "@lottiefiles/dotlottie-react": "^0.19.4",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
-    "next": "^16.2.9",
+    "next": "^16.2.10",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "sharp": "^0.34.5"
@@ -22,7 +25,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.4",
-    "eslint-config-next": "^16.2.9",
+    "eslint-config-next": "^16.2.10",
     "typescript": "^5.9.3"
   }
 }

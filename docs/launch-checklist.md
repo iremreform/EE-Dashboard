@@ -2,8 +2,6 @@
 
 Use this as the final handoff checklist before the Energetic Exotics portal handles live reservations, reports, and media. Keep credentials out of this file, Git, Slack, and support messages.
 
-**Current staging snapshot:** Supabase is already client-owned. Vercel transfer is planned. Admin recovery uses temporary Resend SMTP with `onboarding@resend.dev`; the token-hash template and scanner-safe confirmation page are active, but the client-owned Resend account/domain handoff remains pending.
-
 ## Client-owned accounts and access
 
 - [ ] Client creates or takes ownership of the production Resend account.
@@ -15,7 +13,7 @@ Use this as the final handoff checklist before the Energetic Exotics portal hand
 
 ## Domains and DNS
 
-- [ ] Choose the final portal domain, such as `portal.energeticexotics.com`.
+- [ ] Choose the final portal domain, such as `app.energeticexotics.com`.
 - [ ] Connect the portal domain to Vercel and verify HTTPS.
 - [ ] Choose a transactional email subdomain, such as `auth.energeticexotics.com`.
 - [ ] Add Resend's SPF and DKIM records to the client's DNS.
@@ -31,7 +29,7 @@ Use this as the final handoff checklist before the Energetic Exotics portal hand
 - [ ] Update the Supabase Site URL to the final production portal domain.
 - [ ] Add the production reset URL: `https://<portal-domain>/admin/reset-password`.
 - [ ] Keep `http://localhost:3000/admin/reset-password` only if local recovery testing is still needed.
-- [x] Replace the Reset password template with the token-hash template documented in `external-sources.md`.
+- [ ] Replace the Reset password template with the token-hash template documented in `external-sources.md`.
 - [ ] Set an appropriate password-reset expiry and email rate limit.
 - [ ] Test admin recovery from request through successful sign-in.
 - [ ] Confirm disabled admins cannot complete recovery.

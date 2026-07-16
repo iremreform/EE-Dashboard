@@ -62,7 +62,7 @@ Active responsibilities:
 
 Implemented workflows include login/logout, required password change, driver management, report persistence, reservation lookup, media finalization, notes, alerts, audit history, admin edits, and PDF export.
 
-Production hardening still requires a versioned schema/migration, an RLS/service-key review, credential rotation, and final provider URL/domain configuration.
+The Next.js application boundary review is complete: privileged clients remain server-only, protected routes require an active role, pending media is scoped to its driver, and private API responses are not cached. Production hardening still requires a versioned schema/migration, a live Supabase RLS/grants and Storage-policy review, credential rotation, and final provider URL/domain configuration.
 
 ### Admin password recovery
 
@@ -70,7 +70,8 @@ Production hardening still requires a versioned schema/migration, an RLS/service
 - Admins request recovery from `/admin/forgot-password`.
 - Reset emails link to `/admin/reset-password?token_hash=...&type=recovery`.
 - The GET page only displays a Continue action so email security scanners cannot consume the token.
-- Continue verifies the recovery OTP, confirms an active `admin_users` record, and redirects to `/admin/change-password?recovery=1`.
+- Continue verifies the recovery OTP, confirms an active `admin_users` record, creates a 15-minute signed HTTP-only recovery proof bound to that auth user, and redirects to `/admin/change-password?recovery=1`.
+- The change-password action trusts the signed recovery proof, not the `recovery=1` query or form value.
 - The recovery response remains generic so it does not reveal whether an email address belongs to an admin.
 
 Current Reset password template:

@@ -1,11 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-
-type RecoveryTargetResponse = {
-  target?: string;
-};
 
 const EXPIRED_RECOVERY_MESSAGE =
   "Password reset link is invalid or expired. Please request a new link.";
@@ -38,44 +33,10 @@ export function AuthRecoveryRedirect() {
       return;
     }
 
-    const accessToken = params.get("access_token");
-    const refreshToken = params.get("refresh_token");
-
-    if (!accessToken || !refreshToken) {
-      return;
-    }
-
-    const recoveryAccessToken = accessToken;
-    const recoveryRefreshToken = refreshToken;
-    let isMounted = true;
-
-    async function handleRecovery() {
-      const supabase = createSupabaseBrowserClient();
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: recoveryAccessToken,
-        refresh_token: recoveryRefreshToken,
-      });
-
-      window.history.replaceState(null, "", window.location.pathname);
-
-      if (sessionError || !isMounted) {
-        window.location.assign(
-          `/admin/forgot-password?error=${encodeURIComponent(EXPIRED_RECOVERY_MESSAGE)}`,
-        );
-        return;
-      }
-
-      const response = await fetch("/api/auth/recovery-target", { cache: "no-store" });
-      const body = await response.json().catch(() => ({})) as RecoveryTargetResponse;
-
-      window.location.assign(body.target ?? "/admin/change-password?recovery=1");
-    }
-
-    void handleRecovery();
-
-    return () => {
-      isMounted = false;
-    };
+    window.history.replaceState(null, "", window.location.pathname);
+    window.location.assign(
+      `/admin/forgot-password?error=${encodeURIComponent(EXPIRED_RECOVERY_MESSAGE)}`,
+    );
   }, []);
 
   return null;

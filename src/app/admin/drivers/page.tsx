@@ -3,6 +3,7 @@ import { AdminShell } from "@/components/admin";
 import { Button, Card, Field, Input, PasswordInput, Tag } from "@/components/ui";
 import { PageIntro } from "@/components/layout";
 import { requireActiveAdmin } from "@/lib/admin-auth";
+import { MIN_PASSWORD_LENGTH } from "@/lib/password-policy";
 import { getAdminDriverAuditEvents, getAdminDrivers } from "@/lib/admin-drivers";
 import { getAdminAlertSummary } from "@/lib/admin-submissions";
 import styles from "../admin-pages.module.css";
@@ -130,6 +131,7 @@ export default async function AdminDriversPage({ searchParams }: AdminDriversPag
                 autoComplete="new-password"
                 placeholder="Enter temporary password"
                 aria-label="New temporary password"
+                minLength={MIN_PASSWORD_LENGTH}
                 required
               />
               <div className={styles.actions}>

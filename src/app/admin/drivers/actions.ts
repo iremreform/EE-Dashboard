@@ -7,10 +7,11 @@ import {
   resetAdminDriverPassword,
   setAdminDriverStatus,
 } from "@/lib/admin-drivers";
+import { MIN_PASSWORD_LENGTH } from "@/lib/password-policy";
 
 const ERROR_MESSAGES = {
   missingDriver: "Driver action could not be completed. Please try again.",
-  password: "Temporary password must be at least 6 characters.",
+  password: `Temporary password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
   reset: "Password could not be reset. Please try again.",
   status: "Driver status could not be updated. Please try again.",
 } as const;
@@ -32,7 +33,7 @@ export async function resetDriverPasswordAction(formData: FormData) {
     redirectWithError(ERROR_MESSAGES.missingDriver);
   }
 
-  if (temporaryPassword.length < 6) {
+  if (temporaryPassword.length < MIN_PASSWORD_LENGTH) {
     redirectWithError(ERROR_MESSAGES.password, { reset: driverId });
   }
 

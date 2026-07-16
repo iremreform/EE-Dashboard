@@ -58,8 +58,12 @@ Current as of July 2026. This task list reflects the implemented application, th
 ## Launch hardening
 
 - [ ] Preserve a versioned production schema/migration in the repository; keep demo seed data separate and non-production.
-- [ ] Review Supabase RLS, service-key boundaries, storage policies, and signed URL expiry.
-- [ ] Complete audit coverage for admin report views, PDF exports, and explicit archive events; current history already covers submission creation, notes, report edits/status changes, and driver account actions.
+- [x] Audit Next.js authorization and service-key boundaries; protected data stays behind active-role checks and server-only Supabase admin clients.
+- [x] Harden staging media routes with same-origin mutation checks, per-driver pending-path ownership, MIME/size allowlists, stored-object metadata verification, bounded descriptors, and private no-store responses.
+- [x] Bind admin recovery mode to a short-lived signed HTTP-only proof rather than a client-controlled form/query value.
+- [x] Update Next.js to `16.2.10`, override PostCSS to the fixed `8.5.19`, and verify `npm audit --omit=dev` reports zero vulnerabilities.
+- [ ] Review the live Supabase RLS/database grants and Storage bucket policies in the Supabase dashboard; confirm the current one-hour staging signed-read expiry or shorten it after real 4K playback testing.
+- [ ] Complete audit coverage for admin report views and explicit archive events; PDF exports, submission creation, notes, report edits/status changes, and driver account actions are recorded.
 - [ ] Add focused automated coverage for authorization, form persistence, reservation matching, driver ownership, and status/audit behavior.
 - [ ] Test 4K uploads, retries, interrupted connections, and mobile camera/gallery behavior on real phones and iPads.
 - [ ] Complete desktop/tablet/mobile visual and accessibility QA.

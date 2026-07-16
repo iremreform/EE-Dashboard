@@ -3,10 +3,11 @@
 import { redirect } from "next/navigation";
 import { requireActiveAdmin } from "@/lib/admin-auth";
 import { createAdminDriver } from "@/lib/admin-drivers";
+import { MIN_PASSWORD_LENGTH } from "@/lib/password-policy";
 
 const ERROR_MESSAGES = {
   duplicate: "A driver with this email already exists.",
-  password: "Temporary password must be at least 6 characters.",
+  password: `Temporary password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
   required: "First name, last name, email, and temporary password are required.",
   unknown: "Driver could not be created. Please try again.",
 } as const;
@@ -23,7 +24,7 @@ export async function createDriverAction(formData: FormData) {
     redirectWithError(ERROR_MESSAGES.required);
   }
 
-  if (temporaryPassword.length < 6) {
+  if (temporaryPassword.length < MIN_PASSWORD_LENGTH) {
     redirectWithError(ERROR_MESSAGES.password);
   }
 

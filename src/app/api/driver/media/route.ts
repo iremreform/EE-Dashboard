@@ -5,6 +5,7 @@ import {
   removePendingMediaUpload,
 } from "@/lib/driver-media";
 import { getMediaUploadLimitLabel, type MediaKind } from "@/lib/media-limits";
+import { isSameOriginRequest } from "@/lib/request-security";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type MediaRequestBody = {
@@ -16,21 +17,27 @@ type MediaRequestBody = {
 };
 
 export async function POST(request: Request) {
+  if (!isSameOriginRequest(request)) {
+    return jsonResponse({ error: "Forbidden" }, 403);
+  }
+
   const driver = await requireActiveDriverForApi();
 
   if (driver instanceof NextResponse) {
     return driver;
   }
 
-  const body = (await request.json()) as MediaRequestBody;
+  const body = await readMediaRequestBody(request);
 
   if (
-    !body.fileName ||
+    !body?.fileName ||
     !body.mediaKind ||
     !isMediaKind(body.mediaKind) ||
+    body.fileName.length > 255 ||
+    (body.contentType?.length ?? 0) > 100 ||
     typeof body.sizeBytes !== "number"
   ) {
-    return NextResponse.json({ error: "Invalid media upload request" }, { status: 400 });
+    return jsonResponse({ error: "Invalid media upload request" }, 400);
   }
 
   try {
@@ -42,31 +49,40 @@ export async function POST(request: Request) {
       sizeBytes: body.sizeBytes,
     });
 
-    return NextResponse.json(upload);
+    return jsonResponse(upload);
   } catch (error) {
     const message = error instanceof Error
       ? error.message
       : `File must be ${getMediaUploadLimitLabel(body.mediaKind)} or smaller.`;
 
-    return NextResponse.json({ error: message }, { status: 413 });
+    return jsonResponse({ error: message }, 400);
   }
 }
 
 export async function DELETE(request: Request) {
+  if (!isSameOriginRequest(request)) {
+    return jsonResponse({ error: "Forbidden" }, 403);
+  }
+
   const driver = await requireActiveDriverForApi();
 
   if (driver instanceof NextResponse) {
     return driver;
   }
 
-  const body = (await request.json()) as MediaRequestBody;
+  const body = await readMediaRequestBody(request);
 
-  if (!body.path) {
-    return NextResponse.json({ error: "Missing media path" }, { status: 400 });
+  if (!body?.path) {
+    return jsonResponse({ error: "Missing media path" }, 400);
   }
 
-  await removePendingMediaUpload(body.path);
-  return NextResponse.json({ ok: true });
+  try {
+    await removePendingMediaUpload(body.path, driver.id);
+    return jsonResponse({ ok: true });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unable to remove media upload.";
+    return jsonResponse({ error: message }, 403);
+  }
 }
 
 async function requireActiveDriverForApi() {
@@ -74,13 +90,13 @@ async function requireActiveDriverForApi() {
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonResponse({ error: "Unauthorized" }, 401);
   }
 
   const driver = await getDriverAccessByAuthUserId(data.user.id);
 
   if (!driver || driver.status !== "active") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return jsonResponse({ error: "Forbidden" }, 403);
   }
 
   return driver;
@@ -88,4 +104,19 @@ async function requireActiveDriverForApi() {
 
 function isMediaKind(value: string): value is MediaKind {
   return value === "photo" || value === "video" || value === "license";
+}
+
+async function readMediaRequestBody(request: Request) {
+  try {
+    return (await request.json()) as MediaRequestBody;
+  } catch {
+    return null;
+  }
+}
+
+function jsonResponse(body: unknown, status = 200) {
+  return NextResponse.json(body, {
+    headers: { "Cache-Control": "private, no-store" },
+    status,
+  });
 }

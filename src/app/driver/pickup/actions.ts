@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import {
   formDataToPayload,
+  getDriverReportValidationError,
   getFormValue,
   parseFuelLevel,
   parseMileage,
@@ -22,7 +23,18 @@ const ERROR_MESSAGES = {
 export async function createPickupSubmissionAction(formData: FormData) {
   const { driver } = await requireActiveDriver();
   const reservationNumber = getReservationNumber(formData);
+  const uploadedMedia = parseUploadedMediaRefs(formData);
   let completedPublicId = "";
+
+  const validationError = getDriverReportValidationError({
+    formData,
+    media: uploadedMedia,
+    type: "pickup",
+  });
+
+  if (validationError) {
+    redirectWithError(validationError);
+  }
 
   if (!reservationNumber) {
     redirectWithError(ERROR_MESSAGES.reservation);
@@ -57,7 +69,8 @@ export async function createPickupSubmissionAction(formData: FormData) {
     });
     completedPublicId = submission.publicId;
     await finalizeSubmissionMedia({
-      media: parseUploadedMediaRefs(formData),
+      driverId: driver.id,
+      media: uploadedMedia,
       publicId: submission.publicId,
       submissionId: submission.submissionId,
     });

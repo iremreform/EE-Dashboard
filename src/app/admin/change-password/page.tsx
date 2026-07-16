@@ -2,6 +2,8 @@ import { areas } from "@/content/portal";
 import { Button, Card, Field, PasswordInput } from "@/components/ui";
 import { PageIntro, PageShell } from "@/components/layout";
 import { requireActiveAdmin } from "@/lib/admin-auth";
+import { hasAdminRecoveryProof } from "@/lib/admin-recovery";
+import { MIN_PASSWORD_LENGTH } from "@/lib/password-policy";
 import styles from "@/components/layout/PageContent.module.css";
 import { changeAdminPasswordAction } from "./actions";
 import { ChangePasswordSubmitButton } from "./ChangePasswordSubmitButton";
@@ -19,9 +21,9 @@ export const dynamic = "force-dynamic";
 export default async function AdminChangePasswordPage({
   searchParams,
 }: AdminChangePasswordPageProps) {
-  await requireActiveAdmin({ allowPasswordChangeRequired: true });
+  const { user } = await requireActiveAdmin({ allowPasswordChangeRequired: true });
   const notices = await searchParams;
-  const isRecovery = notices?.recovery === "1";
+  const isRecovery = await hasAdminRecoveryProof(user.id);
 
   return (
     <PageShell backHref="/" centerContent width="narrow">
@@ -35,8 +37,6 @@ export default async function AdminChangePasswordPage({
 
       <Card className={styles.formCard}>
         <form action={changeAdminPasswordAction} className={styles.formStack} noValidate>
-          {isRecovery ? <input type="hidden" name="recovery" value="1" /> : null}
-
           {notices?.error ? (
             <p className={styles.loginError} role="alert">
               {notices.error}
@@ -68,6 +68,7 @@ export default async function AdminChangePasswordPage({
                 placeholder="New password"
                 aria-describedby={describedBy}
                 hasError={hasError}
+                minLength={MIN_PASSWORD_LENGTH}
                 required
               />
             )}
@@ -82,6 +83,7 @@ export default async function AdminChangePasswordPage({
                 placeholder="Confirm new password"
                 aria-describedby={describedBy}
                 hasError={hasError}
+                minLength={MIN_PASSWORD_LENGTH}
                 required
               />
             )}

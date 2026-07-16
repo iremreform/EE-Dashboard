@@ -13,5 +13,7 @@ async function logoutDriver(request: Request) {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
 
-  return NextResponse.redirect(new URL("/driver/login", request.url), 303);
+  const response = NextResponse.redirect(new URL("/driver/login", request.url), 303);
+  response.headers.set("Cache-Control", "private, no-store");
+  return response;
 }
