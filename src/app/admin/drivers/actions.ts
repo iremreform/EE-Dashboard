@@ -43,7 +43,8 @@ export async function resetDriverPasswordAction(formData: FormData) {
       driverId,
       temporaryPassword,
     });
-  } catch {
+  } catch (error) {
+    console.error("Unable to reset driver password", error);
     redirectWithError(ERROR_MESSAGES.reset, { reset: driverId });
   }
 

@@ -267,7 +267,7 @@ export async function resetAdminDriverPassword({
   const supabase = createSupabaseAdminClient();
   const { data: driver, error: driverError } = await supabase
     .from("drivers")
-    .select("id, auth_user_id, email")
+    .select("id, auth_user_id, email, first_name, last_name")
     .eq("id", driverId)
     .maybeSingle();
 
@@ -275,22 +275,63 @@ export async function resetAdminDriverPassword({
     throw new Error(`Unable to load driver before password reset: ${driverError.message}`);
   }
 
-  if (!driver?.auth_user_id) {
-    throw new Error("Driver does not have a linked auth user.");
+  if (!driver) {
+    throw new Error("Driver does not exist.");
   }
 
-  const { data: authUser } = await supabase.auth.admin.getUserById(driver.auth_user_id);
+  if (!driver.auth_user_id) {
+    const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+      email: driver.email,
+      email_confirm: true,
+      password: temporaryPassword,
+      user_metadata: {
+        first_name: driver.first_name,
+        last_name: driver.last_name,
+        must_change_password: true,
+        role: "driver",
+      },
+    });
 
-  const { error: authError } = await supabase.auth.admin.updateUserById(driver.auth_user_id, {
-    user_metadata: {
-      ...(authUser.user?.user_metadata ?? {}),
-      must_change_password: true,
-    },
-    password: temporaryPassword,
-  });
+    if (authError) {
+      throw new Error(`Unable to create driver auth user: ${authError.message}`);
+    }
 
-  if (authError) {
-    throw new Error(`Unable to reset driver password: ${authError.message}`);
+    const { data: linkedDriver, error: linkError } = await supabase
+      .from("drivers")
+      .update({ auth_user_id: authUser.user.id })
+      .eq("id", driver.id)
+      .is("auth_user_id", null)
+      .select("id")
+      .maybeSingle();
+
+    if (linkError || !linkedDriver) {
+      await supabase.auth.admin.deleteUser(authUser.user.id);
+      throw new Error(
+        `Unable to link driver auth user: ${linkError?.message ?? "Driver was linked elsewhere."}`,
+      );
+    }
+  } else {
+    const { data: authUser, error: userError } = await supabase.auth.admin.getUserById(
+      driver.auth_user_id,
+    );
+
+    if (userError || !authUser.user) {
+      throw new Error(
+        `Unable to load driver auth user: ${userError?.message ?? "Auth user does not exist."}`,
+      );
+    }
+
+    const { error: authError } = await supabase.auth.admin.updateUserById(driver.auth_user_id, {
+      user_metadata: {
+        ...authUser.user.user_metadata,
+        must_change_password: true,
+      },
+      password: temporaryPassword,
+    });
+
+    if (authError) {
+      throw new Error(`Unable to reset driver password: ${authError.message}`);
+    }
   }
 
   await logDriverAuditEvent({
